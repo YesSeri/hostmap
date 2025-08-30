@@ -1,0 +1,32 @@
+** ceph-mon-p101
+/nix/store/gmq580hq8dcx33hppzgw0rgfqib66wdr-nixos-system-ceph-mon-p101-20.03post-git
+--
+** ceph-mon-p201
+/nix/store/452drr6bhxh744rhfy0xvw6xhjpm2fx3-nixos-system-ceph-mon-p201-20.03post-git
+--
+** ceph-mon-p202
+/nix/store/hs7271xvcw58pq029v7s84yp1fg8m803-nixos-system-ceph-mon-p202-20.03post-git
+--
+** ceph-mon-p301
+/nix/store/4dkd1pirdq0i1qn4i73hgkfq9hnzpppb-nixos-system-ceph-mon-p301-20.03post-git
+--
+** ceph-mon-p302
+/nix/store/lzbfzrsfa7icv22gcrm6d604il8n3sky-nixos-system-ceph-mon-p302-20.03post-git
+--
+** ceph-sto-p101
+/nix/store/pa1am409p4rwqgllkkgfk10jmmz0sg34-nixos-system-ceph-sto-p101-20.03post-git
+--
+** ceph-sto-p102
+/nix/store/piw6aalbh1zqh38d5j00jky18ylhjs5d-nixos-system-ceph-sto-p102-20.03post-git
+--
+** ceph-sto-p201
+/nix/store/zpqkgm06sd06w0mbi2lh1i74lbsqmrn0-nixos-system-ceph-sto-p201-20.03post-git
+--
+** ceph-sto-p202
+/nix/store/3vq99c1il6y3gis3p03117ss2bda75q9-nixos-system-ceph-sto-p202-20.03post-git
+--
+** ceph-sto-p301
+/nix/store/yqa05n72i18329zv8sl9cwjh7lba99bg-nixos-system-ceph-sto-p301-20.03post-git
+--
+** ceph-sto-p302
+/nix/store/s0nph0l516y2vppqlscd30jfnhlw9iss-nixos-system-ceph-sto-p302-20.03post-git

@@ -1,0 +1,8 @@
+** artifactory-p101
+/nix/store/qf0v5yh45xp60xxp37y8g72gm1f1smw6-nixos-system-artifactory-p101-20.03post-git
+--
+** artifactory-p201
+ssh: connect to host artifactory-p201 port 22: No route to host
+--
+** artifactory-p301
+/nix/store/648yf3aavf6fcrl75fzxkd0zif3z5kqj-nixos-system-artifactory-p301-20.03post-git

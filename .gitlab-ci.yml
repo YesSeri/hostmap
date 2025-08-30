@@ -1,0 +1,20 @@
+build:
+  script:
+    - nix --experimental-features "nix-command flakes"
+        flake check
+  except:
+    variables:
+      - $ACTION
+
+bump-o-matic:
+  script:
+    - nix --experimental-features "nix-command flakes"
+        flake update
+    - TOKEN=$BUMP_O_MATIC_TOKEN
+        nix --experimental-features "nix-command flakes"
+          develop
+          --option tarball-ttl 0
+          -c bump-o-matic bump
+  only:
+    variables:
+      - $ACTION == "bump-o-matic"

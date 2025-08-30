@@ -1,0 +1,13 @@
+{
+    "name": "dbcdk/hostoverview",
+    "type": "project",
+    "require": {
+        "sensiolabs/ansi-to-html": "^1.2"
+    },
+    "authors": [
+        {
+            "name": "Johan Thomsen",
+            "email": "jth@dbc.dk"
+        }
+    ]
+}

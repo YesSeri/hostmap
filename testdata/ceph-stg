@@ -1,0 +1,20 @@
+** cephmon-s01
+/nix/store/856nndff03w7g1929m684pjr0cdbj2il-nixos-system-cephmon-s01-20.03post-git
+--
+** cephmon-s02
+/nix/store/bb2vzdc8qwahg3z170sqk5n3sppd8bl6-nixos-system-cephmon-s02-20.03post-git
+--
+** cephmon-s03
+/nix/store/1bk82bicrid6k74aq6371h2sh6b67h4k-nixos-system-cephmon-s03-20.03post-git
+--
+** ceph-s01
+/nix/store/hhgfd9m8dnznfk4fd69f8q1ykaw7pa4a-nixos-system-ceph-s01-20.03post-git
+--
+** ceph-s02
+/nix/store/00rjc35g9k0skz3vcjlazf953h9550rx-nixos-system-ceph-s02-20.03post-git
+--
+** ceph-s03
+/nix/store/csd8q68kwzi0370x609hwrvxddkk9fbi-nixos-system-ceph-s03-20.03post-git
+--
+** ceph-s04
+/nix/store/pv2yyqg985cp0mqx8gw39abln7ns1225-nixos-system-ceph-s04-20.03post-git
