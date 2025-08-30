@@ -1,75 +1,64 @@
-pub(crate) mod controller;
-pub(crate) mod model;
-pub(crate) mod repository;
-pub(crate) mod viewmodel;
-use std::{path::Path, sync::Arc};
-use tower_http::
-    services::ServeDir
-;
+use std::sync::{Arc, Mutex};
 
-use axum::{routing::get, Router};
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
-use tera::Tera;
+use axum::{extract, response, routing::get, Router};
 
 #[derive(Debug, Clone)]
 struct AppState {
-    tera: Arc<Tera>,
-    db: Pool<Postgres>,
+    counter: Arc<Mutex<isize>>,
 }
 
 impl AppState {
-    fn new(tera: Arc<Tera>, db: Pool<Postgres>) -> Self {
-        Self { tera, db }
+    fn new(counter: Arc<Mutex<isize>>) -> Self {
+        Self { counter }
     }
 }
 
 #[tokio::main]
 async fn main() {
-    let tera = Arc::new(load_tera());
-    let db_url =
-        std::env::var("DATABASE_URL").expect("could not find database url as environment variable");
-    let db = PgPoolOptions::new()
-        .max_connections(8)
-        .connect(&db_url)
-        .await
-        .expect("failed to connect to DATABASE_URL");
-
-    let app_state = AppState::new(tera, db);
+    let counter = Arc::new(Mutex::new(0));
+    let app_state = AppState::new(counter);
     let app = Router::new()
-        .route("/", get(controller::frontpage::render_frontpage))
-        .nest_service("/assets", ServeDir::new("assets"))
+        .route("/", get(homepage))
+        .route("/increment", get(increment))
+        .route("/decrement", get(decrement))
         .with_state(app_state);
 
-	let bind_addr = "127.0.0.1:3000";
-    let listener = tokio::net::TcpListener::bind(bind_addr)
-        .await
-        .unwrap();
-	
-	println!("Creating server at {bind_addr}");
+    let bind_addr = "127.0.0.1:3000";
+    let listener = tokio::net::TcpListener::bind(bind_addr).await.unwrap();
+
+    println!("Creating server at http://{bind_addr}");
 
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
 }
 
-fn load_tera() -> Tera {
-    let mut tera = Tera::default();
+async fn homepage(
+    extract::State(AppState { counter }): extract::State<AppState>,
+) -> response::Html<String> {
+    let val: isize = *counter.lock().unwrap();
+    response::Html(format!(include_str!("../index.html"), val))
+}
 
-    tera.add_template_file(
-        Path::new("templates/base.html.tera"),
-        Some("base.html.tera"),
-    )
-    .unwrap();
-    tera.add_template_file(
-        Path::new("templates/frontpage.html.tera"),
-        Some("frontpage.html.tera"),
-    )
-    .unwrap();
-    tera.add_template_file(
-        Path::new("templates/group.html.tera"),
-        Some("group.html.tera"),
-    )
-    .unwrap();
+async fn increment(
+    extract::State(AppState { counter }): extract::State<AppState>,
+) -> impl response::IntoResponse {
+    let f = |x: isize| x.saturating_add(1);
+    change_counter(counter, f)
+}
 
-    tera
+async fn decrement(
+    extract::State(AppState { counter }): extract::State<AppState>,
+) -> impl response::IntoResponse {
+    let f = |x: isize| x.saturating_sub(1);
+    change_counter(counter, f)
+}
+
+fn change_counter(
+    counter: Arc<Mutex<isize>>,
+    f: fn(isize) -> isize,
+) -> impl response::IntoResponse {
+    let mut val_ref = counter.lock().unwrap();
+    *val_ref = f(*val_ref);
+    response::Redirect::permanent("/")
 }
