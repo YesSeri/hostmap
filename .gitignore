@@ -1,1 +1,6 @@
-result*
+/example-site
+/target
+/pg
+/.env
+/postgres.log
+/.zed
