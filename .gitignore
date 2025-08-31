@@ -1,7 +1,6 @@
-/example-site
 /target
 /pg
 /.env
 /postgres.log
-/.zed
 /.pre-commit-config.yaml
+/result

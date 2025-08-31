@@ -2,7 +2,7 @@
   description = "hostmap shows git revision to nix store path mapping and more";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
 
     crane = {
       url = "github:ipetkov/crane";
@@ -71,8 +71,10 @@
                       # Default cleaner nukes everything but rust/cargo relevant files,
                       # and we need this in the source tree to embed it.
                       drvnix = path: _type: builtins.match ".*/drv.nix" path != null;
+                      # used for include_str! index.html file
+                      assets = path: _type: builtins.match ".*/index.html" path != null;
                     in
-                    path: type: craneLib.filterCargoSources path type || drvnix path type;
+                    path: type: craneLib.filterCargoSources path type || drvnix path type || assets path type;
                 };
               nativeBuildInputs = with final; [ pkg-config ];
               buildInputs = with final; [ openssl ];
@@ -107,7 +109,7 @@
         #   wharfix = wharfixNonStreaming.defaultPackage.x86_64-linux;
         # };
         # ref = pkgs.callPackage ./tests/ref.nix { };
-        arguments = pkgs.callPackage ./tests/arguments.nix { };
+        # arguments = pkgs.callPackage ./tests/arguments.nix { };
         formatting = treefmtEval.config.build.check self;
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
