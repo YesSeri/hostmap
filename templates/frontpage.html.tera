@@ -1,0 +1,21 @@
+{% extends "base.html.tera" %}
+{% block content %}
+<main>
+	<p>
+		Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI) revision that produces a given system
+		path. That means that: Given two revs; A and B, which both produce the same system path, and of which A is the
+		earliest known (that is, built by CI), an "update" from A to B will <em>not</em> result in the rev column being
+		updated.
+	</p>
+
+	{# {% include "debug.html.tera" %} #}
+	<table cellpadding="5">
+		{% for group in frontpage_ctx.host_groups %}
+		{% include "group.html.tera" %}
+		{% endfor %}
+	</table>
+
+	<h3>Total hostgroups: {{ frontpage_ctx.total_groups }}</h3>
+	<h3>Total hosts: {{ frontpage_ctx.total_hosts }}</h3>
+</main>
+{% endblock %}

@@ -1,0 +1,25 @@
+<tbody>
+  <tr>
+    <th colspan="6">
+      <h2>{{ group.group_name }}</h2>
+    </th>
+  </tr>
+  <tr>
+    <th>host</th>
+    <th>url</th>
+    <th>store path</th>
+    <th>time</th>
+    <th>rev</th>
+    <th>ref</th>
+  </tr>
+  {% for host_dto in group.host_dtos %}
+  <tr>
+    <td><a href="#">{{ host_dto.host_name }}</a></td>
+    <td><a href="http://{{ host_dto.url }}">{{ host_dto.url }}</a></td>
+    <td>{{ host_dto.store_path }}</td>
+    <td>{{ host_dto.timestamp }}</td>
+    <td>PLACEHOLDER</td>
+    <td>PLACEHOLDER</td>
+  </tr>
+  {% endfor %}
+</tbody>

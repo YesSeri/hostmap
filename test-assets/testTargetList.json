@@ -1,0 +1,860 @@
+{
+  "artifactory-prod": [
+    {
+      "name": "artifactory-p101",
+      "url": "artifactory-p101.pzz.dk"
+    },
+    {
+      "name": "artifactory-p201",
+      "url": "artifactory-p201.pzz.dk"
+    },
+    {
+      "name": "artifactory-p301",
+      "url": "artifactory-p301.pzz.dk"
+    }
+  ],
+  "ca-platform-prod": [
+    {
+      "name": "ca-platform-p01",
+      "url": "ca-platform-p01.pzz.dk"
+    }
+  ],
+  "ceph-prod": [
+    {
+      "name": "ceph-mon-p101",
+      "url": "ceph-mon-p101.pzz.dk"
+    },
+    {
+      "name": "ceph-mon-p201",
+      "url": "ceph-mon-p201.pzz.dk"
+    },
+    {
+      "name": "ceph-mon-p202",
+      "url": "ceph-mon-p202.pzz.dk"
+    },
+    {
+      "name": "ceph-mon-p301",
+      "url": "ceph-mon-p301.pzz.dk"
+    },
+    {
+      "name": "ceph-mon-p302",
+      "url": "ceph-mon-p302.pzz.dk"
+    },
+    {
+      "name": "ceph-sto-p103",
+      "url": "ceph-sto-p103.pzz.dk"
+    },
+    {
+      "name": "ceph-sto-p104",
+      "url": "ceph-sto-p104.pzz.dk"
+    },
+    {
+      "name": "ceph-sto-p203",
+      "url": "ceph-sto-p203.pzz.dk"
+    },
+    {
+      "name": "ceph-sto-p204",
+      "url": "ceph-sto-p204.pzz.dk"
+    },
+    {
+      "name": "ceph-sto-p303",
+      "url": "ceph-sto-p303.pzz.dk"
+    },
+    {
+      "name": "ceph-sto-p304",
+      "url": "ceph-sto-p304.pzz.dk"
+    }
+  ],
+  "ceph-stg": [
+    {
+      "name": "ceph-s01",
+      "url": "ceph-s01.pzz.dk"
+    },
+    {
+      "name": "ceph-s02",
+      "url": "ceph-s02.pzz.dk"
+    },
+    {
+      "name": "ceph-s03",
+      "url": "ceph-s03.pzz.dk"
+    },
+    {
+      "name": "ceph-s04",
+      "url": "ceph-s04.pzz.dk"
+    },
+    {
+      "name": "cephmon-s01",
+      "url": "cephmon-s01.pzz.dk"
+    },
+    {
+      "name": "cephmon-s02",
+      "url": "cephmon-s02.pzz.dk"
+    },
+    {
+      "name": "cephmon-s03",
+      "url": "cephmon-s03.pzz.dk"
+    }
+  ],
+  "dc-nix": [
+    {
+      "name": "dc-nix-p01",
+      "url": "dc-nix-p01.pzz.dk"
+    }
+  ],
+  "devpi-prod": [
+    {
+      "name": "devpi-p01",
+      "url": "devpi-p01.pzz.dk"
+    },
+    {
+      "name": "devpi-p02",
+      "url": "devpi-p02.pzz.dk"
+    }
+  ],
+  "devpi-stg": [
+    {
+      "name": "devpi-s01",
+      "url": "devpi-s01.pzz.dk"
+    },
+    {
+      "name": "devpi-s02",
+      "url": "devpi-s02.pzz.dk"
+    }
+  ],
+  "dhcp-server": [
+    {
+      "name": "dhcp103-p01",
+      "url": "dhcp103-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp160-p01",
+      "url": "dhcp160-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp1740-p01",
+      "url": "dhcp1740-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp2032-p01",
+      "url": "dhcp2032-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp2034-p01",
+      "url": "dhcp2034-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp2036-p01",
+      "url": "dhcp2036-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp2040-p01",
+      "url": "dhcp2040-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp2044-p01",
+      "url": "dhcp2044-p01.pzz.dk"
+    },
+    {
+      "name": "dhcp2064-p01",
+      "url": "dhcp2064-p01.pzz.dk"
+    }
+  ],
+  "dmzproxy-prod": [
+    {
+      "name": "dmzproxy-p01",
+      "url": "dmzproxy-p01.pzz.dk"
+    },
+    {
+      "name": "dmzproxy-p02",
+      "url": "dmzproxy-p02.pzz.dk"
+    },
+    {
+      "name": "dmzproxy-p03",
+      "url": "dmzproxy-p03.pzz.dk"
+    }
+  ],
+  "dmzproxy-stg": [
+    {
+      "name": "dmzproxy-s01",
+      "url": "dmzproxy-s01.pzz.dk"
+    },
+    {
+      "name": "dmzproxy-s02",
+      "url": "dmzproxy-s02.pzz.dk"
+    },
+    {
+      "name": "dmzproxy-s03",
+      "url": "dmzproxy-s03.pzz.dk"
+    }
+  ],
+  "dns-ng-prod": [
+    {
+      "name": "dns-primary-p01",
+      "url": "dns-primary-p01.pzz.dk"
+    },
+    {
+      "name": "dns-secondary-p101",
+      "url": "dns-secondary-p101.pzz.dk"
+    },
+    {
+      "name": "dns-secondary-p201",
+      "url": "dns-secondary-p201.pzz.dk"
+    },
+    {
+      "name": "dns-secondary-p301",
+      "url": "dns-secondary-p301.pzz.dk"
+    },
+    {
+      "name": "pnz-p01",
+      "url": "pnz-p01.pzz.dk"
+    }
+  ],
+  "dns-ng-stg": [
+    {
+      "name": "dns-primary-s01",
+      "url": "dns-primary-s01.pzz.dk"
+    },
+    {
+      "name": "dns-secondary-s101",
+      "url": "dns-secondary-s101.pzz.dk"
+    },
+    {
+      "name": "dns-secondary-s201",
+      "url": "dns-secondary-s201.pzz.dk"
+    },
+    {
+      "name": "dns-secondary-s301",
+      "url": "dns-secondary-s301.pzz.dk"
+    }
+  ],
+  "elk-prod": [
+    {
+      "name": "elastic-p101",
+      "url": "elastic-p101.pzz.dk"
+    },
+    {
+      "name": "elastic-p102",
+      "url": "elastic-p102.pzz.dk"
+    },
+    {
+      "name": "elastic-p104",
+      "url": "elastic-p104.pzz.dk"
+    },
+    {
+      "name": "elastic-p105",
+      "url": "elastic-p105.pzz.dk"
+    },
+    {
+      "name": "elastic-p201",
+      "url": "elastic-p201.pzz.dk"
+    },
+    {
+      "name": "elastic-p202",
+      "url": "elastic-p202.pzz.dk"
+    },
+    {
+      "name": "elastic-p204",
+      "url": "elastic-p204.pzz.dk"
+    },
+    {
+      "name": "elastic-p205",
+      "url": "elastic-p205.pzz.dk"
+    },
+    {
+      "name": "elastic-p301",
+      "url": "elastic-p301.pzz.dk"
+    },
+    {
+      "name": "elastic-p302",
+      "url": "elastic-p302.pzz.dk"
+    },
+    {
+      "name": "elastic-p304",
+      "url": "elastic-p304.pzz.dk"
+    },
+    {
+      "name": "elastic-p305",
+      "url": "elastic-p305.pzz.dk"
+    },
+    {
+      "name": "elk-p05",
+      "url": "elk-p05.pzz.dk"
+    },
+    {
+      "name": "elk-p07",
+      "url": "elk-p07.pzz.dk"
+    },
+    {
+      "name": "elk-p09",
+      "url": "elk-p09.pzz.dk"
+    }
+  ],
+  "elk-stg": [
+    {
+      "name": "elk-s01",
+      "url": "elk-s01.pzz.dk"
+    },
+    {
+      "name": "elk-s02",
+      "url": "elk-s02.pzz.dk"
+    },
+    {
+      "name": "elk-s03",
+      "url": "elk-s03.pzz.dk"
+    }
+  ],
+  "github-builder": [
+    {
+      "name": "hetzner-github-builder-p01",
+      "url": "hetzner-github-builder-p01.pzz.dk"
+    }
+  ],
+  "gitlab": [
+    {
+      "name": "gitlab-p01",
+      "url": "gitlab-p01.pzz.dk"
+    },
+    {
+      "name": "gitlab-t01",
+      "url": "gitlab-t01.pzz.dk"
+    }
+  ],
+  "headscale": [
+    {
+      "name": "headscale-p01",
+      "url": "headscale-p01.pzz.dk"
+    }
+  ],
+  "hosts-prod": [
+    {
+      "name": "hosts-p01",
+      "url": "hosts-p01.pzz.dk"
+    },
+    {
+      "name": "hosts-p02",
+      "url": "hosts-p02.pzz.dk"
+    },
+    {
+      "name": "hosts-p03",
+      "url": "hosts-p03.pzz.dk"
+    }
+  ],
+  "k8s-prod": [
+    {
+      "name": "container-gpu-p101",
+      "url": "container-gpu-p101.pzz.dk"
+    },
+    {
+      "name": "container-gpu-p102",
+      "url": "container-gpu-p102.pzz.dk"
+    },
+    {
+      "name": "container-gpu-p201",
+      "url": "container-gpu-p201.pzz.dk"
+    },
+    {
+      "name": "container-gpu-p202",
+      "url": "container-gpu-p202.pzz.dk"
+    },
+    {
+      "name": "container-gpu-p301",
+      "url": "container-gpu-p301.pzz.dk"
+    },
+    {
+      "name": "container-gpu-p302",
+      "url": "container-gpu-p302.pzz.dk"
+    },
+    {
+      "name": "container-p01",
+      "url": "container-p01.pzz.dk"
+    },
+    {
+      "name": "container-p02",
+      "url": "container-p02.pzz.dk"
+    },
+    {
+      "name": "container-p03",
+      "url": "container-p03.pzz.dk"
+    },
+    {
+      "name": "container-p04",
+      "url": "container-p04.pzz.dk"
+    },
+    {
+      "name": "container-p05",
+      "url": "container-p05.pzz.dk"
+    },
+    {
+      "name": "container-p06",
+      "url": "container-p06.pzz.dk"
+    },
+    {
+      "name": "container-p07",
+      "url": "container-p07.pzz.dk"
+    },
+    {
+      "name": "container-p08",
+      "url": "container-p08.pzz.dk"
+    },
+    {
+      "name": "container-p09",
+      "url": "container-p09.pzz.dk"
+    },
+    {
+      "name": "container-p10",
+      "url": "container-p10.pzz.dk"
+    },
+    {
+      "name": "container-p11",
+      "url": "container-p11.pzz.dk"
+    },
+    {
+      "name": "container-p12",
+      "url": "container-p12.pzz.dk"
+    },
+    {
+      "name": "container-p13",
+      "url": "container-p13.pzz.dk"
+    },
+    {
+      "name": "container-p14",
+      "url": "container-p14.pzz.dk"
+    },
+    {
+      "name": "container-p15",
+      "url": "container-p15.pzz.dk"
+    },
+    {
+      "name": "container-p16",
+      "url": "container-p16.pzz.dk"
+    },
+    {
+      "name": "container-p17",
+      "url": "container-p17.pzz.dk"
+    },
+    {
+      "name": "container-p18",
+      "url": "container-p18.pzz.dk"
+    },
+    {
+      "name": "container-p19",
+      "url": "container-p19.pzz.dk"
+    },
+    {
+      "name": "container-p20",
+      "url": "container-p20.pzz.dk"
+    },
+    {
+      "name": "container-p21",
+      "url": "container-p21.pzz.dk"
+    },
+    {
+      "name": "container-p22",
+      "url": "container-p22.pzz.dk"
+    },
+    {
+      "name": "container-p23",
+      "url": "container-p23.pzz.dk"
+    },
+    {
+      "name": "container-p24",
+      "url": "container-p24.pzz.dk"
+    },
+    {
+      "name": "container-p25",
+      "url": "container-p25.pzz.dk"
+    },
+    {
+      "name": "container-p26",
+      "url": "container-p26.pzz.dk"
+    },
+    {
+      "name": "container-p27",
+      "url": "container-p27.pzz.dk"
+    },
+    {
+      "name": "container-p28",
+      "url": "container-p28.pzz.dk"
+    },
+    {
+      "name": "container-p29",
+      "url": "container-p29.pzz.dk"
+    },
+    {
+      "name": "container-p30",
+      "url": "container-p30.pzz.dk"
+    },
+    {
+      "name": "container-p31",
+      "url": "container-p31.pzz.dk"
+    },
+    {
+      "name": "container-p32",
+      "url": "container-p32.pzz.dk"
+    },
+    {
+      "name": "container-p33",
+      "url": "container-p33.pzz.dk"
+    },
+    {
+      "name": "container-p34",
+      "url": "container-p34.pzz.dk"
+    },
+    {
+      "name": "container-p35",
+      "url": "container-p35.pzz.dk"
+    },
+    {
+      "name": "container-p36",
+      "url": "container-p36.pzz.dk"
+    },
+    {
+      "name": "container-p37",
+      "url": "container-p37.pzz.dk"
+    },
+    {
+      "name": "container-p38",
+      "url": "container-p38.pzz.dk"
+    },
+    {
+      "name": "container-p39",
+      "url": "container-p39.pzz.dk"
+    },
+    {
+      "name": "container-p40",
+      "url": "container-p40.pzz.dk"
+    },
+    {
+      "name": "container-p41",
+      "url": "container-p41.pzz.dk"
+    },
+    {
+      "name": "container-p42",
+      "url": "container-p42.pzz.dk"
+    },
+    {
+      "name": "control-plane-p101",
+      "url": "control-plane-p101.pzz.dk"
+    },
+    {
+      "name": "control-plane-p201",
+      "url": "control-plane-p201.pzz.dk"
+    },
+    {
+      "name": "control-plane-p301",
+      "url": "control-plane-p301.pzz.dk"
+    }
+  ],
+  "k8s-stg": [
+    {
+      "name": "container-gpu-s01",
+      "url": "container-gpu-s01.pzz.dk"
+    },
+    {
+      "name": "container-s01",
+      "url": "container-s01.pzz.dk"
+    },
+    {
+      "name": "container-s02",
+      "url": "container-s02.pzz.dk"
+    },
+    {
+      "name": "container-s03",
+      "url": "container-s03.pzz.dk"
+    },
+    {
+      "name": "container-s04",
+      "url": "container-s04.pzz.dk"
+    },
+    {
+      "name": "container-s05",
+      "url": "container-s05.pzz.dk"
+    },
+    {
+      "name": "control-plane-s01",
+      "url": "control-plane-s01.pzz.dk"
+    },
+    {
+      "name": "control-plane-s02",
+      "url": "control-plane-s02.pzz.dk"
+    },
+    {
+      "name": "control-plane-s03",
+      "url": "control-plane-s03.pzz.dk"
+    }
+  ],
+  "kafka-prod": [
+    {
+      "name": "kafka-p101",
+      "url": "kafka-p101.pzz.dk"
+    },
+    {
+      "name": "kafka-p102",
+      "url": "kafka-p102.pzz.dk"
+    },
+    {
+      "name": "kafka-p201",
+      "url": "kafka-p201.pzz.dk"
+    },
+    {
+      "name": "kafka-p202",
+      "url": "kafka-p202.pzz.dk"
+    },
+    {
+      "name": "kafka-p301",
+      "url": "kafka-p301.pzz.dk"
+    },
+    {
+      "name": "kafka-p302",
+      "url": "kafka-p302.pzz.dk"
+    },
+    {
+      "name": "kafka-zk-p01",
+      "url": "kafka-zk-p01.pzz.dk"
+    },
+    {
+      "name": "kafka-zk-p02",
+      "url": "kafka-zk-p02.pzz.dk"
+    },
+    {
+      "name": "kafka-zk-p03",
+      "url": "kafka-zk-p03.pzz.dk"
+    }
+  ],
+  "kafka-stg": [
+    {
+      "name": "kafka-s101",
+      "url": "kafka-s101.pzz.dk"
+    },
+    {
+      "name": "kafka-s201",
+      "url": "kafka-s201.pzz.dk"
+    },
+    {
+      "name": "kafka-s301",
+      "url": "kafka-s301.pzz.dk"
+    },
+    {
+      "name": "kafka-zk-s01",
+      "url": "kafka-zk-s01.pzz.dk"
+    },
+    {
+      "name": "kafka-zk-s02",
+      "url": "kafka-zk-s02.pzz.dk"
+    },
+    {
+      "name": "kafka-zk-s03",
+      "url": "kafka-zk-s03.pzz.dk"
+    }
+  ],
+  "kafkadata-prod": [
+    {
+      "name": "kafkadata-p101",
+      "url": "kafkadata-p101.pzz.dk"
+    },
+    {
+      "name": "kafkadata-p102",
+      "url": "kafkadata-p102.pzz.dk"
+    },
+    {
+      "name": "kafkadata-p201",
+      "url": "kafkadata-p201.pzz.dk"
+    },
+    {
+      "name": "kafkadata-p202",
+      "url": "kafkadata-p202.pzz.dk"
+    },
+    {
+      "name": "kafkadata-p301",
+      "url": "kafkadata-p301.pzz.dk"
+    },
+    {
+      "name": "kafkadata-p302",
+      "url": "kafkadata-p302.pzz.dk"
+    }
+  ],
+  "kafkadata-staging": [
+    {
+      "name": "kafkadata-s01",
+      "url": "kafkadata-s01.pzz.dk"
+    },
+    {
+      "name": "kafkadata-s02",
+      "url": "kafkadata-s02.pzz.dk"
+    },
+    {
+      "name": "kafkadata-s03",
+      "url": "kafkadata-s03.pzz.dk"
+    },
+    {
+      "name": "kafkadata-s04",
+      "url": "kafkadata-s04.pzz.dk"
+    }
+  ],
+  "livesystems": [
+    {
+      "name": "kexec-rescue",
+      "url": "kexec-rescue.pzz.dk"
+    },
+    {
+      "name": "platform-rescue",
+      "url": "platform-rescue.pzz.dk"
+    }
+  ],
+  "logs-prod": [
+    {
+      "name": "logs-p101",
+      "url": "logs-p101.pzz.dk"
+    },
+    {
+      "name": "logs-p201",
+      "url": "logs-p201.pzz.dk"
+    },
+    {
+      "name": "logs-p301",
+      "url": "logs-p301.pzz.dk"
+    }
+  ],
+  "loki-stg": [
+    {
+      "name": "loki-s01",
+      "url": "loki-s01.pzz.dk"
+    },
+    {
+      "name": "loki-s02",
+      "url": "loki-s02.pzz.dk"
+    },
+    {
+      "name": "loki-s03",
+      "url": "loki-s03.pzz.dk"
+    },
+    {
+      "name": "loki-sto-s01",
+      "url": "loki-sto-s01.pzz.dk"
+    },
+    {
+      "name": "loki-sto-s02",
+      "url": "loki-sto-s02.pzz.dk"
+    },
+    {
+      "name": "loki-sto-s03",
+      "url": "loki-sto-s03.pzz.dk"
+    },
+    {
+      "name": "loki-sto-s04",
+      "url": "loki-sto-s04.pzz.dk"
+    }
+  ],
+  "monitoring-prod": [
+    {
+      "name": "prometheus-p101",
+      "url": "prometheus-p101.pzz.dk"
+    },
+    {
+      "name": "prometheus-p201",
+      "url": "prometheus-p201.pzz.dk"
+    },
+    {
+      "name": "prometheus-p301",
+      "url": "prometheus-p301.pzz.dk"
+    }
+  ],
+  "monitoring-stg": [
+    {
+      "name": "prometheus-s01",
+      "url": "prometheus-s01.pzz.dk"
+    },
+    {
+      "name": "prometheus-s02",
+      "url": "prometheus-s02.pzz.dk"
+    },
+    {
+      "name": "prometheus-s03",
+      "url": "prometheus-s03.pzz.dk"
+    }
+  ],
+  "nix-build-new": [
+    {
+      "name": "nix-build-p101",
+      "url": "nix-build-p101.pzz.dk"
+    },
+    {
+      "name": "nix-build-p301",
+      "url": "nix-build-p301.pzz.dk"
+    }
+  ],
+  "porthole": [
+    {
+      "name": "platform-monitor",
+      "url": "platform-monitor.pzz.dk"
+    }
+  ],
+  "pud-nix-cache": [
+    {
+      "name": "pud-nix-cache-p01",
+      "url": "pud-nix-cache-p01.pzz.dk"
+    }
+  ],
+  "pvm-dhcp-server": [
+    {
+      "name": "dhcp2038-p01",
+      "url": "dhcp2038-p01.pzz.dk"
+    }
+  ],
+  "renovate": [
+    {
+      "name": "platform-renovate-p101",
+      "url": "platform-renovate-p101.pzz.dk"
+    }
+  ],
+  "tools": [
+    {
+      "name": "platform-tools",
+      "url": "platform-tools.pzz.dk"
+    }
+  ],
+  "vault-a": [
+    {
+      "name": "vault-a-p01",
+      "url": "vault-a-p01.pzz.dk"
+    },
+    {
+      "name": "vault-a-p201",
+      "url": "vault-a-p201.pzz.dk"
+    },
+    {
+      "name": "vault-a-p301",
+      "url": "vault-a-p301.pzz.dk"
+    }
+  ],
+  "vault-b": [
+    {
+      "name": "vault-b-p01",
+      "url": "vault-b-p01.pzz.dk"
+    }
+  ],
+  "vault-stg": [
+    {
+      "name": "vault-s01",
+      "url": "vault-s01.pzz.dk"
+    },
+    {
+      "name": "vault-s02",
+      "url": "vault-s02.pzz.dk"
+    },
+    {
+      "name": "vault-s03",
+      "url": "vault-s03.pzz.dk"
+    }
+  ],
+  "wharfix": [
+    {
+      "name": "wharfix-p01",
+      "url": "wharfix-p01.pzz.dk"
+    },
+    {
+      "name": "wharfix-p02",
+      "url": "wharfix-p02.pzz.dk"
+    }
+  ]
+}

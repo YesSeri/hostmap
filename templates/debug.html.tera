@@ -1,0 +1,2 @@
+<h1>DEBUG</h1>
+<pre>{{ frontpage_ctx | json_encode(pretty=true) | safe }}</pre>
