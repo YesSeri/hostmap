@@ -68,13 +68,9 @@
                   src = ./.;
                   filter =
                     let
-                      # Default cleaner nukes everything but rust/cargo relevant files,
-                      # and we need this in the source tree to embed it.
                       drvnix = path: _type: builtins.match ".*/drv.nix" path != null;
-                      # used for include_str! index.html file
-                      assets = path: _type: builtins.match ".*/index.html" path != null;
                     in
-                    path: type: craneLib.filterCargoSources path type || drvnix path type || assets path type;
+                    path: type: craneLib.filterCargoSources path type || drvnix path type;
                 };
               nativeBuildInputs = with final; [ pkg-config ];
               buildInputs = with final; [ openssl ];
@@ -86,30 +82,58 @@
       devShell.${system} =
         with pkgs;
         mkShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          # inherit (self.checks.${system}.pre-commit-check) shellHook;
+          packages = [
+            pkg-config
+            openssl
+          ];
           buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
           inputsFrom = [ self.defaultPackage.${system} ];
           nativeBuildInputs = [
+            sqlx-cli
             cargo
-            cargo-outdated
             rustc
             nix
             rustfmt
-            just
             rust-analyzer
+            postgresql_16
           ];
+          RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+          OPENSSL_NO_VENDOR = "1";
+          OPENSSL_DIR = openssl.dev;
+          OPENSSL_LIB_DIR = "${openssl.out}/lib";
+          OPENSSL_INCLUDE_DIR = "${openssl.dev}/include";
+          PKG_CONFIG_PATH = nixpkgs.lib.makeSearchPath "lib/pkgconfig" [ openssl.dev ];
+
+          shellHook = ''
+
+
+            export PG=$PWD/.dev_postgres/
+            export PGDATA=$PG/data
+            export PGPORT=5432
+            export PGHOST=localhost
+            export PGUSER=$USER
+            export PGPASSWORD=postgres
+            export PGDATABASE=hostmap-dev
+            export DB_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
+
+            alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
+            alias pg_stop="pg_ctl -D $PGDATA stop"
+            pg_setup() {
+              pg_stop;
+              rm -rf $PG;
+              initdb -D $PGDATA &&
+              echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf &&
+              pg_start &&
+              createdb
+            }
+
+          '';
         };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
 
       checks."x86_64-linux" = {
-        # oom-positive = pkgs.callPackage ./tests/oom.nix { };
-        # oom-negative = pkgs.callPackage ./tests/oom.nix {
-        #   expectedResult = "fail";
-        #   wharfix = wharfixNonStreaming.defaultPackage.x86_64-linux;
-        # };
-        # ref = pkgs.callPackage ./tests/ref.nix { };
-        # arguments = pkgs.callPackage ./tests/arguments.nix { };
         formatting = treefmtEval.config.build.check self;
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
