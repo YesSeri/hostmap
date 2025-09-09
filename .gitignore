@@ -4,3 +4,4 @@
 /postgres.log
 /.pre-commit-config.yaml
 /result
+/.dev_postgres

@@ -1,64 +1,43 @@
-use std::sync::{Arc, Mutex};
+use std::env;
 
-use axum::{extract, response, routing::get, Router};
+use chrono::{DateTime, FixedOffset};
+use serde::Deserialize;
 
-#[derive(Debug, Clone)]
-struct AppState {
-    counter: Arc<Mutex<isize>>,
+#[derive(Debug, Deserialize)]
+struct LogRecord {
+    #[serde(deserialize_with = "from_custom_fmt")]
+    timestamp: DateTime<FixedOffset>,
+    username: String,
+    store_path: String,
+    activation_type: String,
 }
-
-impl AppState {
-    fn new(counter: Arc<Mutex<isize>>) -> Self {
-        Self { counter }
-    }
+fn from_custom_fmt<'de, D>(deserializer: D) -> Result<DateTime<FixedOffset>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    DateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S%:z").map_err(serde::de::Error::custom)
 }
 
 #[tokio::main]
-async fn main() {
-    let counter = Arc::new(Mutex::new(0));
-    let app_state = AppState::new(counter);
-    let app = Router::new()
-        .route("/", get(homepage))
-        .route("/increment", get(increment))
-        .route("/decrement", get(decrement))
-        .with_state(app_state);
-
-    let bind_addr = "127.0.0.1:3000";
-    let listener = tokio::net::TcpListener::bind(bind_addr).await.unwrap();
-
-    println!("Creating server at http://{bind_addr}");
-
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
-}
-
-async fn homepage(
-    extract::State(AppState { counter }): extract::State<AppState>,
-) -> response::Html<String> {
-    let val: isize = *counter.lock().unwrap();
-    response::Html(format!(include_str!("../index.html"), val))
-}
-
-async fn increment(
-    extract::State(AppState { counter }): extract::State<AppState>,
-) -> impl response::IntoResponse {
-    let f = |x: isize| x.saturating_add(1);
-    change_counter(counter, f)
-}
-
-async fn decrement(
-    extract::State(AppState { counter }): extract::State<AppState>,
-) -> impl response::IntoResponse {
-    let f = |x: isize| x.saturating_sub(1);
-    change_counter(counter, f)
-}
-
-fn change_counter(
-    counter: Arc<Mutex<isize>>,
-    f: fn(isize) -> isize,
-) -> impl response::IntoResponse {
-    let mut val_ref = counter.lock().unwrap();
-    *val_ref = f(*val_ref);
-    response::Redirect::permanent("/")
+async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
+    dotenvy::dotenv()?;
+    let db_url = env::var("DATABASE_URL")?;
+    dbg!(db_url);
+    let body = reqwest::get("http://hosts-p01.pzz.dk/activationlog.csv")
+        .await?
+        .text()
+        .await?;
+    let mut rdr = csv::ReaderBuilder::new()
+        .delimiter(b';')
+        .has_headers(false)
+        .from_reader(body.as_bytes());
+    for line in rdr.deserialize() {
+        let rec: LogRecord = line?;
+        println!(
+            "{};{};{};{}",
+            rec.timestamp, rec.username, rec.store_path, rec.activation_type
+        );
+    }
+    Ok(())
 }
