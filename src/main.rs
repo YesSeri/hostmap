@@ -1,80 +1,75 @@
-mod model;
-use model::log_record::LogRecord;
-use std::env;
+pub(crate) mod controller;
+pub(crate) mod model;
+pub(crate) mod repository;
+pub(crate) mod viewmodel;
+use std::{path::Path, sync::Arc};
+use tower_http::
+    services::ServeDir
+;
 
-use sqlx::{postgres::PgPoolOptions, PgPool};
-use tokio::task::JoinSet;
+use axum::{routing::get, Router};
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use tera::Tera;
 
-type RetError = dyn std::error::Error + Send + Sync + 'static;
+#[derive(Debug, Clone)]
+struct AppState {
+    tera: Arc<Tera>,
+    db: Pool<Postgres>,
+}
+
+impl AppState {
+    fn new(tera: Arc<Tera>, db: Pool<Postgres>) -> Self {
+        Self { tera, db }
+    }
+}
 
 #[tokio::main]
-async fn main() -> Result<(), Box<RetError>> {
-    dotenvy::dotenv()?;
-    let db_url = env::var("DATABASE_URL")?;
-    dbg!(&db_url);
-    let pool = PgPoolOptions::new()
+async fn main() {
+    let tera = Arc::new(load_tera());
+    let db_url =
+        std::env::var("DATABASE_URL").expect("could not find database url as environment variable");
+    let db = PgPoolOptions::new()
         .max_connections(8)
         .connect(&db_url)
         .await
         .expect("failed to connect to DATABASE_URL");
 
-    let urls = [
-        "http://hosts-p01.pzz.dk/activationlog.csv",
-        "http://hosts-p02.pzz.dk/activationlog.csv",
-        "http://hosts-p03.pzz.dk/activationlog.csv",
-    ];
-    let mut set = JoinSet::new();
-    for url in urls {
-        let pool_cloned = pool.clone();
-        set.spawn(async move {
-            let recs = fetch_activationlog(url).await?;
-            for rec in recs {
-                match add_log_record(rec, &pool_cloned).await {
-                    Ok(id) => println!("inserted a record with id {id}"),
-                    Err(err) => println!("could not insert due to {err}"),
-                }
-            }
-            Ok(())
-        });
-    }
-    while let Some(res) = set.join_next().await {
-        let res: Result<(), Box<RetError>> = res?;
-        res?;
-    }
-    Ok(())
+    let app_state = AppState::new(tera, db);
+    let app = Router::new()
+        .route("/", get(controller::frontpage::render_frontpage))
+        .nest_service("/assets", ServeDir::new("assets"))
+        .with_state(app_state);
+
+	let bind_addr = "127.0.0.1:3000";
+    let listener = tokio::net::TcpListener::bind(bind_addr)
+        .await
+        .unwrap();
+	
+	println!("Creating server at {bind_addr}");
+
+    axum::serve(listener, app.into_make_service())
+        .await
+        .unwrap();
 }
 
-async fn add_log_record(rec: LogRecord, pool: &PgPool) -> Result<i32, Box<RetError>> {
-    let rec = sqlx::query!(
-        r#"
-INSERT INTO log_entry ( timestamp, username, store_path, activation_type )
-VALUES ( $1, $2, $3, $4 )
-RETURNING log_entry_id
-        "#,
-        rec.timestamp,
-        rec.username,
-        rec.store_path,
-        rec.activation_type,
+fn load_tera() -> Tera {
+    let mut tera = Tera::default();
+
+    tera.add_template_file(
+        Path::new("templates/base.html.tera"),
+        Some("base.html.tera"),
     )
-    .fetch_one(pool)
-    .await?;
-    println!("inserted: {rec:?}");
+    .unwrap();
+    tera.add_template_file(
+        Path::new("templates/frontpage.html.tera"),
+        Some("frontpage.html.tera"),
+    )
+    .unwrap();
+    tera.add_template_file(
+        Path::new("templates/group.html.tera"),
+        Some("group.html.tera"),
+    )
+    .unwrap();
 
-    Ok(rec.log_entry_id)
-}
-
-async fn fetch_activationlog(url: &str) -> Result<Vec<LogRecord>, Box<RetError>> {
-    let body = reqwest::get(url).await?.text().await?;
-
-    let mut rdr = csv::ReaderBuilder::new()
-        .delimiter(b';')
-        .has_headers(false)
-        .from_reader(body.as_bytes());
-
-    let mut log_records = Vec::new();
-    for line in rdr.deserialize() {
-        let rec: LogRecord = line.unwrap();
-        log_records.push(rec);
-    }
-    Ok(log_records)
+    tera
 }
