@@ -20,11 +20,9 @@ use tokio::time::{self, interval};
 use tower_http::services::ServeDir;
 
 use crate::{
-    dto::host::HostGroupsDto,
-    repository::{
-        host_repository::{HostGroupModel, PgHostRepository},
-        log_repository::PgLogRepository,
-    },
+    dto::host::HostGroupsCreateDto,
+    model::host::{ExistingHostGroupModel, NewHostGroupModel},
+    repository::{host_repository::PgHostRepository, log_repository::PgLogRepository},
 };
 
 type RetError = dyn std::error::Error + Send + Sync + 'static;
@@ -69,14 +67,14 @@ async fn main() -> Result<(), Box<RetError>> {
                 .unwrap_or_else(|err| {
                     println!("scraping failed due to {err}");
                 });
-            // match scraper::run_scraper(bg_scraper_state.clone()).await {
-            //     Ok(_) => (),
-            //     Err(err) => println!("scraping failed due to {err}"),
-            // };
         }
     });
     let app = Router::new()
         .route("/", get(controller::frontpage::render_frontpage))
+        .route(
+            "/host/{host_name}",
+            get(controller::history::render_history_page),
+        )
         .nest_service("/assets", ServeDir::new("assets"))
         .with_state(app_state);
 
@@ -109,10 +107,10 @@ async fn setup_host_groups(repo: &PgHostRepository) {
         .expect("please provide a target list file as first argument");
     println!("target list file with host groups and hosts: {target_list}");
     let content = read_host_groups_from_file(&target_list);
-    let HostGroupsDto(host_group_dtos): HostGroupsDto =
+    let HostGroupsCreateDto(host_group_dtos): HostGroupsCreateDto =
         serde_json::from_str(&content).expect("could not parse target list file as json");
     for host_group_dto in host_group_dtos {
-        let host_group: HostGroupModel = host_group_dto.into();
+        let host_group = NewHostGroupModel::from(host_group_dto);
         // it will fail if host_group is already inserted
         let _ = repo.insert_group_hosts_with_hosts(&host_group).await;
     }
@@ -120,11 +118,5 @@ async fn setup_host_groups(repo: &PgHostRepository) {
 
 fn load_tera() -> Tera {
     let mut tera = Tera::new("templates/**/*").unwrap();
-    // tera.register_function("shorten_store_path", |val| shorten_store_path(val));
     tera
-}
-
-// Signal handler for graceful shutdown
-async fn shutdown_signal() {
-    // Wait for Ctrl+C
 }

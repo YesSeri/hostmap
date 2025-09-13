@@ -13,14 +13,13 @@ use crate::{
 };
 #[derive(Debug, Clone, Serialize)]
 struct FrontPageContext {
-    title: String,
     host_groups: Vec<CurrentHostGroupDto>,
     total_groups: usize,
     total_hosts: usize,
 }
 
 impl FrontPageContext {
-    fn new(title: &str, host_groups: Vec<CurrentHostGroupDto>) -> Self {
+    fn new(host_groups: Vec<CurrentHostGroupDto>) -> Self {
         let total_groups = host_groups.len();
         let mut total_hosts = 0;
         for g in &host_groups {
@@ -29,7 +28,6 @@ impl FrontPageContext {
             }
         }
         Self {
-            title: title.to_owned(),
             host_groups,
             total_groups,
             total_hosts,
@@ -50,9 +48,8 @@ pub async fn render_frontpage(
     let mut host_group_dtos = HashMap::new();
     for group in &host_group_models {
         for host in &group.hosts {
-            if let Ok(Some(log_entry_model)) = host_repo
-                .get_latest_log_entry_for_host(host.host_id.unwrap())
-                .await
+            if let Ok(Some(log_entry_model)) =
+                host_repo.get_latest_log_entry_for_host(host.host_id).await
             {
                 let mut host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
                 host_dto.store_path = shorten_store_path(&host_dto.store_path).to_string();
@@ -71,8 +68,9 @@ pub async fn render_frontpage(
     }
     let host_group_dtos: Vec<CurrentHostGroupDto> = host_group_dtos.into_values().collect();
 
-    let fp_ctx = FrontPageContext::new("Hostmap - Frontpage", host_group_dtos);
+    let fp_ctx = FrontPageContext::new(host_group_dtos);
     let mut ctx = Context::new();
+    ctx.insert("title", "Hostmap - Frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();

@@ -1,0 +1,20 @@
+{% extends "base.html.tera" %}
+{% block content %}
+<table>
+	<tr>
+		<th>Time</th>
+		<th>User</th>
+		<th>System</th>
+		<th>Action</th>
+		<th>Git Ref</th>
+	</tr>
+	<tr>
+		<td>11:13:39 CEST</td>
+		<td>adtu</td>
+		<td>s7nffkq6k8-artifactory-p101-25.05</td>
+		<td>boot</td>
+		<td></td>
+	</tr>
+</table>
+
+{% endblock %}

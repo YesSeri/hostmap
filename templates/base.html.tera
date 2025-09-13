@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>hostmap - {{ frontpage_ctx.title }}</title>
+  <title>hostmap - {{ title }}</title>
   <link rel="stylesheet" href="/assets/styles.css">
   {# <link rel="stylesheet" href="https://classless.de/classless.css"> #}
   <style>
@@ -11,7 +11,7 @@
 
 <body style="margin: auto; max-width: 1000px;">
   <header>
-    <h1>hostmap - {{ frontpage_ctx.title }}</h1>
+    <h1>hostmap - {{ title }}</h1>
   </header>
 
   {% block content %}{% endblock %}

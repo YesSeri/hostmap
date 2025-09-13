@@ -1,6 +1,6 @@
 use sqlx::{Pool, Postgres};
 
-use crate::{dto::log::LogEntryDto, model::log::LogEntryModel, RetError};
+use crate::{dto::log::LogEntryDto, model::log::NewLogEntryModel, RetError};
 
 #[derive(Debug, Clone)]
 pub struct PgLogRepository {
@@ -12,7 +12,7 @@ impl PgLogRepository {
         Self { pool }
     }
 
-    pub async fn add_log_record(&self, rec: &LogEntryModel) -> Result<(), Box<RetError>> {
+    pub async fn add_log_record(&self, rec: &NewLogEntryModel) -> Result<(), Box<RetError>> {
         sqlx::query!(
             r#"
 INSERT INTO log_entry ( timestamp, username, host_id, store_path, activation_type )

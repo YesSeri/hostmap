@@ -10,7 +10,7 @@ create table host (
   name TEXT NOT NULL,
   url TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE (host_group_id, name)
+  UNIQUE (name)
 );
 
 

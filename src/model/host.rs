@@ -1,19 +1,21 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 
-use crate::dto::host::{HostDto, HostGroupDto};
+use crate::dto::host::{HostCreateDto, HostGroupCreateDto};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct HostModel {
-    pub host_id: Option<i64>,
+pub struct HostModel<IdType> {
+    pub host_id: IdType,
     pub name: String,
     pub url: String,
 }
+pub(crate) type ExistingHostModel = HostModel<i64>;
+pub(crate) type NewHostModel = HostModel<()>;
 
-impl From<HostDto> for HostModel {
-    fn from(HostDto { name, url }: HostDto) -> Self {
+impl From<HostCreateDto> for NewHostModel {
+    fn from(HostCreateDto { name, url }: HostCreateDto) -> Self {
         Self {
-            host_id: None,
+            host_id: (),
             name,
             url,
         }
@@ -21,23 +23,29 @@ impl From<HostDto> for HostModel {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct HostGroupModel {
-    pub host_group_id: Option<i64>,
-    pub name: String,
-    pub hosts: Vec<HostModel>,
+pub struct HostGroupModel<IdType> {
+    pub host_group_id: IdType,
+    pub group_name: String,
+    pub hosts: Vec<HostModel<IdType>>,
 }
 
-impl From<HostGroupDto> for HostGroupModel {
+pub(crate) type ExistingHostGroupModel = HostGroupModel<i64>;
+pub(crate) type NewHostGroupModel = HostGroupModel<()>;
+
+impl From<HostGroupCreateDto> for NewHostGroupModel {
     fn from(
-        HostGroupDto {
-            group_name: name,
+        HostGroupCreateDto {
+            group_name,
             host_dtos,
-        }: HostGroupDto,
+        }: HostGroupCreateDto,
     ) -> Self {
-        let hosts = host_dtos.into_iter().map(HostModel::from).collect();
+        let hosts = host_dtos
+            .into_iter()
+            .map(NewHostModel::from)
+            .collect::<Vec<NewHostModel>>();
         Self {
-            host_group_id: None,
-            name,
+            host_group_id: (),
+            group_name,
             hosts,
         }
     }

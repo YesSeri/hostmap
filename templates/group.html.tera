@@ -14,7 +14,7 @@
   </tr>
   {% for host_dto in group.host_dtos %}
   <tr>
-    <td><a href="#">{{ host_dto.host_name }}</a></td>
+    <td><a href="/host/{{ host_dto.host_name }}">{{ host_dto.host_name }}</a></td>
     <td><a href="http://{{ host_dto.url }}">{{ host_dto.url }}</a></td>
     <td>{{ host_dto.store_path }}</td>
     <td>{{ host_dto.timestamp }}</td>
