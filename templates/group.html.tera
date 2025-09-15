@@ -16,10 +16,10 @@
   <tr>
     <td><a href="/host/{{ host_dto.host_name }}">{{ host_dto.host_name }}</a></td>
     <td><a href="http://{{ host_dto.url }}">{{ host_dto.url }}</a></td>
-    <td>{{ host_dto.store_path }}</td>
+    <td>{{ host_dto.store_path.abbreviated_path }}</td>
     <td>{{ host_dto.timestamp }}</td>
-    <td>PLACEHOLDER</td>
-    <td>PLACEHOLDER</td>
+    <td>{{ host_dto.rev_id | default(value="unknown") }}</td>
+    <td>{{ host_dto.branch | default(value="unknown") }}</td>
   </tr>
   {% endfor %}
 </tbody>

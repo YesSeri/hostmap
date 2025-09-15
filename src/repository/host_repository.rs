@@ -5,16 +5,16 @@ use crate::{
     dto::host::{HostCreateDto, HostGroupCreateDto},
     model::{
         host::{ExistingHostGroupModel, ExistingHostModel, NewHostGroupModel},
-        log::ExistingLogEntryModel,
+        log::{ExistingLogEntryModel, HostId},
     },
 };
 
 #[derive(Debug, Clone)]
-pub struct PgHostRepository {
+pub struct HostRepository {
     pool: Pool<Postgres>,
 }
 
-impl PgHostRepository {
+impl HostRepository {
     pub fn new(pool: Pool<Postgres>) -> Self {
         Self { pool }
     }
@@ -48,6 +48,24 @@ impl PgHostRepository {
         }
         tx.commit().await?;
         Ok(host_group_id)
+    }
+
+    pub async fn get_hostname_from_host_id(
+        &self,
+        HostId(h_id): HostId,
+    ) -> Result<Option<String>, sqlx::Error> {
+        let result = sqlx::query!(
+            r#"
+            select name from host
+            where host_group_id = $1
+            "#,
+            h_id
+        )
+        .fetch_optional(&self.pool)
+        .await?
+        .map(|row| row.name);
+
+        Ok(result)
     }
 
     pub async fn get_all_host_groups(&self) -> Result<Vec<ExistingHostGroupModel>, sqlx::Error> {
@@ -101,25 +119,5 @@ impl PgHostRepository {
             group_name: group.name,
             hosts,
         })
-    }
-
-    pub async fn get_latest_log_entry_for_host(
-        &self,
-        host_id: i64,
-    ) -> Result<Option<ExistingLogEntryModel>, sqlx::Error> {
-        let log_entry = sqlx::query_as!(
-            ExistingLogEntryModel,
-            r#"
-        select log_entry_id, timestamp, username, host_id, store_path, activation_type
-        from log_entry
-        where host_id = $1
-        order by timestamp desc
-        limit 1
-        "#,
-            host_id
-        )
-        .fetch_optional(&self.pool)
-        .await?;
-        Ok(log_entry)
     }
 }

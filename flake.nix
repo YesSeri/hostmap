@@ -79,57 +79,59 @@
         in
         lib.mapAttrs cratePackage outputPackages;
 
-      devShell.${system} =
-        with pkgs;
-        mkShell {
-          # inherit (self.checks.${system}.pre-commit-check) shellHook;
-          packages = [
-            pkg-config
-            openssl
-          ];
-          buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
-          inputsFrom = [ self.defaultPackage.${system} ];
-          nativeBuildInputs = [
-            sqlx-cli
-            cargo
-            rustc
-            nix
-            rustfmt
-            rust-analyzer
-            postgresql_16
-          ];
-          RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
-          OPENSSL_NO_VENDOR = "1";
-          OPENSSL_DIR = openssl.dev;
-          OPENSSL_LIB_DIR = "${openssl.out}/lib";
-          OPENSSL_INCLUDE_DIR = "${openssl.dev}/include";
-          PKG_CONFIG_PATH = nixpkgs.lib.makeSearchPath "lib/pkgconfig" [ openssl.dev ];
+      devShells.${system} = {
+        default =
+          with pkgs;
+          mkShell {
+            # inherit (self.checks.${system}.pre-commit-check) shellHook;
+            packages = [
+              pkg-config
+              openssl
+            ];
+            buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
+            inputsFrom = [ self.defaultPackage.${system} ];
+            nativeBuildInputs = [
+              sqlx-cli
+              cargo
+              rustc
+              nix
+              rustfmt
+              rust-analyzer
+              postgresql_16
+            ];
+            RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+            OPENSSL_NO_VENDOR = "1";
+            OPENSSL_DIR = openssl.dev;
+            OPENSSL_LIB_DIR = "${openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${openssl.dev}/include";
+            PKG_CONFIG_PATH = nixpkgs.lib.makeSearchPath "lib/pkgconfig" [ openssl.dev ];
 
-          shellHook = ''
+            shellHook = ''
 
 
-            export PG=$PWD/.dev_postgres/
-            export PGDATA=$PG/data
-            export PGPORT=5432
-            export PGHOST=localhost
-            export PGUSER=$USER
-            export PGPASSWORD=postgres
-            export PGDATABASE=hostmap-dev
-            export DB_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
+              export PG=$PWD/.dev_postgres/
+              export PGDATA=$PG/data
+              export PGPORT=5432
+              export PGHOST=localhost
+              export PGUSER=$USER
+              export PGPASSWORD=postgres
+              export PGDATABASE=hostmap-dev
+              export DB_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
 
-            alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
-            alias pg_stop="pg_ctl -D $PGDATA stop"
-            pg_setup() {
-              pg_stop;
-              rm -rf $PG;
-              initdb -D $PGDATA &&
-              echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf &&
-              pg_start &&
-              createdb
-            }
+              alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
+              alias pg_stop="pg_ctl -D $PGDATA stop"
+              pg_setup() {
+                pg_stop;
+                rm -rf $PG;
+                initdb -D $PGDATA &&
+                echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf &&
+                pg_start &&
+                createdb
+              }
 
-          '';
-        };
+            '';
+          };
+      };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
 

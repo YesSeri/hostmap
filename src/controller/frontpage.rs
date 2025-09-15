@@ -9,6 +9,7 @@ use tera::Context;
 
 use crate::{
     dto::host::{CurrentHostDto, CurrentHostGroupDto},
+    model::log::HostId,
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]
@@ -38,7 +39,9 @@ impl FrontPageContext {
 #[axum::debug_handler]
 pub async fn render_frontpage(
     State(AppState {
-        tera, host_repo, ..
+        tera,
+        host_repo,
+        activation_log_service,
     }): State<AppState>,
 ) -> impl IntoResponse {
     let context = Context::new();
@@ -48,11 +51,11 @@ pub async fn render_frontpage(
     let mut host_group_dtos = HashMap::new();
     for group in &host_group_models {
         for host in &group.hosts {
-            if let Ok(Some(log_entry_model)) =
-                host_repo.get_latest_log_entry_for_host(host.host_id).await
+            if let Ok(Some(log_entry_model)) = activation_log_service
+                .latest_entry_for_host(HostId(host.host_id))
+                .await
             {
                 let mut host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
-                host_dto.store_path = shorten_store_path(&host_dto.store_path).to_string();
                 let current_host_group_dto =
                     CurrentHostGroupDto::from((group.clone(), host_dto.clone()));
                 host_group_dtos
@@ -75,22 +78,4 @@ pub async fn render_frontpage(
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
     Html(output)
-}
-
-fn shorten_store_path(path: &str) -> &str {
-    if let Some(rest) = path.strip_prefix("/nix/store/") {
-        if let Some(pos) = rest.find('-') {
-            if (rest.len() > pos + 1) {
-                &rest[..pos]
-            } else {
-                rest
-            }
-        } else {
-            rest
-        }
-    } else if path == "/run/current-system" {
-        "current-system"
-    } else {
-        path
-    }
 }

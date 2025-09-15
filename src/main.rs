@@ -10,7 +10,7 @@ pub(crate) mod dto;
 pub(crate) mod model;
 pub(crate) mod repository;
 pub(crate) mod scraper;
-// pub(crate) mod viewmodel;
+pub(crate) mod service;
 use std::{env, sync::Arc, time::Duration};
 
 use axum::{routing::get, Router};
@@ -22,23 +22,30 @@ use tower_http::services::ServeDir;
 use crate::{
     dto::host::HostGroupsCreateDto,
     model::host::{ExistingHostGroupModel, NewHostGroupModel},
-    repository::{host_repository::PgHostRepository, log_repository::PgLogRepository},
+    repository::{
+        activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
+    },
+    service::activation_log_service::ActivationLogService,
 };
 
 type RetError = dyn std::error::Error + Send + Sync + 'static;
 #[derive(Debug, Clone)]
 struct AppState {
     tera: Arc<Tera>,
-    host_repo: PgHostRepository,
-    log_repo: PgLogRepository,
+    host_repo: HostRepository,
+    activation_log_service: ActivationLogService,
 }
 
 impl AppState {
-    fn new(tera: Arc<Tera>, host_repo: PgHostRepository, log_repo: PgLogRepository) -> Self {
+    fn new(
+        tera: Arc<Tera>,
+        host_repo: HostRepository,
+        activation_log_service: ActivationLogService,
+    ) -> Self {
         Self {
             tera,
             host_repo,
-            log_repo,
+            activation_log_service,
         }
     }
 }
@@ -52,14 +59,15 @@ async fn main() -> Result<(), Box<RetError>> {
         .connect(&db_url)
         .await
         .expect("failed to connect to DATABASE_URL");
-    let host_repo = PgHostRepository::new(pool.clone());
-    let log_repo = PgLogRepository::new(pool.clone());
+    let host_repo = HostRepository::new(pool.clone());
+    // let log_repo = ActivationLogRepository::new(pool.clone());
+    let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
     setup_host_groups(&host_repo).await;
     let tera = Arc::new(load_tera());
-    let app_state = AppState::new(tera, host_repo, log_repo);
+    let app_state = AppState::new(tera, host_repo, log_service);
     let bg_scraper_state = app_state.clone();
     tokio::spawn(async move {
-        let mut interval = time::interval(Duration::from_secs(5));
+        let mut interval = time::interval(Duration::from_secs(30));
         loop {
             interval.tick().await;
             scraper::run_scraper(bg_scraper_state.clone())
@@ -100,7 +108,7 @@ fn read_host_groups_from_file(path: &str) -> String {
     std::fs::read_to_string(path).expect("could not read target list file")
 }
 
-async fn setup_host_groups(repo: &PgHostRepository) {
+async fn setup_host_groups(repo: &HostRepository) {
     let args: Vec<String> = env::args().collect();
     let target_list = args
         .get(1)

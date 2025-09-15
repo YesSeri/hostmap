@@ -1,8 +1,11 @@
 use reqwest::Url;
 
 use crate::{
-    dto::log::LogEntryDto,
-    model::{host::ExistingHostModel, log::NewLogEntryModel},
+    dto::{host, log::LogEntryDto},
+    model::{
+        host::ExistingHostModel,
+        log::{HostId, NewLogEntryModel},
+    },
     AppState, RetError,
 };
 
@@ -25,7 +28,6 @@ async fn fetch_activationlog(url: &Url, host_id: i64) -> Result<Vec<LogEntryDto>
 pub async fn run_scraper(app_state: AppState) -> Result<(), Box<RetError>> {
     let host_groups = app_state.host_repo.get_all_host_groups().await?;
     for group in host_groups.into_iter() {
-        // println!("Processing group: {} with {} hosts", group.name, group.hosts.len());
         for ExistingHostModel { host_id, name, url } in group.hosts {
             let url_text =
                 format!("http://{}/activationlog.csv", url.trim_end_matches('/')).to_owned();
@@ -33,31 +35,19 @@ pub async fn run_scraper(app_state: AppState) -> Result<(), Box<RetError>> {
             let recs = fetch_activationlog(&url, host_id).await?;
             let log_entry_models = recs
                 .into_iter()
-                .map(
-                    |LogEntryDto {
-                         timestamp,
-                         username,
-                         store_path,
-                         activation_type,
-                     }| {
-                        NewLogEntryModel::new(
-                            timestamp,
-                            username,
-                            store_path,
-                            activation_type,
-                            host_id,
-                        )
-                    },
-                )
+                .map(|dto| NewLogEntryModel::from((dto, HostId(host_id))))
                 .collect::<Vec<NewLogEntryModel>>();
             let mut insertions = 0;
             for m in log_entry_models {
-                match app_state.log_repo.add_log_record(&m).await {
+                match app_state
+                    .activation_log_service
+                    .insert_activation_log_record(&m)
+                    .await
+                {
                     Ok(id) => insertions += 1,
                     _ => (),
                 }
             }
-            // println!("inserted {} records for host {}", insertions, host.name)
         }
     }
     Ok(())

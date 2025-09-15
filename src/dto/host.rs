@@ -3,20 +3,19 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{
-    host::{ExistingHostGroupModel, ExistingHostModel, HostGroupModel, NewHostModel},
-    log::{ExistingLogEntryModel, NewLogEntryModel},
+use crate::{
+    dto::revision::StorePathDto,
+    model::{
+        host::{ExistingHostGroupModel, ExistingHostModel, HostGroupModel, NewHostModel},
+        log::{ExistingLogEntryModel, NewLogEntryModel},
+        revision::RevisionModel,
+    },
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HostCreateDto {
     pub name: String,
     pub url: String,
-}
-impl From<NewHostModel> for HostCreateDto {
-    fn from(NewHostModel { name, url, .. }: NewHostModel) -> Self {
-        Self { name, url }
-    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -66,13 +65,15 @@ impl From<(ExistingHostGroupModel, CurrentHostDto)> for CurrentHostGroupDto {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct CurrentHostDto {
-    pub host_name: String,
-    pub host_id: i64,
-    pub url: String,
-    pub store_path: String,
-    pub activation_type: String,
-    pub timestamp: DateTime<Utc>,
+pub(crate) struct CurrentHostDto {
+    pub(crate) host_name: String,
+    pub(crate) host_id: i64,
+    pub(crate) url: String,
+    pub(crate) store_path: StorePathDto,
+    pub(crate) activation_type: String,
+    pub(crate) timestamp: DateTime<Utc>,
+    pub(crate) rev_id: Option<String>,
+    pub(crate) branch: Option<String>,
 }
 
 impl From<(ExistingHostModel, ExistingLogEntryModel)> for CurrentHostDto {
@@ -87,17 +88,25 @@ impl From<(ExistingHostModel, ExistingLogEntryModel)> for CurrentHostDto {
                 store_path,
                 activation_type,
                 timestamp,
+                revision,
                 ..
             },
         ): (ExistingHostModel, ExistingLogEntryModel),
     ) -> Self {
+        let (rev_id, branch) = match revision {
+            Some(r) => (Some(r.rev_id), Some(r.branch)),
+            None => (None, None),
+        };
+
         Self {
             host_name,
             url,
             host_id,
-            store_path,
+            store_path: StorePathDto::from(store_path),
             activation_type,
             timestamp,
+            rev_id,
+            branch,
         }
     }
 }
