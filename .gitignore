@@ -5,4 +5,5 @@
 /.pre-commit-config.yaml
 /result
 /.dev_postgres
+/setup.sh
 /.vscode

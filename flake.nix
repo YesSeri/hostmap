@@ -79,11 +79,18 @@
                   filter =
                     let
                       drvnix = path: _type: builtins.match ".*/drv.nix" path != null;
+                      migrations = path: _type: builtins.match ".*/migrations/.*\\.up\\.sql" path != null;
+                      sqlxMetadata = path: _type: builtins.match ".*/\\.sqlx/.*\\.json" path != null;
                     in
-                    path: type: craneLib.filterCargoSources path type || drvnix path type;
+                    path: type:
+                    craneLib.filterCargoSources path type
+                    || drvnix path type
+                    || migrations path type
+                    || sqlxMetadata path type;
                 };
               nativeBuildInputs = with final; [ pkg-config ];
               buildInputs = with final; [ openssl ];
+              env.SQLX_OFFLINE = "true";
               cargoExtraArgs = final.lib.concatMapStringsSep " " (f: "--features=${f}") features;
             });
         in
@@ -91,9 +98,11 @@
 
       devShells.${system} = {
         default =
+          let
+            preCommitHook = self.checks.${system}.pre-commit-check.shellHook;
+          in
           with pkgs;
           mkShell {
-            # inherit (self.checks.${system}.pre-commit-check) shellHook;
             packages = [
               pkg-config
               openssl
@@ -117,27 +126,27 @@
             PKG_CONFIG_PATH = nixpkgs.lib.makeSearchPath "lib/pkgconfig" [ openssl.dev ];
 
             shellHook = ''
+              	      ${preCommitHook} 
 
+                            export PG=$PWD/.dev_postgres/
+                            export PGDATA=$PG/data
+                            export PGPORT=5432
+                            export PGHOST=localhost
+                            export PGUSER=$USER
+                            export PGPASSWORD=postgres
+                            export PGDATABASE=hostmap-dev
+                            export DB_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
 
-              export PG=$PWD/.dev_postgres/
-              export PGDATA=$PG/data
-              export PGPORT=5432
-              export PGHOST=localhost
-              export PGUSER=$USER
-              export PGPASSWORD=postgres
-              export PGDATABASE=hostmap-dev
-              export DB_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
-
-              alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
-              alias pg_stop="pg_ctl -D $PGDATA stop"
-              pg_setup() {
-                pg_stop;
-                rm -rf $PG;
-                initdb -D $PGDATA &&
-                echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf &&
-                pg_start &&
-                createdb
-              }
+                            alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
+                            alias pg_stop="pg_ctl -D $PGDATA stop"
+                            pg_setup() {
+                              pg_stop;
+                              rm -rf $PG;
+                              initdb -D $PGDATA &&
+                              echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf &&
+                              pg_start &&
+                              createdb
+                            }
 
             '';
           };
@@ -152,6 +161,12 @@
           hooks = {
             rustfmt.enable = true;
             nixfmt-rfc-style.enable = true;
+            sqlx-prepare-migrations = {
+              enable = true;
+              entry = ''./sqlx-prepare-migrations.sh'';
+              pass_filenames = false;
+              always_run = true;
+            };
           };
         };
       };
