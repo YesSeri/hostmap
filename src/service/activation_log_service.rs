@@ -4,7 +4,10 @@ use chrono::NaiveDate;
 use sqlx::error::BoxDynError;
 
 use crate::{
-    model::log::{ExistingLogEntryModel, HostId, NewLogEntryModel},
+    model::{
+        host::ExistingHostModel,
+        log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
+    },
     repository::activation_log_repository::ActivationLogRepository,
     RetError,
 };
@@ -30,22 +33,18 @@ impl ActivationLogService {
     ) -> Result<(), Box<RetError>> {
         self.repo.insert_activation_log_record(rec).await
     }
-    pub async fn activation_logs_by_date_for_host_name(
+
+    pub async fn host_with_logs_by_name(
         &self,
-        host_id: HostId,
-    ) -> Result<BTreeMap<NaiveDate, Vec<ExistingLogEntryModel>>, Box<RetError>> {
-        println!("getting acti logs by date");
-        let log_list = self.repo.entries_for_host(host_id).await?;
-        println!("getting acti logs by date2");
-        dbg!(&log_list);
-        let mut log_map: BTreeMap<NaiveDate, Vec<ExistingLogEntryModel>> = BTreeMap::new();
-
-        for item in log_list {
-            let date = item.timestamp.date_naive();
-            log_map.entry(date).or_default().push(item);
+        host: &ExistingHostModel,
+    ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, Box<RetError>> {
+        let (host, logs) = self.repo.host_with_logs_by_name(&host.name).await?;
+        let mut map: BTreeMap<NaiveDate, Vec<LogEntryWithRevision>> = BTreeMap::new();
+        for log in logs {
+            let date = log.timestamp.date_naive();
+            map.entry(date).or_default().push(log.clone());
         }
-        dbg!(&log_map);
-
-        Ok(log_map)
+        tracing::info!("Log map by date: {:?}", map);
+        Ok(map)
     }
 }

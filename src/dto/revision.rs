@@ -5,7 +5,7 @@ use crate::{
     RetError,
 };
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RevisionDto {
     pub rev_id: String,
     pub branch: String,

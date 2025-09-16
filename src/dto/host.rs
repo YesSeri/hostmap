@@ -13,15 +13,20 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct HostCreateDto {
+pub struct HostDto {
     pub name: String,
     pub url: String,
+}
+impl From<ExistingHostModel> for HostDto {
+    fn from(ExistingHostModel { name, url, .. }: ExistingHostModel) -> Self {
+        Self { name, url }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HostGroupCreateDto {
     pub group_name: String,
-    pub host_dtos: Vec<HostCreateDto>,
+    pub host_dtos: Vec<HostDto>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -32,7 +37,7 @@ impl<'de> Deserialize<'de> for HostGroupsCreateDto {
     where
         D: serde::Deserializer<'de>,
     {
-        let map = HashMap::<String, Vec<HostCreateDto>>::deserialize(deserializer)?;
+        let map = HashMap::<String, Vec<HostDto>>::deserialize(deserializer)?;
         let mut groups = Vec::with_capacity(map.len());
         for (name, host_dtos) in map {
             groups.push(HostGroupCreateDto {

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 
-use crate::dto::host::{HostCreateDto, HostGroupCreateDto};
+use crate::dto::host::{HostDto, HostGroupCreateDto};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HostModel<IdType> {
@@ -12,8 +12,8 @@ pub struct HostModel<IdType> {
 pub(crate) type ExistingHostModel = HostModel<i64>;
 pub(crate) type NewHostModel = HostModel<()>;
 
-impl From<HostCreateDto> for NewHostModel {
-    fn from(HostCreateDto { name, url }: HostCreateDto) -> Self {
+impl From<HostDto> for NewHostModel {
+    fn from(HostDto { name, url }: HostDto) -> Self {
         Self {
             host_id: (),
             name,

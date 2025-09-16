@@ -3,7 +3,10 @@ use sqlx::{Pool, Postgres};
 
 use crate::{
     dto::log::LogEntryDto,
-    model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
+    model::{
+        host::ExistingHostModel,
+        log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
+    },
     RetError,
 };
 
@@ -63,7 +66,6 @@ VALUES ( $1, $2, $3, $4, $5 )
         &self,
         HostId(h_id): HostId,
     ) -> Result<Vec<ExistingLogEntryModel>, sqlx::Error> {
-        dbg!("asd");
         let log_entry_vec = sqlx::query_as!(
             LogEntryWithRevision,
             r#"
@@ -78,5 +80,33 @@ VALUES ( $1, $2, $3, $4, $5 )
         .await?;
         let log_entries = log_entry_vec.into_iter().map(|el| el.into()).collect();
         Ok(log_entries)
+    }
+    pub async fn host_with_logs_by_name(
+        &self,
+        name: &str,
+    ) -> sqlx::Result<(ExistingHostModel, Vec<LogEntryWithRevision>)> {
+        let host = sqlx::query_as!(
+            ExistingHostModel,
+            r#"select host_id, name, url from host where name = $1"#,
+            name
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        let log_with_revision = sqlx::query_as!(
+            LogEntryWithRevision,
+            r#"
+        select log_entry_id, timestamp, username, host_id, store_path, activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch
+        from log_entry
+        where host_id = $1
+        order by timestamp desc
+        "#,
+            host.host_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+        let log_models = log_with_revision.into_iter().map(|el| el.into()).collect();
+
+        Ok((host, log_models))
     }
 }

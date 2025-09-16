@@ -18,7 +18,31 @@ pub(crate) struct LogEntryModel<IdType> {
 pub(crate) type ExistingLogEntryModel = LogEntryModel<i64>;
 pub(crate) type NewLogEntryModel = LogEntryModel<()>;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub(crate) struct HostId(pub(crate) i64);
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub(crate) struct HostName(pub(crate) String);
+impl From<String> for HostName {
+    fn from(s: String) -> Self {
+        HostName(s)
+    }
+}
+impl From<HostName> for String {
+    fn from(host_name: HostName) -> Self {
+        host_name.0
+    }
+}
+
+impl From<i64> for HostId {
+    fn from(num: i64) -> Self {
+        HostId(num)
+    }
+}
+impl From<HostId> for i64 {
+    fn from(host_id: HostId) -> Self {
+        host_id.0
+    }
+}
 
 impl From<(LogEntryDto, HostId)> for NewLogEntryModel {
     fn from(

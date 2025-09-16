@@ -50,10 +50,21 @@ impl AppState {
     }
 }
 
+fn setup_logging() {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .or_else(|_| tracing_subscriber::EnvFilter::try_new(""))
+                .unwrap(),
+        )
+        .init();
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<RetError>> {
     let db_url =
         std::env::var("DATABASE_URL").expect("could not find database url as environment variable");
+    setup_logging();
     let pool = PgPoolOptions::new()
         .max_connections(8)
         .connect(&db_url)
@@ -73,7 +84,7 @@ async fn main() -> Result<(), Box<RetError>> {
             scraper::run_scraper(bg_scraper_state.clone())
                 .await
                 .unwrap_or_else(|err| {
-                    println!("scraping failed due to {err}");
+                    log::info!("scraping failed due to {err}");
                 });
         }
     });
@@ -84,19 +95,20 @@ async fn main() -> Result<(), Box<RetError>> {
             get(controller::history::render_history_page),
         )
         .nest_service("/assets", ServeDir::new("assets"))
+        .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(app_state);
 
     let bind_addr = "127.0.0.1:3000";
     let listener = tokio::net::TcpListener::bind(bind_addr).await.unwrap();
 
-    println!("Creating server at http://{bind_addr}");
+    log::info!("Creating server at http://{bind_addr}");
 
     axum::serve(listener, app.into_make_service())
         .with_graceful_shutdown(async {
             tokio::signal::ctrl_c()
                 .await
                 .expect("Error in the graceful shutdown, slightly ironic");
-            println!("We are shutting the server down. :(");
+            log::info!("We are shutting the server down. :(");
         })
         .await
         .unwrap();
@@ -113,7 +125,7 @@ async fn setup_host_groups(repo: &HostRepository) {
     let target_list = args
         .get(1)
         .expect("please provide a target list file as first argument");
-    println!("target list file with host groups and hosts: {target_list}");
+    log::info!("target list file with host groups and hosts: {target_list}");
     let content = read_host_groups_from_file(&target_list);
     let HostGroupsCreateDto(host_group_dtos): HostGroupsCreateDto =
         serde_json::from_str(&content).expect("could not parse target list file as json");

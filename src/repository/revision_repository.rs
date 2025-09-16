@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    dto::host::{HostCreateDto, HostGroupCreateDto},
+    dto::host::{HostDto, HostGroupCreateDto},
     model::{
         host::{ExistingHostGroupModel, ExistingHostModel, NewHostGroupModel},
         log::ExistingLogEntryModel,

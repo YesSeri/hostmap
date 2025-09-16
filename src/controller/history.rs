@@ -9,18 +9,23 @@ use serde::Serialize;
 use tera::Context;
 
 use crate::{
-    dto::host::{CurrentHostDto, CurrentHostGroupDto},
-    model::log::{ExistingLogEntryModel, HostId},
+    dto::{
+        host::{CurrentHostDto, CurrentHostGroupDto, HostDto},
+        log::LogHistoryDto,
+    },
+    model::log::{ExistingLogEntryModel, HostId, LogEntryModel},
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
-    activations_by_date: BTreeMap<NaiveDate, Vec<ExistingLogEntryModel>>,
+    host: HostDto,
+    activations_by_date: BTreeMap<NaiveDate, Vec<LogHistoryDto>>,
 }
 
 impl HistoryPageContext {
-    fn new(activations_by_date: BTreeMap<NaiveDate, Vec<ExistingLogEntryModel>>) -> Self {
+    fn new(host: HostDto, activations_by_date: BTreeMap<NaiveDate, Vec<LogHistoryDto>>) -> Self {
         Self {
+            host,
             activations_by_date,
         }
     }
@@ -33,17 +38,42 @@ pub async fn render_history_page(
         host_repo,
         activation_log_service,
     }): State<AppState>,
-    Path(host_name): Path<String>,
+    Path(h_name): Path<String>,
 ) -> impl IntoResponse {
     let mut ctx = Context::new();
     ctx.insert("title", "Hostmap - History");
-    println!("getting acti logs by date");
-    let host_id = HostId(4);
-    let logs = activation_log_service
-        .activation_logs_by_date_for_host_name(host_id)
+    tracing::info!("getting activation logs by date");
+    let host = host_repo
+        .get_host_from_hostname(h_name.into())
+        .await
+        .unwrap()
+        .unwrap();
+    tracing::debug!("host id for history page: {:?}", host);
+    let date_map = activation_log_service
+        .host_with_logs_by_name(&host)
         .await
         .unwrap();
-    let fp_ctx = HistoryPageContext::new(logs);
+    tracing::info!(
+        "got activation logs by date, found: {} logs",
+        date_map.len()
+    );
+    for date in date_map.keys() {
+        tracing::info!("date key: {:?}", date);
+        tracing::info!("entries: {:?}", date_map.get(date).unwrap());
+    }
+    let mut date_dto_map: BTreeMap<NaiveDate, Vec<LogHistoryDto>> = BTreeMap::new();
+    for (date, entries) in date_map {
+        let mut dto_vec = Vec::new();
+        for entry in entries {
+            let log_entry_model: LogEntryModel<i64> = entry.into();
+            let dto = LogHistoryDto::from((host.clone(), log_entry_model));
+            dto_vec.push(dto);
+        }
+        date_dto_map.insert(date, dto_vec);
+    }
+    tracing::info!("converted to dto map: {:?}", date_dto_map);
+
+    let fp_ctx = HistoryPageContext::new(HostDto::from(host.clone()), date_dto_map);
 
     ctx.insert("history_ctx", &fp_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
