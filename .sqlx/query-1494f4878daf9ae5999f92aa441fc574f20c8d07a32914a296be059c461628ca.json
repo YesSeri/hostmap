@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select log_entry_id, timestamp, username, host_id, store_path, activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch\n        from log_entry\n        where host_id = $1\n        order by timestamp desc\n        limit 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "log_entry_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "timestamp",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "host_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "store_path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "activation_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "rev_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "branch",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "1494f4878daf9ae5999f92aa441fc574f20c8d07a32914a296be059c461628ca"
+}
