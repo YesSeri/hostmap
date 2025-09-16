@@ -31,6 +31,7 @@
     let
       pname = "hostmap";
       system = "x86_64-linux";
+      testOutput = "hello";
       crane-overlay = final: prev: {
         # crane's lib is not exposed as an overlay in its flake (should be added
         # upstream ideally) so this interface might be brittle, but avoids
@@ -55,7 +56,16 @@
     in
     {
       packages.${system} = lib.mapAttrs (n: _: pkgs.${n}) outputPackages;
-      defaultPackage.${system} = pkgs.${pname};
+      defaultPackage.${system} =
+        let
+          realHostmap = pkgs.${pname};
+        in
+        pkgs.writeShellScript "hostmap" ''
+          # run migratoins
+          echo 'hello' > /tmp/hello-test.txt
+          # run hostmap binary
+          ${realHostmap} "$@"
+        '';
       overlay =
         final: prev:
         let
