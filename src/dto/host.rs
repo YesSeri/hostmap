@@ -1,14 +1,9 @@
-use std::collections::HashMap;
-
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     dto::revision::StorePathDto,
-    model::{
-        host::{ExistingHostGroupModel, ExistingHostModel},
-        log::ExistingLogEntryModel,
-    },
+    model::{host::HostModel, log::ExistingLogEntryModel},
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -16,55 +11,9 @@ pub struct HostDto {
     pub name: String,
     pub url: String,
 }
-impl From<ExistingHostModel> for HostDto {
-    fn from(ExistingHostModel { name, url, .. }: ExistingHostModel) -> Self {
+impl From<HostModel> for HostDto {
+    fn from(HostModel { name, url, .. }: HostModel) -> Self {
         Self { name, url }
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct HostGroupCreateDto {
-    pub group_name: String,
-    pub host_dtos: Vec<HostDto>,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct HostGroupsCreateDto(pub Vec<HostGroupCreateDto>);
-
-impl<'de> Deserialize<'de> for HostGroupsCreateDto {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let map = HashMap::<String, Vec<HostDto>>::deserialize(deserializer)?;
-        let mut groups = Vec::with_capacity(map.len());
-        for (name, host_dtos) in map {
-            groups.push(HostGroupCreateDto {
-                group_name: name,
-                host_dtos,
-            });
-        }
-        Ok(HostGroupsCreateDto(groups))
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct CurrentHostGroupDto {
-    pub group_name: String,
-    pub host_dtos: Vec<CurrentHostDto>,
-}
-
-impl From<(ExistingHostGroupModel, CurrentHostDto)> for CurrentHostGroupDto {
-    fn from(
-        (ExistingHostGroupModel { group_name, .. }, host_dto): (
-            ExistingHostGroupModel,
-            CurrentHostDto,
-        ),
-    ) -> Self {
-        Self {
-            group_name,
-            host_dtos: vec![host_dto],
-        }
     }
 }
 
@@ -80,10 +29,10 @@ pub(crate) struct CurrentHostDto {
     pub(crate) branch: Option<String>,
 }
 
-impl From<(ExistingHostModel, ExistingLogEntryModel)> for CurrentHostDto {
+impl From<(HostModel, ExistingLogEntryModel)> for CurrentHostDto {
     fn from(
         (
-            ExistingHostModel {
+            HostModel {
                 name: host_name,
                 url,
                 host_id,
@@ -95,7 +44,7 @@ impl From<(ExistingHostModel, ExistingLogEntryModel)> for CurrentHostDto {
                 revision,
                 ..
             },
-        ): (ExistingHostModel, ExistingLogEntryModel),
+        ): (HostModel, ExistingLogEntryModel),
     ) -> Self {
         let (rev_id, branch) = match revision {
             Some(r) => (Some(r.rev_id), Some(r.branch)),

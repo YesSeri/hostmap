@@ -2,7 +2,7 @@ use reqwest::Url;
 
 use crate::{
     dto::log::LogEntryDto,
-    model::{host::ExistingHostModel, log::NewLogEntryModel},
+    model::{host::HostModel, log::NewLogEntryModel},
     AppState, RetError,
 };
 
@@ -25,7 +25,7 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, Box<RetError
 pub async fn run_scraper(app_state: AppState) -> Result<(), Box<RetError>> {
     let host_groups = app_state.host_repo.get_all_host_groups().await?;
     for group in host_groups.into_iter() {
-        for ExistingHostModel { host_id, url, .. } in group.hosts {
+        for HostModel { host_id, url, .. } in group.hosts {
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             let url_text =
                 format!("http://{}/activationlog.csv", url.trim_end_matches('/')).to_owned();

@@ -1,9 +1,9 @@
-// #![allow(dead_code)]
-// #![allow(unused_imports)]
-// #![allow(unused_variables)]
-// #![allow(unused_mut)]
-// #![allow(unused_parens)]
-// #![allow(unused_must_use)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unused_mut)]
+#![allow(unused_parens)]
+#![allow(unused_must_use)]
 
 pub(crate) mod controller;
 pub(crate) mod dto;
@@ -11,17 +11,16 @@ pub(crate) mod model;
 pub(crate) mod repository;
 pub(crate) mod scraper;
 pub(crate) mod service;
-use std::{env, sync::Arc, time::Duration};
+use std::{env, sync::Arc};
 
 use axum::{routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
 use tera::Tera;
-use tokio::time::{self};
 use tower_http::services::ServeDir;
 
 use crate::{
-    dto::host::HostGroupsCreateDto,
-    model::host::NewHostGroupModel,
+    dto::host_group::CreateHostGroupsDto,
+    model::host_group::CreateHostGroupModel,
     repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
     },
@@ -127,10 +126,10 @@ async fn setup_host_groups(repo: &HostRepository) {
         .expect("please provide a target list file as first argument");
     log::info!("target list file with host groups and hosts: {target_list}");
     let content = read_host_groups_from_file(target_list);
-    let HostGroupsCreateDto(host_group_dtos): HostGroupsCreateDto =
+    let CreateHostGroupsDto(host_group_dtos): CreateHostGroupsDto =
         serde_json::from_str(&content).expect("could not parse target list file as json");
     for host_group_dto in host_group_dtos {
-        let host_group = NewHostGroupModel::from(host_group_dto);
+        let host_group = CreateHostGroupModel::from(host_group_dto);
         // it will fail if host_group is already inserted
         let _ = repo.insert_group_hosts_with_hosts(&host_group).await;
     }

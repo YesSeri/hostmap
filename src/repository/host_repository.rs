@@ -1,7 +1,8 @@
 use sqlx::{Pool, Postgres};
 
 use crate::model::{
-    host::{ExistingHostGroupModel, ExistingHostModel, NewHostGroupModel},
+    host::HostModel,
+    host_group::{CreateHostGroupModel, HostGroupModel},
     log::HostName,
 };
 
@@ -16,7 +17,7 @@ impl HostRepository {
     }
     pub async fn insert_group_hosts_with_hosts(
         &self,
-        group: &NewHostGroupModel,
+        group: &CreateHostGroupModel,
     ) -> Result<i64, sqlx::Error> {
         let mut tx = self.pool.begin().await?;
         let host_group_id: i64 = sqlx::query_scalar!(
@@ -49,9 +50,9 @@ impl HostRepository {
     pub async fn get_host_from_hostname(
         &self,
         h_name: HostName,
-    ) -> Result<Option<ExistingHostModel>, sqlx::Error> {
+    ) -> Result<Option<HostModel>, sqlx::Error> {
         let result = sqlx::query_as!(
-            ExistingHostModel,
+            HostModel,
             r#"
             select host_id, name, url from host
             where name = $1
@@ -64,7 +65,7 @@ impl HostRepository {
         Ok(result)
     }
 
-    pub async fn get_all_host_groups(&self) -> Result<Vec<ExistingHostGroupModel>, sqlx::Error> {
+    pub async fn get_all_host_groups(&self) -> Result<Vec<HostGroupModel>, sqlx::Error> {
         let groups = sqlx::query!(
             r#"
             select host_group_id, name
@@ -85,7 +86,7 @@ impl HostRepository {
     async fn get_group_hosts_with_hosts(
         &self,
         group_id: i64,
-    ) -> Result<ExistingHostGroupModel, sqlx::Error> {
+    ) -> Result<HostGroupModel, sqlx::Error> {
         let group = sqlx::query!(
             r#"
         select host_group_id, name
@@ -98,7 +99,7 @@ impl HostRepository {
         .await?;
 
         let hosts = sqlx::query_as!(
-            ExistingHostModel,
+            HostModel,
             r#"
         select host_id, name, url
         from host
@@ -110,7 +111,7 @@ impl HostRepository {
         .fetch_all(&self.pool)
         .await?;
 
-        Ok(ExistingHostGroupModel {
+        Ok(HostGroupModel {
             host_group_id: group.host_group_id,
             group_name: group.name,
             hosts,

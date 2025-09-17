@@ -8,7 +8,7 @@ use serde::Serialize;
 use tera::Context;
 
 use crate::{
-    dto::host::{CurrentHostDto, CurrentHostGroupDto},
+    dto::{host::CurrentHostDto, host_group::CurrentHostGroupDto},
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]

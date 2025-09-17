@@ -1,4 +1,4 @@
-use sqlx::{Execute, Pool, Postgres, QueryBuilder};
+use sqlx::{Pool, Postgres, QueryBuilder};
 
 use crate::{
     model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
