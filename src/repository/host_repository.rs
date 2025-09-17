@@ -1,12 +1,8 @@
-use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 
-use crate::{
-    dto::host::{HostDto, HostGroupCreateDto},
-    model::{
-        host::{ExistingHostGroupModel, ExistingHostModel, NewHostGroupModel},
-        log::{ExistingLogEntryModel, HostId, HostName},
-    },
+use crate::model::{
+    host::{ExistingHostGroupModel, ExistingHostModel, NewHostGroupModel},
+    log::HostName,
 };
 
 #[derive(Debug, Clone)]
@@ -52,7 +48,7 @@ impl HostRepository {
 
     pub async fn get_host_from_hostname(
         &self,
-        HostName(h_name): HostName,
+        h_name: HostName,
     ) -> Result<Option<ExistingHostModel>, sqlx::Error> {
         let result = sqlx::query_as!(
             ExistingHostModel,

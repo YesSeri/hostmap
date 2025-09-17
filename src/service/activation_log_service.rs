@@ -1,13 +1,9 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use sqlx::error::BoxDynError;
 
 use crate::{
-    model::{
-        host::ExistingHostModel,
-        log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
-    },
+    model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
     repository::activation_log_repository::ActivationLogRepository,
     RetError,
 };
@@ -27,23 +23,24 @@ impl ActivationLogService {
     ) -> Result<Option<ExistingLogEntryModel>, Box<RetError>> {
         self.repo.latest_entry_for_host(host_id).await
     }
-    pub(crate) async fn insert_activation_log_record(
-        &self,
-        rec: &NewLogEntryModel,
-    ) -> Result<(), Box<RetError>> {
-        self.repo.insert_activation_log_record(rec).await
-    }
 
-    pub async fn host_with_logs_by_name(
+    pub async fn host_with_logs_by_host_id(
         &self,
-        host: &ExistingHostModel,
+        host_id: HostId,
     ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, Box<RetError>> {
-        let (host, logs) = self.repo.host_with_logs_by_name(&host.name).await?;
+        let logs = self.repo.get_logs_by_host_id(host_id).await?;
         let mut map: BTreeMap<NaiveDate, Vec<LogEntryWithRevision>> = BTreeMap::new();
         for log in logs {
             let date = log.timestamp.date_naive();
             map.entry(date).or_default().push(log.clone());
         }
         Ok(map)
+    }
+
+    pub(crate) async fn bulk_insert_log_records(
+        &self,
+        log_entry_models: &[NewLogEntryModel],
+    ) -> Result<(), Box<RetError>> {
+        self.repo.bulk_insert_log_records(log_entry_models).await
     }
 }

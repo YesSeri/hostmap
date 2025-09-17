@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    model::revision::{RevisionModel, StorePathModel},
-    RetError,
-};
+use crate::model::revision::RevisionModel;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RevisionDto {
@@ -35,7 +32,7 @@ impl StorePathDto {
     fn shorten_store_path(store_path: &str) -> String {
         if let Some(rest) = store_path.strip_prefix("/nix/store/") {
             if let Some(pos) = rest.find('-') {
-                if (rest.len() > pos + 1) {
+                if rest.len() > pos + 1 {
                     rest[..pos].to_string()
                 } else {
                     rest.to_string()
@@ -51,11 +48,11 @@ impl StorePathDto {
     }
 }
 
-#[derive(Debug)]
-pub struct RevisionStorePathDto {
-    pub revision: RevisionDto,
-    pub store_path: StorePathDto,
-}
+// #[derive(Debug)]
+// pub struct RevisionStorePathDto {
+//     pub revision: RevisionDto,
+//     pub store_path: StorePathDto,
+// }
 
 // impl TryFrom<RevisionModel> for RevisionDto {
 //     type Error = Box<RetError>;

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Postgres};
 
 use crate::dto::host::{HostDto, HostGroupCreateDto};
 
@@ -23,14 +22,14 @@ impl From<HostDto> for NewHostModel {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct HostGroupModel<IdType> {
+pub struct GenericHostGroupModel<IdType> {
     pub host_group_id: IdType,
     pub group_name: String,
     pub hosts: Vec<HostModel<IdType>>,
 }
 
-pub(crate) type ExistingHostGroupModel = HostGroupModel<i64>;
-pub(crate) type NewHostGroupModel = HostGroupModel<()>;
+pub(crate) type ExistingHostGroupModel = GenericHostGroupModel<i64>;
+pub(crate) type NewHostGroupModel = GenericHostGroupModel<()>;
 
 impl From<HostGroupCreateDto> for NewHostGroupModel {
     fn from(

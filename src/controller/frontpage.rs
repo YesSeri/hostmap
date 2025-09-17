@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use axum::{
     extract::State,
@@ -9,7 +9,6 @@ use tera::Context;
 
 use crate::{
     dto::host::{CurrentHostDto, CurrentHostGroupDto},
-    model::log::HostId,
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]
@@ -44,16 +43,15 @@ pub async fn render_frontpage(
         activation_log_service,
     }): State<AppState>,
 ) -> impl IntoResponse {
-    let context = Context::new();
     let host_group_models = host_repo.get_all_host_groups().await.unwrap();
     let mut host_group_dtos = HashMap::new();
     for group in &host_group_models {
         for host in &group.hosts {
             if let Ok(Some(log_entry_model)) = activation_log_service
-                .latest_entry_for_host(HostId(host.host_id))
+                .latest_entry_for_host(host.host_id)
                 .await
             {
-                let mut host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
+                let host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
                 let current_host_group_dto =
                     CurrentHostGroupDto::from((group.clone(), host_dto.clone()));
                 host_group_dtos

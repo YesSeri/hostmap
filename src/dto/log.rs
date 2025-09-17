@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     dto::revision::{RevisionDto, StorePathDto},
-    model::{host::ExistingHostModel, log::ExistingLogEntryModel},
+    model::log::ExistingLogEntryModel,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -16,14 +16,15 @@ pub struct LogEntryDto {
     #[serde(default)]
     pub revision: Option<RevisionDto>,
 }
+
 fn from_custom_fmt<'de, D>(deserializer: D) -> Result<DateTime<Utc>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    let s = String::deserialize(deserializer)?;
-    let dt =
-        DateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S%:z").map_err(serde::de::Error::custom)?;
-    Ok(dt.with_timezone(&Utc))
+    let s: String = Deserialize::deserialize(deserializer)?;
+    DateTime::parse_from_rfc3339(&s)
+        .map(|dt| dt.with_timezone(&Utc))
+        .map_err(serde::de::Error::custom)
 }
 
 impl From<ExistingLogEntryModel> for LogEntryDto {
@@ -57,8 +58,8 @@ pub struct LogHistoryDto {
     pub(crate) revision: Option<RevisionDto>,
 }
 
-impl From<(ExistingHostModel, ExistingLogEntryModel)> for LogHistoryDto {
-    fn from((host, log): (ExistingHostModel, ExistingLogEntryModel)) -> Self {
+impl From<ExistingLogEntryModel> for LogHistoryDto {
+    fn from(log: ExistingLogEntryModel) -> Self {
         Self {
             activation_type: log.activation_type,
             timestamp: log.timestamp,

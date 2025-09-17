@@ -1,5 +1,3 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
-
 use axum::{
     extract::{Path, State},
     response::{Html, IntoResponse},
@@ -9,11 +7,8 @@ use serde::Serialize;
 use tera::Context;
 
 use crate::{
-    dto::{
-        host::{CurrentHostDto, CurrentHostGroupDto, HostDto},
-        log::LogHistoryDto,
-    },
-    model::log::{ExistingLogEntryModel, HostId, LogEntryModel},
+    dto::{host::HostDto, log::LogHistoryDto},
+    model::log::LogEntryModel,
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]
@@ -40,16 +35,14 @@ pub async fn render_history_page(
     }): State<AppState>,
     Path(h_name): Path<String>,
 ) -> impl IntoResponse {
-    tracing::info!("getting activation logs by date");
     let host = host_repo
-        .get_host_from_hostname(h_name.into())
+        .get_host_from_hostname(h_name)
         .await
         .unwrap()
         .unwrap();
     let mut ctx = Context::new();
-    ctx.insert("title", format!("history for {}", host.name).as_str());
     let date_map = activation_log_service
-        .host_with_logs_by_name(&host)
+        .host_with_logs_by_host_id(host.host_id)
         .await
         .unwrap();
     let mut date_dto_vec = Vec::new();
@@ -57,7 +50,7 @@ pub async fn render_history_page(
         let mut dto_vec = Vec::new();
         for entry in entries {
             let log_entry_model: LogEntryModel<i64> = entry.into();
-            let dto = LogHistoryDto::from((host.clone(), log_entry_model));
+            let dto = LogHistoryDto::from(log_entry_model);
             dto_vec.push(dto);
         }
         date_dto_vec.push((date, dto_vec));
@@ -65,6 +58,7 @@ pub async fn render_history_page(
 
     let fp_ctx = HistoryPageContext::new(HostDto::from(host.clone()), date_dto_vec);
 
+    ctx.insert("title", format!("History for {}", host.name).as_str());
     ctx.insert("history_ctx", &fp_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Html(output)

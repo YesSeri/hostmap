@@ -1,11 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    dto::revision::RevisionDto,
-    model::host::{ExistingHostGroupModel, ExistingHostModel},
-    RetError,
-};
+use crate::dto::revision::RevisionDto;
 
 use sqlx::FromRow;
 

@@ -1,9 +1,9 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(unused_mut)]
-#![allow(unused_parens)]
-#![allow(unused_must_use)]
+// #![allow(dead_code)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
+// #![allow(unused_mut)]
+// #![allow(unused_parens)]
+// #![allow(unused_must_use)]
 
 pub(crate) mod controller;
 pub(crate) mod dto;
@@ -14,14 +14,14 @@ pub(crate) mod service;
 use std::{env, sync::Arc, time::Duration};
 
 use axum::{routing::get, Router};
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::postgres::PgPoolOptions;
 use tera::Tera;
-use tokio::time::{self, interval};
+use tokio::time::{self};
 use tower_http::services::ServeDir;
 
 use crate::{
     dto::host::HostGroupsCreateDto,
-    model::host::{ExistingHostGroupModel, NewHostGroupModel},
+    model::host::NewHostGroupModel,
     repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
     },
@@ -70,6 +70,7 @@ async fn main() -> Result<(), Box<RetError>> {
         .connect(&db_url)
         .await
         .expect("failed to connect to DATABASE_URL");
+    // migrate
     let host_repo = HostRepository::new(pool.clone());
     // let log_repo = ActivationLogRepository::new(pool.clone());
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
@@ -78,9 +79,8 @@ async fn main() -> Result<(), Box<RetError>> {
     let app_state = AppState::new(tera, host_repo, log_service);
     let bg_scraper_state = app_state.clone();
     tokio::spawn(async move {
-        let mut interval = time::interval(Duration::from_secs(30));
         loop {
-            interval.tick().await;
+            tracing::info!("running background scraper");
             scraper::run_scraper(bg_scraper_state.clone())
                 .await
                 .unwrap_or_else(|err| {
@@ -126,7 +126,7 @@ async fn setup_host_groups(repo: &HostRepository) {
         .get(1)
         .expect("please provide a target list file as first argument");
     log::info!("target list file with host groups and hosts: {target_list}");
-    let content = read_host_groups_from_file(&target_list);
+    let content = read_host_groups_from_file(target_list);
     let HostGroupsCreateDto(host_group_dtos): HostGroupsCreateDto =
         serde_json::from_str(&content).expect("could not parse target list file as json");
     for host_group_dto in host_group_dtos {
@@ -137,6 +137,5 @@ async fn setup_host_groups(repo: &HostRepository) {
 }
 
 fn load_tera() -> Tera {
-    let mut tera = Tera::new("templates/**/*").unwrap();
-    tera
+    Tera::new("templates/**/*").unwrap()
 }

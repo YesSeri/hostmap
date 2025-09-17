@@ -6,9 +6,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     dto::revision::StorePathDto,
     model::{
-        host::{ExistingHostGroupModel, ExistingHostModel, HostGroupModel, NewHostModel},
-        log::{ExistingLogEntryModel, NewLogEntryModel},
-        revision::RevisionModel,
+        host::{ExistingHostGroupModel, ExistingHostModel},
+        log::ExistingLogEntryModel,
     },
 };
 

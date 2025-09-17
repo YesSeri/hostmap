@@ -114,6 +114,7 @@
               cargo
               rustc
               nix
+              clippy
               rustfmt
               rust-analyzer
               postgresql_16
