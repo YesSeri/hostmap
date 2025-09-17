@@ -2,7 +2,9 @@
 {% block content %}
 <pre>{{ history_ctx | json_encode(pretty=true) | safe }}</pre>
 
-{% for date, entries in history_ctx.activations_by_date %}
+{% for tuple in history_ctx.activations_by_date | reverse %}
+{% set date = tuple.0 %}
+{% set logs = tuple.1 %}
 <h2>{{ date }}</h2>
 
 <table>
@@ -13,7 +15,7 @@
 		<th>Action</th>
 		<th>Git Ref</th>
 	</tr>
-	{% for entry in entries %}
+	{% for entry in logs %}
 	<tr>
 		<td>{{ entry.timestamp }}</td>
 		<td>{{ entry.username }}</td>

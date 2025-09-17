@@ -19,11 +19,11 @@ use crate::{
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
     host: HostDto,
-    activations_by_date: BTreeMap<NaiveDate, Vec<LogHistoryDto>>,
+    activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>,
 }
 
 impl HistoryPageContext {
-    fn new(host: HostDto, activations_by_date: BTreeMap<NaiveDate, Vec<LogHistoryDto>>) -> Self {
+    fn new(host: HostDto, activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>) -> Self {
         Self {
             host,
             activations_by_date,
@@ -61,7 +61,7 @@ pub async fn render_history_page(
         tracing::info!("date key: {:?}", date);
         tracing::info!("entries: {:?}", date_map.get(date).unwrap());
     }
-    let mut date_dto_map: BTreeMap<NaiveDate, Vec<LogHistoryDto>> = BTreeMap::new();
+    let mut date_dto_vec = Vec::new();
     for (date, entries) in date_map {
         let mut dto_vec = Vec::new();
         for entry in entries {
@@ -69,11 +69,11 @@ pub async fn render_history_page(
             let dto = LogHistoryDto::from((host.clone(), log_entry_model));
             dto_vec.push(dto);
         }
-        date_dto_map.insert(date, dto_vec);
+        date_dto_vec.push((date, dto_vec));
     }
-    tracing::info!("converted to dto map: {:?}", date_dto_map);
+    tracing::info!("converted to dto map: {:?}", date_dto_vec);
 
-    let fp_ctx = HistoryPageContext::new(HostDto::from(host.clone()), date_dto_map);
+    let fp_ctx = HistoryPageContext::new(HostDto::from(host.clone()), date_dto_vec);
 
     ctx.insert("history_ctx", &fp_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
