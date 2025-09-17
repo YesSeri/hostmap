@@ -4,8 +4,19 @@
 <head>
   <title>hostmap - {{ title }}</title>
   <link rel="stylesheet" href="/assets/styles.css">
-  {# <link rel="stylesheet" href="https://classless.de/classless.css"> #}
   <style>
+    table {
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 8px;
+    }
+
+    th {
+      text-align: left;
+    }
   </style>
 </head>
 

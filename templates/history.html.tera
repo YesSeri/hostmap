@@ -1,16 +1,5 @@
 {% extends "base.html.tera" %}
 {% block content %}
-<style>
-	table {
-		border-collapse: collapse;
-	}
-	th, td {
-		padding: 8px;
-	}
-	th {
-		text-align: left;
-	}
-</style>
 {# <pre>{{ history_ctx | json_encode(pretty=true) | safe }}</pre> #}
 
 <table>
