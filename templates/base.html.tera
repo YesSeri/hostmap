@@ -11,7 +11,7 @@
 
 <body style="margin: auto; max-width: 1000px;">
   <header>
-    <h1>hostmap - {{ title }}</h1>
+    <h1><a href="/">hostmap</a> | {{ title }}</h1>
   </header>
 
   {% block content %}{% endblock %}

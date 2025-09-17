@@ -1,13 +1,28 @@
 {% extends "base.html.tera" %}
 {% block content %}
-<pre>{{ history_ctx | json_encode(pretty=true) | safe }}</pre>
-
-{% for tuple in history_ctx.activations_by_date | reverse %}
-{% set date = tuple.0 %}
-{% set logs = tuple.1 %}
-<h2>{{ date }}</h2>
+<style>
+	table {
+		border-collapse: collapse;
+	}
+	th, td {
+		padding: 8px;
+	}
+	th {
+		text-align: left;
+	}
+</style>
+{# <pre>{{ history_ctx | json_encode(pretty=true) | safe }}</pre> #}
 
 <table>
+	{% for tuple in history_ctx.activations_by_date | reverse %}
+	{% set date = tuple.0 %}
+	{% set logs = tuple.1 %}
+
+	<tr>
+		<th colspan="5">
+			<h2>{{ date }}</h2>
+		</th>
+	</tr>
 	<tr>
 		<th>Time</th>
 		<th>User</th>
@@ -16,15 +31,15 @@
 		<th>Git Ref</th>
 	</tr>
 	{% for entry in logs %}
-	<tr>
-		<td>{{ entry.timestamp }}</td>
+	<tr style="font-family: monospace;">
+		<td>{{ entry.timestamp | date(format="%H:%M:%S") }}</td>
 		<td>{{ entry.username }}</td>
-		<td>{{ entry.host_name }}</td>
+		<td>{{ entry.store_path.abbreviated_path }}</td>
 		<td>{{ entry.activation_type }}</td>
-        <td>{{ entry.rev_id | default(value="unknown") }}</td>
+		<td>{{ entry.rev_id | default(value="unknown") }}</td>
 	</tr>
 	{% endfor %}
+	{% endfor %}
 </table>
-{% endfor %}
 
 {% endblock %}

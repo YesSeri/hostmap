@@ -45,9 +45,7 @@ pub async fn render_frontpage(
     }): State<AppState>,
 ) -> impl IntoResponse {
     let context = Context::new();
-    // first get all host groups
     let host_group_models = host_repo.get_all_host_groups().await.unwrap();
-    // then get all activation log entries for each host
     let mut host_group_dtos = HashMap::new();
     for group in &host_group_models {
         for host in &group.hosts {
@@ -73,7 +71,7 @@ pub async fn render_frontpage(
 
     let fp_ctx = FrontPageContext::new(host_group_dtos);
     let mut ctx = Context::new();
-    ctx.insert("title", "Hostmap - Frontpage");
+    ctx.insert("title", "frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();

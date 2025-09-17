@@ -49,8 +49,6 @@ impl From<ExistingLogEntryModel> for LogEntryDto {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct LogHistoryDto {
-    pub(crate) host_name: String,
-    pub(crate) host_id: i64,
     pub(crate) activation_type: String,
     pub(crate) timestamp: DateTime<Utc>,
     pub(crate) username: String,
@@ -62,8 +60,6 @@ pub struct LogHistoryDto {
 impl From<(ExistingHostModel, ExistingLogEntryModel)> for LogHistoryDto {
     fn from((host, log): (ExistingHostModel, ExistingLogEntryModel)) -> Self {
         Self {
-            host_name: host.name,
-            host_id: host.host_id,
             activation_type: log.activation_type,
             timestamp: log.timestamp,
             username: log.username,

@@ -40,27 +40,18 @@ pub async fn render_history_page(
     }): State<AppState>,
     Path(h_name): Path<String>,
 ) -> impl IntoResponse {
-    let mut ctx = Context::new();
-    ctx.insert("title", "Hostmap - History");
     tracing::info!("getting activation logs by date");
     let host = host_repo
         .get_host_from_hostname(h_name.into())
         .await
         .unwrap()
         .unwrap();
-    tracing::debug!("host id for history page: {:?}", host);
+    let mut ctx = Context::new();
+    ctx.insert("title", format!("history for {}", host.name).as_str());
     let date_map = activation_log_service
         .host_with_logs_by_name(&host)
         .await
         .unwrap();
-    tracing::info!(
-        "got activation logs by date, found: {} logs",
-        date_map.len()
-    );
-    for date in date_map.keys() {
-        tracing::info!("date key: {:?}", date);
-        tracing::info!("entries: {:?}", date_map.get(date).unwrap());
-    }
     let mut date_dto_vec = Vec::new();
     for (date, entries) in date_map {
         let mut dto_vec = Vec::new();
@@ -71,7 +62,6 @@ pub async fn render_history_page(
         }
         date_dto_vec.push((date, dto_vec));
     }
-    tracing::info!("converted to dto map: {:?}", date_dto_vec);
 
     let fp_ctx = HistoryPageContext::new(HostDto::from(host.clone()), date_dto_vec);
 

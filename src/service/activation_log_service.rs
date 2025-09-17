@@ -44,7 +44,6 @@ impl ActivationLogService {
             let date = log.timestamp.date_naive();
             map.entry(date).or_default().push(log.clone());
         }
-        tracing::info!("Log map by date: {:?}", map);
         Ok(map)
     }
 }
