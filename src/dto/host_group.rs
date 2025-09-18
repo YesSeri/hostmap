@@ -33,7 +33,7 @@ impl<'de> Deserialize<'de> for CreateHostGroupsDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CurrentHostGroupDto {
     pub group_name: String,
     pub host_dtos: Vec<CurrentHostDto>,

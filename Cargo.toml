@@ -18,3 +18,4 @@ reqwest = "0.12.23"
 tracing = "0.1.41"
 log = "0.4.28"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+anyhow = "1.0.99"

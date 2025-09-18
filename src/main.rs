@@ -28,6 +28,7 @@ use crate::{
 };
 
 type RetError = dyn std::error::Error + Send + Sync + 'static;
+
 #[derive(Debug, Clone)]
 struct AppState {
     tera: Arc<Tera>,
@@ -61,17 +62,15 @@ fn setup_logging() {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<RetError>> {
+    setup_logging();
     let db_url =
         std::env::var("DATABASE_URL").expect("could not find database url as environment variable");
-    setup_logging();
     let pool = PgPoolOptions::new()
         .max_connections(8)
         .connect(&db_url)
         .await
         .expect("failed to connect to DATABASE_URL");
-    // migrate
     let host_repo = HostRepository::new(pool.clone());
-    // let log_repo = ActivationLogRepository::new(pool.clone());
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
     setup_host_groups(&host_repo).await;
     let tera = Arc::new(load_tera());
@@ -130,6 +129,7 @@ async fn setup_host_groups(repo: &HostRepository) {
         serde_json::from_str(&content).expect("could not parse target list file as json");
     for host_group_dto in host_group_dtos {
         let host_group = CreateHostGroupModel::from(host_group_dto);
+        dbg!(&host_group);
         // it will fail if host_group is already inserted
         let _ = repo.insert_group_hosts_with_hosts(&host_group).await;
     }

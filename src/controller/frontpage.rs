@@ -47,22 +47,21 @@ pub async fn render_frontpage(
     let mut host_group_dtos = HashMap::new();
     for group in &host_group_models {
         for host in &group.hosts {
-            if let Ok(Some(log_entry_model)) = activation_log_service
+            let log_entry_model = activation_log_service
                 .latest_entry_for_host(host.host_id)
                 .await
-            {
-                let host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
-                let current_host_group_dto =
-                    CurrentHostGroupDto::from((group.clone(), host_dto.clone()));
-                host_group_dtos
-                    .entry(current_host_group_dto.group_name.clone())
-                    .or_insert_with(|| CurrentHostGroupDto {
-                        group_name: current_host_group_dto.group_name.clone(),
-                        host_dtos: Vec::new(),
-                    })
-                    .host_dtos
-                    .push(host_dto);
-            }
+                .unwrap();
+            let host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
+            let current_host_group_dto =
+                CurrentHostGroupDto::from((group.clone(), host_dto.clone()));
+            host_group_dtos
+                .entry(current_host_group_dto.group_name.clone())
+                .or_insert_with(|| CurrentHostGroupDto {
+                    group_name: current_host_group_dto.group_name.clone(),
+                    host_dtos: Vec::new(),
+                })
+                .host_dtos
+                .push(host_dto);
         }
     }
     let host_group_dtos: Vec<CurrentHostGroupDto> = host_group_dtos.into_values().collect();
