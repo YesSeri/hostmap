@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     dto::{
-        host::HostWithLogDto,
         revision::{RevisionDto, StorePathDto},
     },
     model::log::ExistingLogEntryModel,

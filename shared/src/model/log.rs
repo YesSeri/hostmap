@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{dto::{host::HostWithLogDto, log::LogEntryDto}, model::revision::RevisionModel};
+use crate::{dto::{host::CurrentHostDto, log::LogEntryDto}, model::revision::RevisionModel};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateLogEntryModel {
@@ -89,8 +89,8 @@ impl From<LogEntryWithRevision> for Option<RevisionModel> {
     }
 }
 
-impl From<HostWithLogDto> for CreateLogEntryModel {
-    fn from(HostWithLogDto { host_id, url, host_name, log_entry }: HostWithLogDto) -> Self {
+impl From<CurrentHostDto> for CreateLogEntryModel {
+    fn from(CurrentHostDto { host_id, url, host_name, log_entry }: CurrentHostDto) -> Self {
         Self {
             timestamp: log_entry.timestamp,
             username: log_entry.username,

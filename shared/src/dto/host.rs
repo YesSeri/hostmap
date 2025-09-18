@@ -32,14 +32,14 @@ impl From<HostModel> for HostDto {
     }
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct HostWithLogsDto {
+pub struct CurrentHostDto {
     pub host_name: String,
     pub host_id: i64,
     pub url: String,
-    pub log_entry: Vec<LogHistoryDto>,
+    pub log_entry: LogHistoryDto,
 }
 
-impl From<(HostModel, ExistingLogEntryModel)> for HostWithLogsDto {
+impl From<(HostModel, ExistingLogEntryModel)> for CurrentHostDto {
     fn from(
         (
             HostModel {
@@ -56,6 +56,35 @@ impl From<(HostModel, ExistingLogEntryModel)> for HostWithLogsDto {
             url,
             host_id,
             log_entry: log_entry.into(),
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct HostWithLogsDto {
+    pub host_name: String,
+    pub host_id: i64,
+    pub url: String,
+    pub log_entry_vec: Vec<LogHistoryDto>,
+}
+
+impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostWithLogsDto {
+    fn from(
+        (
+            HostModel {
+                name: host_name,
+                url,
+                host_id,
+            },
+            log_entry_vec,
+        ): (HostModel, Vec<ExistingLogEntryModel>),
+    ) -> Self {
+        Self {
+            host_name,
+            url,
+            host_id,
+            log_entry_vec: log_entry_vec.into_iter().map(|entry| entry.into()).collect(),
         }
     }
 }

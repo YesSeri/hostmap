@@ -5,12 +5,10 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use serde::Serialize;
-use shared::dto::{host::{HostDto, HostWithLogDto}, host_group::HostGroupDto};
+use shared::dto::{host::HostDto, host_group::HostGroupDto};
 use tera::Context;
 
-use crate::{
-    AppState,
-};
+use crate::AppState;
 #[derive(Debug, Clone, Serialize)]
 struct FrontPageContext {
     host_groups: Vec<HostGroupDto>,
@@ -51,8 +49,7 @@ pub async fn render_frontpage(
                 .latest_entry_for_host(host.host_id)
                 .await?;
             let host_dto = HostWithLogsDto::from((host.clone(), log_entry_model));
-            let current_host_group_dto =
-                HostGroupDto::from((group.clone(), host_dto.clone()));
+            let current_host_group_dto = HostGroupDto::from((group.clone(), host_dto.clone()));
             host_group_dtos
                 .entry(current_host_group_dto.group_name.clone())
                 .or_insert_with(|| HostGroupDto {
