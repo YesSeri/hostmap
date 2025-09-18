@@ -3,11 +3,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::dto::revision::RevisionDto;
 
-use sqlx::FromRow;
-
 use super::log::LogEntryWithRevision;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RevisionModel {
     pub rev_id: String,
     pub branch: String,
@@ -27,13 +25,13 @@ impl From<RevisionDto> for RevisionModel {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct StorePathModel {
     pub id: String,
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RevisionStorePath {
     pub revision_id: String,
     pub store_path_id: String,

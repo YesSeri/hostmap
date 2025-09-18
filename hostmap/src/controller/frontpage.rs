@@ -5,21 +5,21 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use serde::Serialize;
+use shared::dto::{host::{HostDto, HostWithLogDto}, host_group::HostGroupDto};
 use tera::Context;
 
 use crate::{
-    dto::{host::CurrentHostDto, host_group::CurrentHostGroupDto},
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]
 struct FrontPageContext {
-    host_groups: Vec<CurrentHostGroupDto>,
+    host_groups: Vec<HostGroupDto>,
     total_groups: usize,
     total_hosts: usize,
 }
 
 impl FrontPageContext {
-    fn new(host_groups: Vec<CurrentHostGroupDto>) -> Self {
+    fn new(host_groups: Vec<HostGroupDto>) -> Self {
         let total_groups = host_groups.len();
         let mut total_hosts = 0;
         for g in &host_groups {
@@ -50,20 +50,21 @@ pub async fn render_frontpage(
             let log_entry_model = activation_log_service
                 .latest_entry_for_host(host.host_id)
                 .await?;
-            let host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
+            let host_dto = HostWithLogsDto::from((host.clone(), log_entry_model));
             let current_host_group_dto =
-                CurrentHostGroupDto::from((group.clone(), host_dto.clone()));
+                HostGroupDto::from((group.clone(), host_dto.clone()));
             host_group_dtos
                 .entry(current_host_group_dto.group_name.clone())
-                .or_insert_with(|| CurrentHostGroupDto {
+                .or_insert_with(|| HostGroupDto {
                     group_name: current_host_group_dto.group_name.clone(),
                     host_dtos: Vec::new(),
+                    host_group_id: current_host_group_dto.host_group_id,
                 })
                 .host_dtos
                 .push(host_dto);
         }
     }
-    let host_group_dtos: Vec<CurrentHostGroupDto> = host_group_dtos.into_values().collect();
+    let host_group_dtos: Vec<HostGroupDto> = host_group_dtos.into_values().collect();
 
     let fp_ctx = FrontPageContext::new(host_group_dtos);
     let mut ctx = Context::new();

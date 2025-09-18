@@ -3,14 +3,13 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    dto::host::{CurrentHostDto, HostDto},
-    model::host_group::HostGroupModel,
+    dto::host::{CreateHostDto, HostDto, HostWithLogDto}, model::host_group::HostGroupModel
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CreateHostGroupDto {
     pub group_name: String,
-    pub host_dtos: Vec<HostDto>,
+    pub host_dtos: Vec<CreateHostDto>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -21,7 +20,7 @@ impl<'de> Deserialize<'de> for CreateHostGroupsDto {
     where
         D: serde::Deserializer<'de>,
     {
-        let map = HashMap::<String, Vec<HostDto>>::deserialize(deserializer)?;
+        let map = HashMap::<String, Vec<CreateHostDto>>::deserialize(deserializer)?;
         let mut groups = Vec::with_capacity(map.len());
         for (name, host_dtos) in map {
             groups.push(CreateHostGroupDto {
@@ -33,18 +32,32 @@ impl<'de> Deserialize<'de> for CreateHostGroupsDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CurrentHostGroupDto {
-    pub group_name: String,
-    pub host_dtos: Vec<CurrentHostDto>,
-}
-
-impl From<(HostGroupModel, CurrentHostDto)> for CurrentHostGroupDto {
+impl From<(HostGroupModel, CreateHostDto)> for CreateHostGroupDto {
     fn from(
-        (HostGroupModel { group_name, .. }, host_dto): (HostGroupModel, CurrentHostDto),
+        (HostGroupModel { group_name, .. }, host_dto): (HostGroupModel, CreateHostDto),
     ) -> Self {
         Self {
             group_name,
+            host_dtos: vec![host_dto],
+        }
+    }
+}
+
+
+
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct HostGroupDto {
+    pub group_name: String,
+    pub host_group_id: i64,
+    pub host_dtos: Vec<HostWithLogDto>,
+}
+
+impl From<(HostGroupModel, HostWithLogDto)> for HostGroupDto {
+    fn from((HostGroupModel { group_name, host_group_id, .. }, host_dto): (HostGroupModel, HostWithLogDto)) -> Self {
+        Self {
+            group_name,
+            host_group_id,
             host_dtos: vec![host_dto],
         }
     }

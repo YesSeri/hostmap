@@ -1,11 +1,18 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::prelude::FromRow;
 
-use crate::{dto::log::LogEntryDto, model::revision::RevisionModel};
+use crate::{dto::{host::HostWithLogDto, log::LogEntryDto}, model::revision::RevisionModel};
 
-#[derive(Debug, FromRow, Clone, Serialize, Deserialize)]
-pub(crate) struct LogEntryModel<IdType> {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateLogEntryModel {
+    pub timestamp: DateTime<Utc>,
+    pub username: String,
+    pub store_path: String,
+    pub activation_type: String,
+    pub hostname: String,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LogEntryModel<IdType> {
     pub log_entry_id: IdType,
     pub timestamp: DateTime<Utc>,
     pub username: String,
@@ -15,24 +22,17 @@ pub(crate) struct LogEntryModel<IdType> {
     pub revision: Option<RevisionModel>,
 }
 
-pub(crate) type ExistingLogEntryModel = LogEntryModel<i64>;
-pub(crate) type NewLogEntryModel = LogEntryModel<()>;
-
-pub(crate) type HostId = i64;
-pub(crate) type HostName = String;
-
-impl From<(LogEntryDto, HostId)> for NewLogEntryModel {
+pub type ExistingLogEntryModel = LogEntryModel<i64>;
+pub type NewLogEntryModel = LogEntryModel<()>;
+impl From<(HostId, LogEntryDto)> for NewLogEntryModel {
     fn from(
-        (
-            LogEntryDto {
-                timestamp,
-                username,
-                store_path,
-                activation_type,
-                revision,
-            },
-            host_id,
-        ): (LogEntryDto, HostId),
+        (host_id, LogEntryDto {
+            timestamp,
+            username,
+            store_path,
+            activation_type,
+            revision,
+        }): (HostId, LogEntryDto),
     ) -> Self {
         Self {
             log_entry_id: (),
@@ -46,8 +46,12 @@ impl From<(LogEntryDto, HostId)> for NewLogEntryModel {
     }
 }
 
-#[derive(Debug, FromRow, Clone)]
-pub(crate) struct LogEntryWithRevision {
+pub type HostId = i64;
+pub type HostName = String;
+
+
+#[derive(Debug, Clone)]
+pub struct LogEntryWithRevision {
     pub log_entry_id: i64,
     pub timestamp: DateTime<Utc>,
     pub username: String,
@@ -81,6 +85,18 @@ impl From<LogEntryWithRevision> for Option<RevisionModel> {
                 branch: b,
             }),
             _ => None,
+        }
+    }
+}
+
+impl From<HostWithLogDto> for CreateLogEntryModel {
+    fn from(HostWithLogDto { host_id, url, host_name, log_entry }: HostWithLogDto) -> Self {
+        Self {
+            timestamp: log_entry.timestamp,
+            username: log_entry.username,
+            store_path: log_entry.store_path.store_path,
+            activation_type: log_entry.activation_type,
+            hostname: host_name
         }
     }
 }

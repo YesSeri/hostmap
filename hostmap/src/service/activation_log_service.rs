@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
+use shared::model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel};
 
 use crate::{
-    model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel},
     repository::activation_log_repository::ActivationLogRepository,
     RetError,
 };

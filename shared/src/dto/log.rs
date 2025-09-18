@@ -2,7 +2,10 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    dto::revision::{RevisionDto, StorePathDto},
+    dto::{
+        host::HostWithLogDto,
+        revision::{RevisionDto, StorePathDto},
+    },
     model::log::ExistingLogEntryModel,
 };
 
@@ -50,12 +53,12 @@ impl From<ExistingLogEntryModel> for LogEntryDto {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct LogHistoryDto {
-    pub(crate) activation_type: String,
-    pub(crate) timestamp: DateTime<Utc>,
-    pub(crate) username: String,
-    pub(crate) rev_id: Option<String>,
-    pub(crate) store_path: StorePathDto,
-    pub(crate) revision: Option<RevisionDto>,
+    pub activation_type: String,
+    pub timestamp: DateTime<Utc>,
+    pub username: String,
+    pub rev_id: Option<String>,
+    pub store_path: StorePathDto,
+    pub revision: Option<RevisionDto>,
 }
 
 impl From<ExistingLogEntryModel> for LogHistoryDto {

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::dto::host::HostDto;
+use crate::dto::host::CreateHostDto;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GenericHostModel<IdType> {
@@ -8,11 +8,11 @@ pub struct GenericHostModel<IdType> {
     pub name: String,
     pub url: String,
 }
-pub(crate) type HostModel = GenericHostModel<i64>;
-pub(crate) type CreateHostModel = GenericHostModel<()>;
+pub type HostModel = GenericHostModel<i64>;
+pub type CreateHostModel = GenericHostModel<()>;
 
-impl From<HostDto> for CreateHostModel {
-    fn from(HostDto { name, url }: HostDto) -> Self {
+impl From<CreateHostDto> for CreateHostModel {
+    fn from(CreateHostDto { name, url }: CreateHostDto) -> Self {
         Self {
             host_id: (),
             name,

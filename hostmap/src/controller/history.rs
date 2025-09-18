@@ -4,11 +4,10 @@ use axum::{
 };
 use chrono::NaiveDate;
 use serde::Serialize;
+use shared::{dto::{host::HostDto, log::LogHistoryDto}, model::log::LogEntryModel};
 use tera::Context;
 
 use crate::{
-    dto::{host::HostDto, log::LogHistoryDto},
-    model::log::LogEntryModel,
     AppState,
 };
 #[derive(Debug, Clone, Serialize)]

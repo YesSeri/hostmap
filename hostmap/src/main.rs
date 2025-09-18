@@ -6,26 +6,21 @@
 #![allow(unused_must_use)]
 
 pub(crate) mod controller;
-pub(crate) mod dto;
-pub(crate) mod model;
 pub(crate) mod repository;
-pub(crate) mod scraper;
 pub(crate) mod service;
-use std::{env, error, sync::Arc};
+use std::{error, sync::Arc};
 
 use axum::{
-    http::{status, StatusCode},
+    http::StatusCode,
     response::IntoResponse,
-    routing::get,
+    routing::{get, post},
     Router,
 };
-use sqlx::postgres::{PgPoolOptions, PgQueryResult};
+use sqlx::postgres::PgPoolOptions;
 use tera::Tera;
 use tower_http::services::ServeDir;
 
 use crate::{
-    dto::host_group::CreateHostGroupsDto,
-    model::host_group::CreateHostGroupModel,
     repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
     },
@@ -96,22 +91,25 @@ async fn main() -> Result<(), RetError> {
         .expect("failed to connect to DATABASE_URL");
     let host_repo = HostRepository::new(pool.clone());
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
-    setup_host_groups(&host_repo).await;
+    
+    // setup_host_groups(&host_repo).await;
     let tera = Arc::new(load_tera());
     let app_state = AppState::new(tera, host_repo, log_service);
     let bg_scraper_state = app_state.clone();
-    tokio::spawn(async move {
-        loop {
-            tracing::info!("running background scraper");
-            scraper::run_scraper(bg_scraper_state.clone())
-                .await
-                .unwrap_or_else(|err| {
-                    log::info!("scraping failed due to {err:?}");
-                });
-        }
-    });
+    // tokio::spawn(async move {
+    //     loop {
+            // tracing::info!("running background scraper");
+            // scraper::run_scraper(bg_scraper_state.clone())
+            //     .await
+            //     .unwrap_or_else(|err| {
+            //         log::info!("scraping failed due to {err:?}");
+            //     });
+    //     }
+    // });
     let app = Router::new()
         .route("/", get(controller::frontpage::render_frontpage))
+        .route("/api/host_group/bulk", post(controller::host_controller::create_host_groups))
+        .route("/api/log_entry/bulk", post(controller::log_entry_controller::create_log_entry))
         .route(
             "/host/{host_name}",
             get(controller::history::render_history_page),
@@ -142,20 +140,20 @@ fn read_host_groups_from_file(path: &str) -> String {
     std::fs::read_to_string(path).expect("could not read target list file")
 }
 
-async fn setup_host_groups(repo: &HostRepository) {
-    let args: Vec<String> = env::args().collect();
-    let target_list = args
-        .get(1)
-        .expect("please provide a target list file as first argument");
-    log::info!("target list file with host groups and hosts: {target_list}");
-    let content = read_host_groups_from_file(target_list);
-    let CreateHostGroupsDto(host_group_dtos): CreateHostGroupsDto =
-        serde_json::from_str(&content).expect("could not parse target list file as json");
-    for host_group_dto in host_group_dtos {
-        let host_group = CreateHostGroupModel::from(host_group_dto);
-        let _ = repo.insert_group_hosts_with_hosts(&host_group).await;
-    }
-}
+// async fn setup_host_groups(repo: &HostRepository) {
+//     let args: Vec<String> = env::args().collect();
+//     let target_list = args
+//         .get(1)
+//         .expect("please provide a target list file as first argument");
+//     log::info!("target list file with host groups and hosts: {target_list}");
+//     let content = read_host_groups_from_file(target_list);
+//     let CreateHostGroupsDto(host_group_dtos): CreateHostGroupsDto =
+//         serde_json::from_str(&content).expect("could not parse target list file as json");
+//     for host_group_dto in host_group_dtos {
+//         let host_group = CreateHostGroupModel::from(host_group_dto);
+//         let _ = repo.insert_group_host_with_hosts(&host_group).await;
+//     }
+// }
 
 fn load_tera() -> Tera {
     Tera::new("templates/**/*").unwrap()
