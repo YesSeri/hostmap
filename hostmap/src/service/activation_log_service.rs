@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use shared::model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel};
+use shared::model::log::{CreateLogEntryModel, ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel};
 
 use crate::{
     repository::activation_log_repository::ActivationLogRepository,
@@ -39,7 +39,7 @@ impl ActivationLogService {
 
     pub(crate) async fn bulk_insert_log_records(
         &self,
-        log_entry_models: &[NewLogEntryModel],
+        log_entry_models: &[CreateLogEntryModel],
     ) -> Result<(), RetError> {
         self.repo.bulk_insert_log_records(log_entry_models).await
     }

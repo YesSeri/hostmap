@@ -4,7 +4,7 @@ use axum::{
 };
 use chrono::NaiveDate;
 use serde::Serialize;
-use shared::{dto::{host::HostDto, log::LogHistoryDto}, model::log::LogEntryModel};
+use shared::{dto::{host::{HostDto, HostDtoNoLogs}, log::LogHistoryDto}, model::log::LogEntryModel};
 use tera::Context;
 
 use crate::{
@@ -12,12 +12,12 @@ use crate::{
 };
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
-    host: HostDto,
+    host: HostDtoNoLogs,
     activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>,
 }
 
 impl HistoryPageContext {
-    fn new(host: HostDto, activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>) -> Self {
+    fn new(host: HostDtoNoLogs, activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>) -> Self {
         Self {
             host,
             activations_by_date,
@@ -55,7 +55,7 @@ pub async fn render_history_page(
         date_dto_vec.push((date, dto_vec));
     }
 
-    let fp_ctx = HistoryPageContext::new(HostDto::from(host.clone()), date_dto_vec);
+    let fp_ctx = HistoryPageContext::new(HostDtoNoLogs::from(host.clone()), date_dto_vec);
 
     ctx.insert("title", format!("History for {}", host.name).as_str());
     ctx.insert("history_ctx", &fp_ctx);

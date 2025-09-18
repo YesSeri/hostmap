@@ -5,7 +5,7 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use serde::Serialize;
-use shared::dto::{host::HostDto, host_group::HostGroupDto};
+use shared::dto::{host::{CurrentHostDto, HostDto, HostWithLogsDto}, host_group::HostGroupDto};
 use tera::Context;
 
 use crate::AppState;
@@ -48,7 +48,7 @@ pub async fn render_frontpage(
             let log_entry_model = activation_log_service
                 .latest_entry_for_host(host.host_id)
                 .await?;
-            let host_dto = HostWithLogsDto::from((host.clone(), log_entry_model));
+            let host_dto: CurrentHostDto = CurrentHostDto::from((host.clone(), log_entry_model));
             let current_host_group_dto = HostGroupDto::from((group.clone(), host_dto.clone()));
             host_group_dtos
                 .entry(current_host_group_dto.group_name.clone())

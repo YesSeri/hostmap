@@ -6,7 +6,7 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use serde::Serialize;
-use shared::{dto::{host::HostWithLogDto, log::LogEntryDto}, model::log::ExistingLogEntryModel};
+use shared::{dto::{host::HostWithLogsDto, log::LogEntryDto}, model::{host::HostModel, log::{CreateLogEntryModel, ExistingLogEntryModel}}};
 use tera::Context;
 
 use crate::AppState;
@@ -21,9 +21,13 @@ pub(crate) async fn create_log_entry(
         activation_log_service,
     }): State<AppState>,
     // post request in body
-    Json(payload): Json<Vec<HostWithLogDto>>,
+    Json(payload): Json<HostWithLogsDto>,
 ) -> axum::response::Result<String> {
-    let models = payload.into_iter().map(|el| LogEntryDto::from(el)).collect::<Vec<LogEntryDto>>();
-    activation_log_service.bulk_insert_log_records(&models).await?;
+    let models: Vec<CreateLogEntryModel> = payload.logs.iter()
+        .map(|dto| CreateLogEntryModel::from((payload.host_id, dto.clone())))
+        .collect();
+     activation_log_service
+        .bulk_insert_log_records(models.as_ref())
+        .await;
     todo!();
 }

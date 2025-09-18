@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    dto::host::{CreateHostDto, CurrentHostDto}, model::host_group::HostGroupModel
+    dto::host::{CreateHostDto, CurrentHostDto}, model::host_group::HostGroupModel, 
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -32,16 +32,16 @@ impl<'de> Deserialize<'de> for CreateHostGroupsDto {
     }
 }
 
-impl From<(HostGroupModel, CreateHostDto)> for CreateHostGroupDto {
-    fn from(
-        (HostGroupModel { group_name, .. }, host_dto): (HostGroupModel, CreateHostDto),
-    ) -> Self {
-        Self {
-            group_name,
-            host_dtos: vec![host_dto],
-        }
-    }
-}
+// impl From<(HostGroupModel, CreateHostDto)> for CreateHostGroupDto {
+//     fn from(
+//         (HostGroupModel { group_name, .. }, host_dto): (HostGroupModel, CreateHostDto),
+//     ) -> Self {
+//         Self {
+//             group_name,
+//             host_dtos: vec![host_dto],
+//         }
+//     }
+// }
 
 
 

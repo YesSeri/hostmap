@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{dto::{host::CurrentHostDto, log::LogEntryDto}, model::revision::RevisionModel};
+use crate::{dto::{host::{CurrentHostDto, HostWithLogsDto}, log::{LogEntryDto, LogHistoryDto}}, model::revision::RevisionModel};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateLogEntryModel {
@@ -9,8 +9,22 @@ pub struct CreateLogEntryModel {
     pub username: String,
     pub store_path: String,
     pub activation_type: String,
-    pub hostname: String,
+    pub host_id: i64,
 }
+
+pub type HostName = String;
+impl From<(HostId, LogHistoryDto)> for CreateLogEntryModel {
+    fn from((host_id, dto): (HostId, LogHistoryDto)) -> Self {
+        Self {
+            timestamp: dto.timestamp,
+            username: dto.username,
+            store_path: dto.store_path.store_path,
+            activation_type: dto.activation_type,
+            host_id: host_id,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogEntryModel<IdType> {
     pub log_entry_id: IdType,
@@ -47,7 +61,6 @@ impl From<(HostId, LogEntryDto)> for NewLogEntryModel {
 }
 
 pub type HostId = i64;
-pub type HostName = String;
 
 
 #[derive(Debug, Clone)]
@@ -89,14 +102,14 @@ impl From<LogEntryWithRevision> for Option<RevisionModel> {
     }
 }
 
-impl From<CurrentHostDto> for CreateLogEntryModel {
-    fn from(CurrentHostDto { host_id, url, host_name, log_entry }: CurrentHostDto) -> Self {
-        Self {
-            timestamp: log_entry.timestamp,
-            username: log_entry.username,
-            store_path: log_entry.store_path.store_path,
-            activation_type: log_entry.activation_type,
-            hostname: host_name
-        }
-    }
-}
+// impl From<CurrentHostDto> for CreateLogEntryModel {
+//     fn from(value: CurrentHostDto) -> Self {
+//         Self {
+//             timestamp: value.logs.timestamp,
+//             username: value.logs.username,
+//             store_path: value.logs.store_path.store_path,
+//             activation_type: value.logs.activation_type,
+//             hostname: value.host_name,
+//         }
+//     }
+// }

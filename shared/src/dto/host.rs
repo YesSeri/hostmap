@@ -17,74 +17,49 @@ impl From<HostModel> for CreateHostDto {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct HostDto {
+pub struct HostDto<L> {
     pub host_name: String,
     pub host_id: i64,
     pub url: String,
+    pub logs: L,
 }
-impl From<HostModel> for HostDto {
+
+impl From<HostModel> for HostDtoNoLogs {
     fn from(HostModel { name, url, host_id }: HostModel) -> Self {
         Self {
             host_name: name,
             url,
             host_id,
+            logs: (),
         }
     }
 }
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CurrentHostDto {
-    pub host_name: String,
-    pub host_id: i64,
-    pub url: String,
-    pub log_entry: LogHistoryDto,
-}
-
-impl From<(HostModel, ExistingLogEntryModel)> for CurrentHostDto {
+impl From<(HostModel, Option<ExistingLogEntryModel>)> for HostDto<Option<LogHistoryDto>> {
     fn from(
-        (
-            HostModel {
-                name: host_name,
-                url,
-                host_id,
-            },
-            log_entry,
-        ): (HostModel, ExistingLogEntryModel),
-    ) -> Self {
-
-        Self {
-            host_name,
-            url,
-            host_id,
-            log_entry: log_entry.into(),
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct HostWithLogsDto {
-    pub host_name: String,
-    pub host_id: i64,
-    pub url: String,
-    pub log_entry_vec: Vec<LogHistoryDto>,
-}
-
-impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostWithLogsDto {
-    fn from(
-        (
-            HostModel {
-                name: host_name,
-                url,
-                host_id,
-            },
-            log_entry_vec,
-        ): (HostModel, Vec<ExistingLogEntryModel>),
+        (HostModel { name, url, host_id }, log_entry): (HostModel, Option<ExistingLogEntryModel>),
     ) -> Self {
         Self {
-            host_name,
+            host_name: name,
             url,
             host_id,
-            log_entry_vec: log_entry_vec.into_iter().map(|entry| entry.into()).collect(),
+            logs: log_entry.map(Into::into),
         }
     }
 }
+
+impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostDto<Vec<LogHistoryDto>> {
+    fn from(
+        (HostModel { name, url, host_id }, entries): (HostModel, Vec<ExistingLogEntryModel>),
+    ) -> Self {
+        Self {
+            host_name: name,
+            url,
+            host_id,
+            logs: entries.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+pub type HostDtoNoLogs = HostDto<()>;
+pub type CurrentHostDto = HostDto<Option<LogHistoryDto>>;
+pub type HostWithLogsDto = HostDto<Vec<LogHistoryDto>>;

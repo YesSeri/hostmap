@@ -1,4 +1,4 @@
-use shared::model::log::{ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel};
+use shared::model::log::{CreateLogEntryModel, ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel};
 use sqlx::{Pool, Postgres, QueryBuilder};
 
 use crate::{
@@ -16,10 +16,10 @@ impl ActivationLogRepository {
     }
     pub(crate) async fn bulk_insert_log_records(
         &self,
-        recs: &[NewLogEntryModel],
+        _recs: &[CreateLogEntryModel],
     ) -> Result<(), RetError> {
         const CHUNK_SIZE: usize = 1000;
-        for chunk in recs.chunks(CHUNK_SIZE) {
+        for chunk in _recs.chunks(CHUNK_SIZE) {
             let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
                 "INSERT INTO log_entry( timestamp, username, host_id, store_path, activation_type ) ",
             );
