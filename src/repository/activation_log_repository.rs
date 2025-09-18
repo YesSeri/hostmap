@@ -17,7 +17,7 @@ impl ActivationLogRepository {
     pub(crate) async fn bulk_insert_log_records(
         &self,
         _recs: &[NewLogEntryModel],
-    ) -> Result<(), Box<RetError>> {
+    ) -> Result<(), RetError> {
         const CHUNK_SIZE: usize = 1000;
         for chunk in _recs.chunks(CHUNK_SIZE) {
             let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
@@ -42,7 +42,7 @@ impl ActivationLogRepository {
     pub async fn latest_entry_for_host(
         &self,
         host_id: HostId,
-    ) -> Result<Option<ExistingLogEntryModel>, Box<RetError>> {
+    ) -> Result<Option<ExistingLogEntryModel>, RetError> {
         let log_entry_with_rev = sqlx::query_as!(
             LogEntryWithRevision,
             r#"

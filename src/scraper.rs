@@ -6,7 +6,7 @@ use crate::{
     AppState, RetError,
 };
 
-async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, Box<RetError>> {
+async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Error> {
     let url = url.as_str();
     let body = reqwest::get(url).await?.text().await?;
     let mut rdr = csv::ReaderBuilder::new()
@@ -22,8 +22,8 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, Box<RetError
     Ok(log_records)
 }
 
-pub async fn run_scraper(app_state: AppState) -> Result<(), Box<RetError>> {
-    let host_groups = app_state.host_repo.get_all_host_groups().await?;
+pub async fn run_scraper(app_state: AppState) -> Result<(), reqwest::Error> {
+    let host_groups = app_state.host_repo.get_all_host_groups().await.unwrap();
     for group in host_groups.into_iter() {
         for HostModel { host_id, url, .. } in group.hosts {
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;

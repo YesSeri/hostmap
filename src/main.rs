@@ -11,10 +11,15 @@ pub(crate) mod model;
 pub(crate) mod repository;
 pub(crate) mod scraper;
 pub(crate) mod service;
-use std::{env, sync::Arc};
+use std::{env, error, sync::Arc};
 
-use axum::{routing::get, Router};
-use sqlx::postgres::PgPoolOptions;
+use axum::{
+    http::{status, StatusCode},
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
+use sqlx::postgres::{PgPoolOptions, PgQueryResult};
 use tera::Tera;
 use tower_http::services::ServeDir;
 
@@ -27,7 +32,26 @@ use crate::{
     service::activation_log_service::ActivationLogService,
 };
 
-type RetError = dyn std::error::Error + Send + Sync + 'static;
+#[derive(Debug, thiserror::Error)]
+enum RetError {
+    #[error("Database error: {0}")]
+    DbError(#[from] sqlx::Error),
+    #[error(transparent)]
+    Other(Box<dyn error::Error + Send + Sync + 'static>),
+}
+
+impl IntoResponse for RetError {
+    fn into_response(self) -> axum::response::Response {
+        match self {
+            RetError::DbError(err) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
+            }
+            RetError::Other(err) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
+            }
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 struct AppState {
@@ -61,7 +85,7 @@ fn setup_logging() {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<RetError>> {
+async fn main() -> Result<(), RetError> {
     setup_logging();
     let db_url =
         std::env::var("DATABASE_URL").expect("could not find database url as environment variable");
@@ -82,7 +106,7 @@ async fn main() -> Result<(), Box<RetError>> {
             scraper::run_scraper(bg_scraper_state.clone())
                 .await
                 .unwrap_or_else(|err| {
-                    log::info!("scraping failed due to {err}");
+                    log::info!("scraping failed due to {err:?}");
                 });
         }
     });
@@ -129,8 +153,6 @@ async fn setup_host_groups(repo: &HostRepository) {
         serde_json::from_str(&content).expect("could not parse target list file as json");
     for host_group_dto in host_group_dtos {
         let host_group = CreateHostGroupModel::from(host_group_dto);
-        dbg!(&host_group);
-        // it will fail if host_group is already inserted
         let _ = repo.insert_group_hosts_with_hosts(&host_group).await;
     }
 }

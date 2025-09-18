@@ -42,15 +42,14 @@ pub async fn render_frontpage(
         host_repo,
         activation_log_service,
     }): State<AppState>,
-) -> impl IntoResponse {
+) -> axum::response::Result<impl IntoResponse> {
     let host_group_models = host_repo.get_all_host_groups().await.unwrap();
     let mut host_group_dtos = HashMap::new();
     for group in &host_group_models {
         for host in &group.hosts {
             let log_entry_model = activation_log_service
                 .latest_entry_for_host(host.host_id)
-                .await
-                .unwrap();
+                .await?;
             let host_dto = CurrentHostDto::from((host.clone(), log_entry_model));
             let current_host_group_dto =
                 CurrentHostGroupDto::from((group.clone(), host_dto.clone()));
@@ -72,5 +71,5 @@ pub async fn render_frontpage(
     ctx.insert("frontpage_ctx", &fp_ctx);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
-    Html(output)
+    Ok(Html(output))
 }

@@ -20,14 +20,14 @@ impl ActivationLogService {
     pub(crate) async fn latest_entry_for_host(
         &self,
         host_id: HostId,
-    ) -> Result<Option<ExistingLogEntryModel>, Box<RetError>> {
+    ) -> Result<Option<ExistingLogEntryModel>, RetError> {
         self.repo.latest_entry_for_host(host_id).await
     }
 
     pub async fn host_with_logs_by_host_id(
         &self,
         host_id: HostId,
-    ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, Box<RetError>> {
+    ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, RetError> {
         let logs = self.repo.get_logs_by_host_id(host_id).await?;
         let mut map: BTreeMap<NaiveDate, Vec<LogEntryWithRevision>> = BTreeMap::new();
         for log in logs {
@@ -40,7 +40,7 @@ impl ActivationLogService {
     pub(crate) async fn bulk_insert_log_records(
         &self,
         log_entry_models: &[NewLogEntryModel],
-    ) -> Result<(), Box<RetError>> {
+    ) -> Result<(), RetError> {
         self.repo.bulk_insert_log_records(log_entry_models).await
     }
 }
