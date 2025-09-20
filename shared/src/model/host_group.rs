@@ -1,31 +1,31 @@
 use serde::Serialize;
 
-use crate::{
-    dto::host_group::CreateHostGroupDto,
-    model::host::GenericHostModel,
-};
+use crate::{dto::host_group::HostGroupDto, model::host::HostModel};
 
 #[derive(Debug, Clone, Serialize)]
-pub struct GenericHostGroupModel<IdType> {
-    pub host_group_id: IdType,
-    pub group_name: String,
-    pub hosts: Vec<GenericHostModel<IdType>>,
+pub struct HostGroupModel {
+    pub host_group_name: String,
+    pub host_models: Vec<HostModel>,
 }
 
-pub type HostGroupModel = GenericHostGroupModel<i64>;
-pub type CreateHostGroupModel = GenericHostGroupModel<()>;
-
-impl From<CreateHostGroupDto> for CreateHostGroupModel {
+impl From<HostGroupDto> for HostGroupModel {
     fn from(
-        CreateHostGroupDto {
-            group_name,
-            host_dtos,
-        }: CreateHostGroupDto,
+        HostGroupDto {
+            host_group_name: group_name,
+            hosts: host_dtos,
+        }: HostGroupDto,
     ) -> Self {
         Self {
-            host_group_id: (),
-            group_name,
-            hosts: host_dtos.into_iter().map(Into::into).collect(),
+            host_group_name: group_name,
+            host_models: host_dtos.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+pub struct HostGroupName(pub String);
+
+impl HostGroupName {
+    pub fn new(v: String) -> Self {
+        Self(v)
     }
 }

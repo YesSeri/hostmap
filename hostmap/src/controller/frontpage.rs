@@ -5,7 +5,13 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use serde::Serialize;
-use shared::dto::{host::{CurrentHostDto, HostDto, HostWithLogsDto}, host_group::HostGroupDto};
+use shared::{
+    dto::{
+        host::{CurrentHostDto, HostDto, HostWithLogsDto},
+        host_group::HostGroupDto,
+    },
+    model::host_group::HostGroupModel,
+};
 use tera::Context;
 
 use crate::AppState;
@@ -21,7 +27,7 @@ impl FrontPageContext {
         let total_groups = host_groups.len();
         let mut total_hosts = 0;
         for g in &host_groups {
-            for _ in &g.host_dtos {
+            for _ in &g.hosts {
                 total_hosts += 1;
             }
         }
@@ -43,22 +49,22 @@ pub async fn render_frontpage(
 ) -> axum::response::Result<impl IntoResponse> {
     let host_group_models = host_repo.get_all_host_groups().await.unwrap();
     let mut host_group_dtos = HashMap::new();
-    for group in &host_group_models {
-        for host in &group.hosts {
+    for group in host_group_models {
+        let current_host_group_dto = HostGroupDto::from(group);
+        for host_dto in current_host_group_dto.hosts.into_iter() {
             let log_entry_model = activation_log_service
-                .latest_entry_for_host(host.host_id)
+                .latest_entry_for_host(host_dto.clone())
                 .await?;
-            let host_dto: CurrentHostDto = CurrentHostDto::from((host.clone(), log_entry_model));
-            let current_host_group_dto = HostGroupDto::from((group.clone(), host_dto.clone()));
+            let host_model = host_dto.clone().into();
+            let host_dto: CurrentHostDto = CurrentHostDto::from((host_model, log_entry_model));
             host_group_dtos
-                .entry(current_host_group_dto.group_name.clone())
+                .entry(current_host_group_dto.host_group_name.clone())
                 .or_insert_with(|| HostGroupDto {
-                    group_name: current_host_group_dto.group_name.clone(),
-                    host_dtos: Vec::new(),
-                    host_group_id: current_host_group_dto.host_group_id,
+                    host_group_name: current_host_group_dto.host_group_name.clone(),
+                    hosts: Vec::new(),
                 })
-                .host_dtos
-                .push(host_dto);
+                .hosts
+                .push(HostDto::from(host_dto));
         }
     }
     let host_group_dtos: Vec<HostGroupDto> = host_group_dtos.into_values().collect();

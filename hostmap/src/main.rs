@@ -11,10 +11,10 @@ pub(crate) mod service;
 use std::{error, sync::Arc};
 
 use axum::{
+    Router,
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
-    Router,
 };
 use sqlx::postgres::PgPoolOptions;
 use tera::Tera;
@@ -91,27 +91,33 @@ async fn main() -> Result<(), RetError> {
         .expect("failed to connect to DATABASE_URL");
     let host_repo = HostRepository::new(pool.clone());
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
-    
+
     // setup_host_groups(&host_repo).await;
     let tera = Arc::new(load_tera());
     let app_state = AppState::new(tera, host_repo, log_service);
     let bg_scraper_state = app_state.clone();
     // tokio::spawn(async move {
     //     loop {
-            // tracing::info!("running background scraper");
-            // scraper::run_scraper(bg_scraper_state.clone())
-            //     .await
-            //     .unwrap_or_else(|err| {
-            //         log::info!("scraping failed due to {err:?}");
-            //     });
+    // tracing::info!("running background scraper");
+    // scraper::run_scraper(bg_scraper_state.clone())
+    //     .await
+    //     .unwrap_or_else(|err| {
+    //         log::info!("scraping failed due to {err:?}");
+    //     });
     //     }
     // });
     let app = Router::new()
         .route("/", get(controller::frontpage::render_frontpage))
-        .route("/api/host_group/bulk", post(controller::host_controller::create_host_groups))
-        .route("/api/log_entry/bulk", post(controller::log_entry_controller::create_log_entry))
         .route(
-            "/host/{host_name}",
+            "/api/host_group/bulk",
+            post(controller::host_controller::create_host_groups),
+        )
+        .route(
+            "/api/log_entry/bulk",
+            post(controller::log_entry_controller::create_log_entry),
+        )
+        .route(
+            "/{host_group_name}/{host_name}",
             get(controller::history::render_history_page),
         )
         .nest_service("/assets", ServeDir::new("assets"))

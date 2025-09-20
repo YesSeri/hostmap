@@ -1,12 +1,15 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use shared::model::log::{CreateLogEntryModel, ExistingLogEntryModel, HostId, LogEntryWithRevision, NewLogEntryModel};
-
-use crate::{
-    repository::activation_log_repository::ActivationLogRepository,
-    RetError,
+use shared::{
+    dto::host::{self, CurrentHostDto},
+    model::{
+        host::HostModel,
+        log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision, NewLogEntryModel},
+    },
 };
+
+use crate::{RetError, repository::activation_log_repository::ActivationLogRepository};
 
 #[derive(Debug, Clone)]
 pub struct ActivationLogService {
@@ -19,16 +22,17 @@ impl ActivationLogService {
     }
     pub(crate) async fn latest_entry_for_host(
         &self,
-        host_id: HostId,
+        host_dto: CurrentHostDto,
     ) -> Result<Option<ExistingLogEntryModel>, RetError> {
-        self.repo.latest_entry_for_host(host_id).await
+        let model: HostModel = host_dto.into();
+        self.repo.latest_entry_for_host(model).await
     }
 
-    pub async fn host_with_logs_by_host_id(
+    pub async fn host_with_logs_by_host_name(
         &self,
-        host_id: HostId,
+        host_name: &str,
     ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, RetError> {
-        let logs = self.repo.get_logs_by_host_id(host_id).await?;
+        let logs = self.repo.get_logs_by_host_name(host_name).await?;
         let mut map: BTreeMap<NaiveDate, Vec<LogEntryWithRevision>> = BTreeMap::new();
         for log in logs {
             let date = log.timestamp.date_naive();

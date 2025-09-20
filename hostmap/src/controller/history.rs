@@ -4,12 +4,16 @@ use axum::{
 };
 use chrono::NaiveDate;
 use serde::Serialize;
-use shared::{dto::{host::{HostDto, HostDtoNoLogs}, log::LogHistoryDto}, model::log::LogEntryModel};
+use shared::{
+    dto::{
+        host::{CurrentHostDto, HostDto, HostDtoNoLogs},
+        log::LogHistoryDto,
+    },
+    model::log::{HostName, LogEntryModel},
+};
 use tera::Context;
 
-use crate::{
-    AppState,
-};
+use crate::AppState;
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
     host: HostDtoNoLogs,
@@ -32,16 +36,16 @@ pub async fn render_history_page(
         host_repo,
         activation_log_service,
     }): State<AppState>,
-    Path(h_name): Path<String>,
+    Path(host_tuple): Path<(String, String)>,
 ) -> impl IntoResponse {
     let host = host_repo
-        .get_host_from_hostname(h_name)
+        .get_host_from_tuple(host_tuple)
         .await
         .unwrap()
         .unwrap();
     let mut ctx = Context::new();
     let date_map = activation_log_service
-        .host_with_logs_by_host_id(host.host_id)
+        .host_with_logs_by_host_name(&host.host_name)
         .await
         .unwrap();
     let mut date_dto_vec = Vec::new();
@@ -55,9 +59,10 @@ pub async fn render_history_page(
         date_dto_vec.push((date, dto_vec));
     }
 
-    let fp_ctx = HistoryPageContext::new(HostDtoNoLogs::from(host.clone()), date_dto_vec);
+    let host_dto = HostDtoNoLogs::from(host.clone());
+    let fp_ctx = HistoryPageContext::new(host_dto, date_dto_vec);
 
-    ctx.insert("title", format!("History for {}", host.name).as_str());
+    ctx.insert("title", format!("History for {}", host.host_name).as_str());
     ctx.insert("history_ctx", &fp_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Html(output)

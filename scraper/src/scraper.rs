@@ -1,5 +1,11 @@
 use reqwest::Url;
-use shared::{dto::{host_group::{CreateHostGroupDto, CreateHostGroupsDto}, log::LogEntryDto}, model::{host::HostModel, host_group::{CreateHostGroupModel, HostGroupModel}, log::NewLogEntryModel}};
+use shared::{
+    dto::{
+        host_group::{CreateHostGroupsDto, HostGroupDto},
+        log::LogEntryDto,
+    },
+    model::{host::HostModel, host_group::HostGroupModel, log::NewLogEntryModel},
+};
 
 // use crate::{
 //     AppState, RetError,
@@ -29,32 +35,44 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Err
     Ok(log_records)
 }
 
-pub(crate) async fn insert_host_groups(host_group_dtos: CreateHostGroupsDto) -> Result<Vec<CreateHostGroupDto, reqwest::Error> {
-    // for group in host_group_dtos.0.iter() {
-    //     tracing::info!("inserting host group {} with hosts {}", group.group_name, group.host_dtos.len());
-    //     let client = create_client()?;
-    //     let res = client
-    //         .post("http://localhost:3000/api/host_group/bulk")
-    //         .json(&group)
-    //         .send()
-    //         .await?;
-
-    // }
+pub(crate) async fn insert_host_groups(
+    host_group_dtos: CreateHostGroupsDto,
+) -> Result<(), reqwest::Error> {
+    tracing::info!("posting host groups to hostmap api: {:?}", host_group_dtos);
+    let client = create_client()?;
+    client
+        .post("http://localhost:3000/api/host_group/bulk")
+        .json(&host_group_dtos)
+        .send()
+        .await?
+        .error_for_status()?; // <- fail on 4xx/5xx
+    tracing::info!("posting has been done");
     Ok(())
 }
 
-
 pub async fn run_scraper(host_groups: Vec<HostGroupModel>) -> Result<(), reqwest::Error> {
     for group in host_groups.into_iter() {
-        for HostModel { host_id, url, .. } in group.hosts {
+        for host in group.host_models {
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-            let url_text =
-                format!("http://{}/activationlog.csv", url.trim_end_matches('/')).to_owned();
+            let url_text = format!(
+                "http://{}/activationlog.csv",
+                host.host_url.trim_end_matches('/')
+            )
+            .to_owned();
             let url = Url::parse(&url_text).expect("could not parse url");
             let recs = fetch_activationlog(&url).await?;
             let log_entry_models = recs
                 .into_iter()
-                .map(|dto| NewLogEntryModel::from((host_id, dto)))
+                .map(|dto| NewLogEntryModel {
+                    host_name: host.host_name.clone(),
+                    timestamp: dto.timestamp,
+                    log_entry_id: (),
+                    username: dto.username,
+                    store_path: dto.store_path,
+                    activation_type: dto.activation_type,
+                    host_group_name: host.host_group_name.clone(),
+                    revision: None,
+                })
                 .collect::<Vec<NewLogEntryModel>>();
 
             //post request

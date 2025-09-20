@@ -8,9 +8,10 @@
 pub(crate) mod scraper;
 use std::{env, error, sync::Arc};
 
-use shared::{dto::host_group::CreateHostGroupsDto, model::host_group::{self, CreateHostGroupModel}};
-
-
+use shared::{
+    dto::host_group::CreateHostGroupsDto,
+    model::host_group::{self, HostGroupModel},
+};
 
 fn setup_logging() {
     tracing_subscriber::fmt()
@@ -31,23 +32,24 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
         .expect("please provide a target list file as first argument");
     let create_host_group_dtos = parse_host_groups(target_list).await;
     let host_group_dto_vec = scraper::insert_host_groups(create_host_group_dtos).await?;
+    Ok(())
 
-    loop {
-        tracing::info!("running background scraper");
-        scraper::run_scraper(create_host_group_dtos.clone())
-            .await
-            .unwrap_or_else(|err| {
-                log::info!("scraping failed due to {err:?}");
-            });
-        tokio::time::sleep(std::time::Duration::from_secs(300)).await;
-    }
+    // loop {
+    //     tracing::info!("running background scraper");
+    //     scraper::run_scraper(create_host_group_dtos.clone())
+    //         .await
+    //         .unwrap_or_else(|err| {
+    //             log::info!("scraping failed due to {err:?}");
+    //         });
+    //     tokio::time::sleep(std::time::Duration::from_secs(300)).await;
+    // }
 }
 
 fn read_host_groups_from_file(path: &str) -> String {
     std::fs::read_to_string(path).expect("could not read target list file")
 }
 
-async fn parse_host_groups(target_list: &str)  -> CreateHostGroupsDto {
+async fn parse_host_groups(target_list: &str) -> CreateHostGroupsDto {
     tracing::info!("target list file with host groups and hosts: {target_list}");
     let content = read_host_groups_from_file(target_list);
     let host_group_dtos: CreateHostGroupsDto =

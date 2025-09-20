@@ -2,9 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    dto::{
-        revision::{RevisionDto, StorePathDto},
-    },
+    dto::revision::{RevisionDto, StorePathDto},
     model::log::ExistingLogEntryModel,
 };
 
