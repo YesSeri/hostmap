@@ -89,9 +89,9 @@ impl HostRepository {
             r#"
             SELECT host_group_name, host_name, host_url FROM host
                 WHERE 
-                host_name = $1
+                host_group_name = $1
                 AND
-                host_group_name = $2
+                host_name = $2
             "#,
             host_tuple.0,
             host_tuple.1,
