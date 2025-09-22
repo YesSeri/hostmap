@@ -16,10 +16,10 @@
   <tr>
     <td><a href="/{{ group.host_group_name }}/{{ host.host_name }}">{{ host.host_name }}</a></td>
     <td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
-    <td>{{ host.log_entry.store_path.abbreviated_path | default(value="no path available") }}</td>
-    <td>{{ host.log_entry.timestamp | default(value="no timestamp available")}}</td>
-    <td>{{ host.log_entry.rev_id | default(value="unknown") }}</td>
-    <td>{{ host.log_entry.branch | default(value="unknown") }}</td>
+    <td>{{ host.logs.store_path.abbreviated_path | default(value="no path available") }}</td>
+    <td>{{ host.logs.timestamp | default(value="no timestamp available")}}</td>
+    <td>{{ host.logs.rev_id | default(value="unknown") }}</td>
+    <td>{{ host.logs.branch | default(value="unknown") }}</td>
   </tr>
   {% endfor %}
 </tbody>

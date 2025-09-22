@@ -19,7 +19,6 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Err
     let client = create_client()?;
     let res = client.get(url).send().await?;
     let body = res.text().await?;
-    tracing::debug!("fetched body from url {}: {}", url, body);
 
     let mut rdr = csv::ReaderBuilder::new()
         .delimiter(b';')
@@ -43,7 +42,6 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Err
 pub(crate) async fn insert_host_groups(
     host_group_dtos: &CreateHostGroupsDto,
 ) -> Result<(), reqwest::Error> {
-    tracing::info!("posting host groups to hostmap api: {:?}", host_group_dtos);
     let client = create_client()?;
     client
         .post("http://localhost:3000/api/host_group/bulk")
@@ -51,7 +49,6 @@ pub(crate) async fn insert_host_groups(
         .send()
         .await?
         .error_for_status()?;
-    tracing::info!("posting has been done");
     Ok(())
 }
 
@@ -65,7 +62,6 @@ pub async fn run_scraper(host_groups: &CreateHostGroupsDto, timeout: u64) -> Res
                 .iter()
                 .map(|model| LogHistoryDto::from(model.clone())).collect();
                     
-            tracing::debug!("scraped log entry models: {:?}", log_entry_models);
 
             let host_with_logs_dto = HostWithLogsDto {
                 host_name: host.host_name.clone(),
@@ -81,13 +77,6 @@ pub async fn run_scraper(host_groups: &CreateHostGroupsDto, timeout: u64) -> Res
                 .await
                 .map_err(log_error)?;
             let default_text = res.text().await.unwrap_or_default();
-            tracing::info!(
-                "posted {} log entries for host {} in group {}. Response: {}",
-                log_entry_models.len(),
-                host.host_name,
-                host.host_group_name,
-                default_text
-            );
 
             tracing::info!("scraped host: {:?}", host);
         }

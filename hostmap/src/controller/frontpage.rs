@@ -73,6 +73,7 @@ pub async fn render_frontpage(
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
+    tracing::debug!("frontpage with context: {:#?}", ctx);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
     Ok(Html(output))
