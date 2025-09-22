@@ -48,7 +48,7 @@ impl From<ExistingLogEntryModel> for LogEntryDto {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
 pub struct LogHistoryDto {
     pub activation_type: String,
     pub timestamp: DateTime<Utc>,

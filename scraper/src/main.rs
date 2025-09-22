@@ -29,9 +29,12 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     let args: Vec<String> = env::args().collect();
     let target_list = args
         .get(1)
-        .expect("please provide a target list file as first argument");
+        .expect("please provide target list file as first argument");
     let create_host_group_dtos = parse_host_groups(target_list).await;
-    let host_group_dto_vec = scraper::insert_host_groups(create_host_group_dtos).await?;
+    println!("created hgdtos");
+    let json = serde_json::to_string_pretty(&create_host_group_dtos);
+    println!("json: {}", json.unwrap());
+    scraper::insert_host_groups(create_host_group_dtos).await?;
     Ok(())
 
     // loop {

@@ -1,7 +1,7 @@
 <tbody>
   <tr>
     <th colspan="6">
-      <h2>{{ group.group_name }}</h2>
+      <h2>{{ group.host_group_name }}</h2>
     </th>
   </tr>
   <tr>
@@ -12,14 +12,14 @@
     <th>rev</th>
     <th>ref</th>
   </tr>
-  {% for host_dto in group.host_dtos %}
+  {% for host in group.hosts %}
   <tr>
-    <td><a href="/host/{{ host_dto.host_name }}">{{ host_dto.host_name }}</a></td>
-    <td><a href="http://{{ host_dto.url }}">{{ host_dto.url }}</a></td>
-    <td>{{ host_dto.log_entry.store_path.abbreviated_path | default(value="no path available") }}</td>
-    <td>{{ host_dto.log_entry.timestamp | default(value="no timestamp available")}}</td>
-    <td>{{ host_dto.log_entry.rev_id | default(value="unknown") }}</td>
-    <td>{{ host_dto.log_entry.branch | default(value="unknown") }}</td>
+    <td><a href="/{{ group.host_group_name }}/{{ host.host_name }}">{{ host.host_name }}</a></td>
+    <td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
+    <td>{{ host.log_entry.store_path.abbreviated_path | default(value="no path available") }}</td>
+    <td>{{ host.log_entry.timestamp | default(value="no timestamp available")}}</td>
+    <td>{{ host.log_entry.rev_id | default(value="unknown") }}</td>
+    <td>{{ host.log_entry.branch | default(value="unknown") }}</td>
   </tr>
   {% endfor %}
 </tbody>

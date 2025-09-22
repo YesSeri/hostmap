@@ -1,22 +1,16 @@
-[
-  {
-    "host_group_name": "hosts-prod",
-    "hosts": [
-      {
-      "host_group_name": "hosts-prod",
-        "host_name": "hosts-p01",
-        "host_url": "hosts-p01.pzz.dk"
-      },
-      {
-        "host_group_name": "hosts-prod",
-        "host_name": "hosts-p02",
-        "host_url": "hosts-p02.pzz.dk"
-      },
-      {
-        "host_group_name": "hosts-prod",
-        "host_name": "hosts-p03",
-        "host_url": "hosts-p03.pzz.dk"
-      }
-    ]
-  }
-]
+{
+  "hosts-prod": [
+    {
+      "name": "hosts-p01",
+      "url": "hosts-p01.pzz.dk"
+    },
+    {
+      "name": "hosts-p02",
+      "url": "hosts-p02.pzz.dk"
+    },
+    {
+      "name": "hosts-p03",
+      "url": "hosts-p03.pzz.dk"
+    }
+  ]
+}

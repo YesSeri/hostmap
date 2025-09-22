@@ -4,6 +4,8 @@ use shared::{
 };
 use sqlx::{Execute, Pool, Postgres, QueryBuilder};
 
+use crate::RetError;
+
 #[derive(Debug, Clone)]
 pub struct HostRepository {
     pool: Pool<Postgres>,
@@ -80,21 +82,23 @@ impl HostRepository {
     pub async fn get_host_from_tuple(
         &self,
         host_tuple: (String, String),
-    ) -> Result<Option<HostModel>, sqlx::Error> {
+    ) -> Result<Option<HostModel>, RetError> {
+        dbg!("fetching host from db with tuple: {:?}", &host_tuple);
         let result = sqlx::query_as!(
             HostModel,
             r#"
             SELECT host_group_name, host_name, host_url FROM host
                 WHERE 
-                host_group_name = $2
-                AND
                 host_name = $1
+                AND
+                host_group_name = $2
             "#,
             host_tuple.0,
             host_tuple.1,
         )
         .fetch_optional(&self.pool)
         .await?;
+    dbg!(&result);
 
         Ok(result)
     }

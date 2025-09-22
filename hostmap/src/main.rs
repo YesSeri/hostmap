@@ -33,19 +33,25 @@ enum RetError {
     DbError(#[from] sqlx::Error),
     #[error(transparent)]
     Other(Box<dyn error::Error + Send + Sync + 'static>),
+    #[error("Not Found")]
+    NotFound,
 }
 
 impl IntoResponse for RetError {
     fn into_response(self) -> axum::response::Response {
         match self {
             RetError::DbError(err) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
-            }
+                        (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
+                    }
             RetError::Other(err) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
-            }
+                        (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
+                    }
+            RetError::NotFound => (StatusCode::NOT_FOUND, "The thing you were looking for could not be found".to_string()).into_response(),
         }
     }
+}
+async fn fallback() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "Could not find the thing you were looking for.")
 }
 
 #[derive(Debug, Clone)]
@@ -78,10 +84,23 @@ fn setup_logging() {
         )
         .init();
 }
+use tracing_subscriber::{fmt, EnvFilter};
+
+pub fn init_tracing() {
+    // Reads RUST_LOG if set; otherwise uses a sensible default
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info,sqlx=info,sqlx::query=trace"));
+    fmt()
+        .with_env_filter(filter)
+        .with_target(false)
+        .compact()
+        .init();
+}
+
 
 #[tokio::main]
 async fn main() -> Result<(), RetError> {
-    setup_logging();
+    init_tracing();
     let db_url =
         std::env::var("DATABASE_URL").expect("could not find database url as environment variable");
     let pool = PgPoolOptions::new()
@@ -91,23 +110,10 @@ async fn main() -> Result<(), RetError> {
         .expect("failed to connect to DATABASE_URL");
     let host_repo = HostRepository::new(pool.clone());
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
-
-    // setup_host_groups(&host_repo).await;
     let tera = Arc::new(load_tera());
     let app_state = AppState::new(tera, host_repo, log_service);
     let bg_scraper_state = app_state.clone();
-    // tokio::spawn(async move {
-    //     loop {
-    // tracing::info!("running background scraper");
-    // scraper::run_scraper(bg_scraper_state.clone())
-    //     .await
-    //     .unwrap_or_else(|err| {
-    //         log::info!("scraping failed due to {err:?}");
-    //     });
-    //     }
-    // });
     let app = Router::new()
-        .route("/", get(controller::frontpage::render_frontpage))
         .route(
             "/api/host_group/bulk",
             post(controller::host_controller::create_host_groups),
@@ -116,10 +122,12 @@ async fn main() -> Result<(), RetError> {
             "/api/log_entry/bulk",
             post(controller::log_entry_controller::create_log_entry),
         )
+        .route("/", get(controller::frontpage::render_frontpage))
         .route(
             "/{host_group_name}/{host_name}",
             get(controller::history::render_history_page),
         )
+        .fallback(fallback)
         .nest_service("/assets", ServeDir::new("assets"))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(app_state);
@@ -145,21 +153,6 @@ async fn main() -> Result<(), RetError> {
 fn read_host_groups_from_file(path: &str) -> String {
     std::fs::read_to_string(path).expect("could not read target list file")
 }
-
-// async fn setup_host_groups(repo: &HostRepository) {
-//     let args: Vec<String> = env::args().collect();
-//     let target_list = args
-//         .get(1)
-//         .expect("please provide a target list file as first argument");
-//     log::info!("target list file with host groups and hosts: {target_list}");
-//     let content = read_host_groups_from_file(target_list);
-//     let CreateHostGroupsDto(host_group_dtos): CreateHostGroupsDto =
-//         serde_json::from_str(&content).expect("could not parse target list file as json");
-//     for host_group_dto in host_group_dtos {
-//         let host_group = CreateHostGroupModel::from(host_group_dto);
-//         let _ = repo.insert_group_host_with_hosts(&host_group).await;
-//     }
-// }
 
 fn load_tera() -> Tera {
     Tera::new("templates/**/*").unwrap()

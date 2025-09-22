@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::model::revision::RevisionModel;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
 pub struct RevisionDto {
     pub rev_id: String,
     pub branch: String,
@@ -13,7 +13,7 @@ impl From<RevisionModel> for RevisionDto {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct StorePathDto {
     pub store_path: String,
     pub abbreviated_path: String,
