@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     dto::revision::{RevisionDto, StorePathDto},
-    model::log::ExistingLogEntryModel,
+    model::log::{ExistingLogEntryModel, NewLogEntryModel},
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -53,7 +53,6 @@ pub struct LogHistoryDto {
     pub activation_type: String,
     pub timestamp: DateTime<Utc>,
     pub username: String,
-    pub rev_id: Option<String>,
     pub store_path: StorePathDto,
     pub revision: Option<RevisionDto>,
 }
@@ -64,9 +63,29 @@ impl From<ExistingLogEntryModel> for LogHistoryDto {
             activation_type: log.activation_type,
             timestamp: log.timestamp,
             username: log.username,
-            rev_id: log.revision.as_ref().map(|r| r.rev_id.clone()),
             store_path: log.store_path.into(),
             revision: log.revision.map(|r| r.into()),
+        }
+    }
+}
+
+impl From<NewLogEntryModel> for LogHistoryDto {
+    fn from(
+        NewLogEntryModel {
+            activation_type,
+            timestamp,
+            username,
+            store_path,
+            revision,
+            ..
+        }: NewLogEntryModel,
+    ) -> Self {
+        Self {
+            activation_type,
+            timestamp,
+            username,
+            store_path: store_path.into(),
+            revision: revision.map(|r| r.into()),
         }
     }
 }

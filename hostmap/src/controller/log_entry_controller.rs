@@ -29,6 +29,7 @@ pub(crate) async fn create_log_entry(
     // post request in body
     Json(host_with_logs_dto): Json<HostWithLogsDto>,
 ) -> axum::response::Result<String> {
+    tracing::debug!("Received log entry DTO: {:?}", host_with_logs_dto);
     let models: Vec<CreateLogEntryModel> = host_with_logs_dto
         .logs
         .iter()
@@ -37,5 +38,5 @@ pub(crate) async fn create_log_entry(
     activation_log_service
         .bulk_insert_log_records(models.as_ref())
         .await;
-    todo!();
+    Ok("Log entries created".to_string())
 }

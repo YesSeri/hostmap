@@ -89,7 +89,8 @@ use tracing_subscriber::{fmt, EnvFilter};
 pub fn init_tracing() {
     // Reads RUST_LOG if set; otherwise uses a sensible default
     let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,sqlx=info,sqlx::query=trace"));
+        .unwrap_or_else(|_| EnvFilter::new("info"));
+        // .unwrap_or_else(|_| EnvFilter::new("info,sqlx=info,sqlx::query=trace,axum=debug"));
     fmt()
         .with_env_filter(filter)
         .with_target(false)
@@ -135,14 +136,14 @@ async fn main() -> Result<(), RetError> {
     let bind_addr = "127.0.0.1:3000";
     let listener = tokio::net::TcpListener::bind(bind_addr).await.unwrap();
 
-    log::info!("Creating server at http://{bind_addr}");
+    tracing::info!("Creating server at http://{bind_addr}");
 
     axum::serve(listener, app.into_make_service())
         .with_graceful_shutdown(async {
             tokio::signal::ctrl_c()
                 .await
                 .expect("Error in the graceful shutdown, slightly ironic");
-            log::info!("We are shutting the server down. :(");
+            tracing::info!("We are shutting the server down. :(");
         })
         .await
         .unwrap();

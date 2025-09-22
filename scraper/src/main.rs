@@ -30,22 +30,21 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     let target_list = args
         .get(1)
         .expect("please provide target list file as first argument");
+    let timeout = args
+        .get(2)
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(10);
     let create_host_group_dtos = parse_host_groups(target_list).await;
-    println!("created hgdtos");
-    let json = serde_json::to_string_pretty(&create_host_group_dtos);
-    println!("json: {}", json.unwrap());
-    scraper::insert_host_groups(create_host_group_dtos).await?;
-    Ok(())
-
-    // loop {
-    //     tracing::info!("running background scraper");
-    //     scraper::run_scraper(create_host_group_dtos.clone())
-    //         .await
-    //         .unwrap_or_else(|err| {
-    //             log::info!("scraping failed due to {err:?}");
-    //         });
-    //     tokio::time::sleep(std::time::Duration::from_secs(300)).await;
-    // }
+    scraper::insert_host_groups(&create_host_group_dtos).await?;
+    loop {
+        tracing::info!("running background scraper");
+        let create_host_group_dtos = create_host_group_dtos.clone();
+        scraper::run_scraper(&create_host_group_dtos, timeout)
+            .await
+            .unwrap_or_else(|err| {
+                tracing::info!("scraping failed due to {err:?}");
+            });
+    }
 }
 
 fn read_host_groups_from_file(path: &str) -> String {

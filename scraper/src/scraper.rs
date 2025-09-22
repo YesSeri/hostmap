@@ -1,15 +1,13 @@
-use reqwest::Url;
+use reqwest::{Response, Url};
+use serde_json::de;
 use shared::{
     dto::{
+        host::{CurrentHostDto, HostWithLogsDto},
         host_group::{CreateHostGroupsDto, HostGroupDto},
-        log::LogEntryDto,
+        log::{LogEntryDto, LogHistoryDto},
     },
     model::{host::HostModel, host_group::HostGroupModel, log::NewLogEntryModel},
 };
-
-// use crate::{
-//     AppState, RetError,
-// };
 
 fn create_client() -> Result<reqwest::Client, reqwest::Error> {
     let builder = reqwest::Client::builder().connect_timeout(std::time::Duration::from_secs(10));
@@ -21,6 +19,7 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Err
     let client = create_client()?;
     let res = client.get(url).send().await?;
     let body = res.text().await?;
+    tracing::debug!("fetched body from url {}: {}", url, body);
 
     let mut rdr = csv::ReaderBuilder::new()
         .delimiter(b';')
@@ -29,14 +28,20 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Err
 
     let mut log_records = Vec::new();
     for line in rdr.deserialize() {
-        let rec: LogEntryDto = line.unwrap();
-        log_records.push(rec);
+        let line = match line {
+            Ok(line) => line,
+            Err(err) => {
+                tracing::warn!("could not parse line in csv from url: {url} because of {err}");
+                continue;
+            }
+        };
+        log_records.push(line);
     }
     Ok(log_records)
 }
 
 pub(crate) async fn insert_host_groups(
-    host_group_dtos: CreateHostGroupsDto,
+    host_group_dtos: &CreateHostGroupsDto,
 ) -> Result<(), reqwest::Error> {
     tracing::info!("posting host groups to hostmap api: {:?}", host_group_dtos);
     let client = create_client()?;
@@ -45,52 +50,70 @@ pub(crate) async fn insert_host_groups(
         .json(&host_group_dtos)
         .send()
         .await?
-        .error_for_status()?; // <- fail on 4xx/5xx
+        .error_for_status()?;
     tracing::info!("posting has been done");
     Ok(())
 }
 
-pub async fn run_scraper(host_groups: Vec<HostGroupModel>) -> Result<(), reqwest::Error> {
-    for group in host_groups.into_iter() {
-        for host in group.host_models {
-            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-            let url_text = format!(
-                "http://{}/activationlog.csv",
-                host.host_url.trim_end_matches('/')
-            )
-            .to_owned();
-            let url = Url::parse(&url_text).expect("could not parse url");
-            let recs = fetch_activationlog(&url).await?;
-            let log_entry_models = recs
-                .into_iter()
-                .map(|dto| NewLogEntryModel {
-                    host_name: host.host_name.clone(),
-                    timestamp: dto.timestamp,
-                    log_entry_id: (),
-                    username: dto.username,
-                    store_path: dto.store_path,
-                    activation_type: dto.activation_type,
-                    host_group_name: host.host_group_name.clone(),
-                    revision: None,
-                })
-                .collect::<Vec<NewLogEntryModel>>();
+pub async fn run_scraper(host_groups: &CreateHostGroupsDto, timeout: u64) -> Result<(), reqwest::Error> {
+    tracing::info!("running scraper from start");
+    for group in host_groups.0.iter() {
+        for host in group.hosts.iter() {
+            tokio::time::sleep(std::time::Duration::from_secs(timeout)).await;
+            let log_entry_models = scrape_host(host).await?;
+            let dtos: Vec<LogHistoryDto> = log_entry_models
+                .iter()
+                .map(|model| LogHistoryDto::from(model.clone())).collect();
+                    
+            tracing::debug!("scraped log entry models: {:?}", log_entry_models);
 
-            //post request
-            let client = create_client()?;
+            let host_with_logs_dto = HostWithLogsDto {
+                host_name: host.host_name.clone(),
+                host_group_name: host.host_group_name.clone(),
+                host_url: host.host_url.clone(),
+                logs: dtos,
+            };
+            let client = create_client().map_err(log_error)?;
             let res = client
                 .post("http://localhost:3000/api/log_entry/bulk")
-                .json(&log_entry_models)
+                .json(&host_with_logs_dto)
                 .send()
-                .await?;
+                .await
+                .map_err(log_error)?;
+            let default_text = res.text().await.unwrap_or_default();
+            tracing::info!(
+                "posted {} log entries for host {} in group {}. Response: {}",
+                log_entry_models.len(),
+                host.host_name,
+                host.host_group_name,
+                default_text
+            );
 
-            // let res = app_state
-            //     .activation_log_service
-            //     .bulk_insert_log_records(&log_entry_models)
-            //     .await;
-            // if let Err(e) = res {
-            //     tracing::error!("error inserting log records for host_id {}: {}", host_id, e);
-            // }
+            tracing::info!("scraped host: {:?}", host);
         }
+        tracing::info!("finished scraping host group: {:?}", group.host_group_name);
     }
     Ok(())
+}
+
+fn log_error(err: reqwest::Error) -> reqwest::Error {
+    tracing::error!("Error occurred: {}", err);
+    err
+}
+async fn scrape_host(host: &CurrentHostDto) -> Result<Vec<NewLogEntryModel>, reqwest::Error> {
+    let url_text = format!(
+        "http://{}/activationlog.csv",
+        host.host_url.trim_end_matches('/')
+    )
+    .to_owned();
+    let url = Url::parse(&url_text).expect("could not parse url");
+    let recs = fetch_activationlog(&url).await.map_err(log_error)?;
+    tracing::debug!("records fetched from url {}: {:?}", url, recs);
+    let host_model:HostModel = host.clone().into();
+    let log_entry_models = recs
+        .into_iter()
+        .map(|dto| NewLogEntryModel::from((host_model.clone(), dto)) )
+        .collect::<Vec<NewLogEntryModel>>();
+
+    Ok(log_entry_models)
 }
