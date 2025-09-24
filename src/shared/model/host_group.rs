@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::{dto::host_group::HostGroupDto, model::host::HostModel};
+use crate::shared::{dto::host_group::HostGroupDto, model::host::HostModel};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct HostGroupModel {

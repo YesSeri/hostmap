@@ -1,6 +1,6 @@
 use reqwest::{Response, Url};
 use serde_json::de;
-use shared::{
+use crate::shared::{
     dto::{
         host::{CurrentHostDto, HostWithLogsDto},
         host_group::{CreateHostGroupsDto, HostGroupDto},

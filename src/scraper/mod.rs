@@ -5,13 +5,13 @@
 #![allow(unused_parens)]
 #![allow(unused_must_use)]
 
-pub(crate) mod scraper;
 use std::{env, error, sync::Arc};
 
-use shared::{
+use crate::{scraper, shared::{
     dto::host_group::CreateHostGroupsDto,
     model::host_group::{self, HostGroupModel},
-};
+}};
+
 
 fn setup_logging() {
     tracing_subscriber::fmt()
@@ -23,8 +23,7 @@ fn setup_logging() {
         .init();
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
+async fn run() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     setup_logging();
     let args: Vec<String> = env::args().collect();
     let target_list = args
@@ -35,15 +34,15 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(10);
     let create_host_group_dtos = parse_host_groups(target_list).await;
-    scraper::insert_host_groups(&create_host_group_dtos).await?;
+    // scraper::insert_host_groups(&create_host_group_dtos).await?;
     loop {
         tracing::info!("running background scraper");
         let create_host_group_dtos = create_host_group_dtos.clone();
-        scraper::run_scraper(&create_host_group_dtos, timeout)
-            .await
-            .unwrap_or_else(|err| {
-                tracing::info!("scraping failed due to {err:?}");
-            });
+        // scraper::run_scraper(&create_host_group_dtos, timeout)
+        //     .await
+        //     .unwrap_or_else(|err| {
+        //         tracing::info!("scraping failed due to {err:?}");
+        //     });
     }
 }
 

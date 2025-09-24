@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::dto::revision::RevisionDto;
+use crate::shared::dto::revision::RevisionDto;
 
 use super::log::LogEntryWithRevision;
 

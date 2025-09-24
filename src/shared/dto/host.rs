@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
+use crate::shared::{
     dto::log::LogHistoryDto,
     model::{host::HostModel, log::ExistingLogEntryModel},
 };

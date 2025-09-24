@@ -1,4 +1,4 @@
-use shared::{
+use crate::shared::{
     dto::host,
     model::{host::HostModel, host_group::HostGroupModel, log::HostName},
 };

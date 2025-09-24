@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::model::revision::RevisionModel;
+use crate::shared::model::revision::RevisionModel;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
 pub struct RevisionDto {

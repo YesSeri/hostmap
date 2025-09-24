@@ -6,6 +6,8 @@
 #![allow(unused_must_use)]
 
 pub(crate) mod controller;
+pub(crate) mod scraper;
+pub(crate) mod shared;
 pub(crate) mod repository;
 pub(crate) mod service;
 use std::{error, sync::Arc};

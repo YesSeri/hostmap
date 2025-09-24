@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{
+use crate::shared::{
     dto::{
         host::{CurrentHostDto, HostWithLogsDto},
         log::{LogEntryDto, LogHistoryDto},

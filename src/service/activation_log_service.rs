@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use shared::{
+use crate::shared::{
     dto::host::{self, CurrentHostDto},
     model::{
         host::HostModel,

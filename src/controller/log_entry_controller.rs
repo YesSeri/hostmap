@@ -6,7 +6,7 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use serde::Serialize;
-use shared::{
+use crate::shared::{
     dto::{host::HostWithLogsDto, log::LogEntryDto},
     model::{
         host::HostModel,

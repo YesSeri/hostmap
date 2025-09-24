@@ -4,7 +4,7 @@ use axum::{
 };
 use chrono::NaiveDate;
 use serde::Serialize;
-use shared::{
+use crate::shared::{
     dto::{
         host::{CurrentHostDto, HostDto},
         log::LogHistoryDto,

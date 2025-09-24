@@ -1,6 +1,6 @@
 use axum::{Json, extract::State};
 use serde::Serialize;
-use shared::{dto::host_group::CreateHostGroupsDto, model::host_group::HostGroupModel};
+use crate::shared::{dto::host_group::CreateHostGroupsDto, model::host_group::HostGroupModel};
 
 use crate::AppState;
 #[derive(Debug, Clone, Serialize)]

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::dto::host::CurrentHostDto;
+use crate::shared::dto::host::CurrentHostDto;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HostModel {

@@ -1,4 +1,4 @@
-use shared::model::{
+use crate::shared::model::{
     host::HostModel,
     log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision, NewLogEntryModel},
 };

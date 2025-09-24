@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize, Serializer, ser::SerializeMap};
 
-use crate::{
+use crate::shared::{
     dto::host::{CurrentHostDto, RawHost},
     model::host_group::HostGroupModel,
 };
