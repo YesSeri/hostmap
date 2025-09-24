@@ -10,8 +10,25 @@
 
 	{# {% include "debug.html.tera" %} #}
 	<table cellpadding="5">
-		{% for group in frontpage_ctx.host_groups %}
-		{% include "group.html.tera" %}
+		{% for host in frontpage_ctx.hosts %}
+		<tbody>
+			<tr>
+				<th>host</th>
+				<th>url</th>
+				<th>store path</th>
+				<th>time</th>
+				<th>rev</th>
+				<th>ref</th>
+			</tr>
+			<tr>
+				<td><a href="/{{ host.hostname }}">{{ host.hostname }}</a></td>
+				<td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
+				<td>{{ host.logs.store_path.abbreviated_path | default(value="no path available") }}</td>
+				<td>{{ host.logs.timestamp | default(value="no timestamp available")}}</td>
+				<td>{{ host.logs.rev_id | default(value="unknown") }}</td>
+				<td>{{ host.logs.branch | default(value="unknown") }}</td>
+			</tr>
+		</tbody>
 		{% endfor %}
 	</table>
 

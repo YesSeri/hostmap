@@ -4,24 +4,24 @@ use crate::shared::dto::host::CurrentHostDto;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HostModel {
-    pub host_name: String,
-    pub host_group_name: String,
+    pub hostname: String,
     pub host_url: String,
+    pub metadata: serde_json::Value,
 }
 
 impl From<CurrentHostDto> for HostModel {
     fn from(
         CurrentHostDto {
-            host_name,
-            host_group_name,
+            hostname,
             host_url,
-            ..
+            metadata,
+            logs,
         }: CurrentHostDto,
     ) -> Self {
         Self {
-            host_name,
-            host_group_name,
+            hostname,
             host_url,
+            metadata,
         }
     }
 }

@@ -1,9 +1,3 @@
-use axum::{
-    extract::{Path, State},
-    response::{Html, IntoResponse},
-};
-use chrono::NaiveDate;
-use serde::Serialize;
 use crate::shared::{
     dto::{
         host::{CurrentHostDto, HostDto},
@@ -11,6 +5,12 @@ use crate::shared::{
     },
     model::log::{HostName, LogEntryModel},
 };
+use axum::{
+    extract::{Path, State},
+    response::{Html, IntoResponse},
+};
+use chrono::NaiveDate;
+use serde::Serialize;
 use tera::Context;
 
 use crate::{AppState, RetError};
@@ -21,7 +21,10 @@ struct HistoryPageContext {
 }
 
 impl HistoryPageContext {
-    fn new(host: CurrentHostDto, activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>) -> Self {
+    fn new(
+        host: CurrentHostDto,
+        activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>,
+    ) -> Self {
         Self {
             host,
             activations_by_date,
@@ -36,14 +39,15 @@ pub async fn render_history_page(
         host_repo,
         activation_log_service,
     }): State<AppState>,
-    Path(host_tuple): Path<(String, String)>,
+    Path(host_name): Path<(String)>,
 ) -> axum::response::Result<impl IntoResponse> {
     let host = host_repo
-        .get_host_from_tuple(host_tuple)
-        .await?.ok_or(RetError::NotFound)?;
+        .get_host_from_hostname(host_name)
+        .await?
+        .ok_or(RetError::NotFound)?;
     let mut ctx = Context::new();
     let date_map = activation_log_service
-        .host_with_logs_by_host_name(&host.host_name)
+        .host_with_logs_by_hostname(&host.hostname)
         .await
         .unwrap();
     let mut date_dto_vec = Vec::new();
@@ -60,7 +64,7 @@ pub async fn render_history_page(
     let host_dto = CurrentHostDto::from(host.clone());
     let fp_ctx = HistoryPageContext::new(host_dto, date_dto_vec);
 
-    ctx.insert("title", format!("History for {}", host.host_name).as_str());
+    ctx.insert("title", format!("History for {}", host.hostname).as_str());
     ctx.insert("history_ctx", &fp_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Ok(Html(output))

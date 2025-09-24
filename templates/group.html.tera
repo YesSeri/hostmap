@@ -14,7 +14,7 @@
   </tr>
   {% for host in group.hosts %}
   <tr>
-    <td><a href="/{{ group.host_group_name }}/{{ host.host_name }}">{{ host.host_name }}</a></td>
+    <td><a href="/{{ group.host_group_name }}/{{ host.hostname }}">{{ host.hostname }}</a></td>
     <td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
     <td>{{ host.logs.store_path.abbreviated_path | default(value="no path available") }}</td>
     <td>{{ host.logs.timestamp | default(value="no timestamp available")}}</td>

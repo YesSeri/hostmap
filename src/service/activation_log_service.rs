@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use chrono::NaiveDate;
 use crate::shared::{
     dto::host::{self, CurrentHostDto},
     model::{
@@ -8,6 +7,7 @@ use crate::shared::{
         log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision, NewLogEntryModel},
     },
 };
+use chrono::NaiveDate;
 
 use crate::{RetError, repository::activation_log_repository::ActivationLogRepository};
 
@@ -28,11 +28,11 @@ impl ActivationLogService {
         self.repo.latest_entry_for_host(model).await
     }
 
-    pub async fn host_with_logs_by_host_name(
+    pub async fn host_with_logs_by_hostname(
         &self,
-        host_name: &str,
+        hostname: &str,
     ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, RetError> {
-        let logs = self.repo.get_logs_by_host_name(host_name).await?;
+        let logs = self.repo.get_logs_by_hostname(hostname).await?;
         let mut map: BTreeMap<NaiveDate, Vec<LogEntryWithRevision>> = BTreeMap::new();
         for log in logs {
             let date = log.timestamp.date_naive();

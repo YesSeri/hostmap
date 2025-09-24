@@ -1,11 +1,5 @@
 use std::collections::HashMap;
 
-use axum::{
-    Json,
-    extract::State,
-    response::{Html, IntoResponse},
-};
-use serde::Serialize;
 use crate::shared::{
     dto::{host::HostWithLogsDto, log::LogEntryDto},
     model::{
@@ -13,6 +7,12 @@ use crate::shared::{
         log::{CreateLogEntryModel, ExistingLogEntryModel},
     },
 };
+use axum::{
+    Json,
+    extract::State,
+    response::{Html, IntoResponse},
+};
+use serde::Serialize;
 use tera::Context;
 
 use crate::AppState;

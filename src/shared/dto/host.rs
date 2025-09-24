@@ -7,9 +7,9 @@ use crate::shared::{
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct HostDto<L> {
-    pub host_name: String,
-    pub host_group_name: String,
+    pub hostname: String,
     pub host_url: String,
+    pub metadata: serde_json::Value,
     pub logs: L,
 }
 
@@ -17,18 +17,18 @@ impl From<(HostModel, Option<ExistingLogEntryModel>)> for HostDto<Option<LogHist
     fn from(
         (
             HostModel {
-                host_name,
+                hostname,
                 host_url,
-                host_group_name,
+                metadata,
             },
             log_entry,
         ): (HostModel, Option<ExistingLogEntryModel>),
     ) -> Self {
         Self {
-            host_name,
-            host_group_name,
+            hostname,
             host_url,
             logs: log_entry.map(Into::into),
+            metadata,
         }
     }
 }
@@ -37,18 +37,18 @@ impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostDto<Vec<LogHistoryDto
     fn from(
         (
             HostModel {
-                host_name,
+                hostname,
                 host_url,
-                host_group_name,
+                metadata,
             },
             entries,
         ): (HostModel, Vec<ExistingLogEntryModel>),
     ) -> Self {
         Self {
-            host_name,
-            host_group_name,
+            hostname,
             host_url,
             logs: entries.into_iter().map(Into::into).collect(),
+            metadata,
         }
     }
 }
@@ -59,31 +59,30 @@ pub type CurrentHostDto = HostDto<Option<LogHistoryDto>>;
 impl From<HostModel> for CurrentHostDto {
     fn from(
         HostModel {
-            host_name,
-            host_group_name,
+            hostname,
             host_url,
+            metadata,
         }: HostModel,
     ) -> Self {
         Self {
-            host_name,
-            host_group_name,
+            hostname,
             host_url,
             logs: None,
+            metadata,
         }
     }
 }
 
 // #[derive(Debug, Clone, Deserialize)]
 // pub struct IncomingHostDto {
-//     host_name: String,
+//     hostname: String,
 //     host_url: String,
 // }
 
 // impl From<(IncomingHostDto, &HostGroupName)> for CurrentHostDto {
 //     fn from((inc, group_name): (IncomingHostDto, &HostGroupName)) -> Self {
 //         Self {
-//             host_name: inc.host_name,
-//             host_group_name: group_name.0.clone(),
+//             hostname: inc.hostname,
 //             host_url: inc.host_url,
 //             logs: None,
 //         }
@@ -92,8 +91,8 @@ impl From<HostModel> for CurrentHostDto {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RawHost {
-    #[serde(rename="name")]
-    pub(crate) host_name: String,
-    #[serde(rename="url")]
+    #[serde(rename = "name")]
+    pub(crate) hostname: String,
+    #[serde(rename = "url")]
     pub(crate) host_url: String,
 }

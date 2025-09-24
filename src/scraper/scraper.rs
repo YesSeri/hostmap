@@ -1,13 +1,12 @@
-use reqwest::{Response, Url};
-use serde_json::de;
 use crate::shared::{
     dto::{
         host::{CurrentHostDto, HostWithLogsDto},
-        host_group::{CreateHostGroupsDto, HostGroupDto},
         log::{LogEntryDto, LogHistoryDto},
     },
-    model::{host::HostModel, host_group::HostGroupModel, log::NewLogEntryModel},
+    model::{host::HostModel, log::NewLogEntryModel},
 };
+use reqwest::{Response, Url};
+use serde_json::de;
 
 fn create_client() -> Result<reqwest::Client, reqwest::Error> {
     let builder = reqwest::Client::builder().connect_timeout(std::time::Duration::from_secs(10));
@@ -40,7 +39,7 @@ async fn fetch_activationlog(url: &Url) -> Result<Vec<LogEntryDto>, reqwest::Err
 }
 
 pub(crate) async fn insert_host_groups(
-    host_group_dtos: &CreateHostGroupsDto,
+    host_group_dtos: &[CurrentHostDto],
 ) -> Result<(), reqwest::Error> {
     let client = create_client()?;
     client
@@ -52,35 +51,30 @@ pub(crate) async fn insert_host_groups(
     Ok(())
 }
 
-pub async fn run_scraper(host_groups: &CreateHostGroupsDto, timeout: u64) -> Result<(), reqwest::Error> {
+pub async fn scrape_hosts(hosts: &[CurrentHostDto], timeout: u64) -> Result<(), reqwest::Error> {
     tracing::info!("running scraper from start");
-    for group in host_groups.0.iter() {
-        for host in group.hosts.iter() {
-            tokio::time::sleep(std::time::Duration::from_secs(timeout)).await;
-            let log_entry_models = scrape_host(host).await?;
-            let dtos: Vec<LogHistoryDto> = log_entry_models
-                .iter()
-                .map(|model| LogHistoryDto::from(model.clone())).collect();
-                    
+    for host in hosts.iter() {
+        tokio::time::sleep(std::time::Duration::from_secs(timeout)).await;
+        let log_entry_models = scrape_host(host).await?;
+        let dtos: Vec<LogHistoryDto> = log_entry_models
+            .iter()
+            .map(|model| LogHistoryDto::from(model.clone()))
+            .collect();
 
-            let host_with_logs_dto = HostWithLogsDto {
-                host_name: host.host_name.clone(),
-                host_group_name: host.host_group_name.clone(),
-                host_url: host.host_url.clone(),
-                logs: dtos,
-            };
-            let client = create_client().map_err(log_error)?;
-            let res = client
-                .post("http://localhost:3000/api/log_entry/bulk")
-                .json(&host_with_logs_dto)
-                .send()
-                .await
-                .map_err(log_error)?;
-            let default_text = res.text().await.unwrap_or_default();
-
-            tracing::info!("scraped host: {:?}", host);
-        }
-        tracing::info!("finished scraping host group: {:?}", group.host_group_name);
+        let host_with_logs_dto = HostWithLogsDto {
+            hostname: host.hostname.clone(),
+            host_url: host.host_url.clone(),
+            metadata: host.metadata.clone(),
+            logs: dtos,
+        };
+        let client = create_client().map_err(log_error)?;
+        let res = client
+            .post("http://localhost:3000/api/log_entry/bulk")
+            .json(&host_with_logs_dto)
+            .send()
+            .await
+            .map_err(log_error)?;
+        tracing::info!("scraped host: {:?}", host);
     }
     Ok(())
 }
@@ -98,10 +92,10 @@ async fn scrape_host(host: &CurrentHostDto) -> Result<Vec<NewLogEntryModel>, req
     let url = Url::parse(&url_text).expect("could not parse url");
     let recs = fetch_activationlog(&url).await.map_err(log_error)?;
     tracing::debug!("records fetched from url {}: {:?}", url, recs);
-    let host_model:HostModel = host.clone().into();
+    let host_model: HostModel = host.clone().into();
     let log_entry_models = recs
         .into_iter()
-        .map(|dto| NewLogEntryModel::from((host_model.clone(), dto)) )
+        .map(|dto| NewLogEntryModel::from((host_model.clone(), dto)))
         .collect::<Vec<NewLogEntryModel>>();
 
     Ok(log_entry_models)

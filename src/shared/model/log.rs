@@ -15,8 +15,7 @@ pub struct CreateLogEntryModel {
     pub username: String,
     pub store_path: String,
     pub activation_type: String,
-    pub host_name: String,
-    pub host_group_name: String,
+    pub hostname: String,
 }
 impl From<(&HostWithLogsDto, LogHistoryDto)> for CreateLogEntryModel {
     fn from((host_with_logs_dto, log_history_dto): (&HostWithLogsDto, LogHistoryDto)) -> Self {
@@ -25,8 +24,7 @@ impl From<(&HostWithLogsDto, LogHistoryDto)> for CreateLogEntryModel {
             username: log_history_dto.username,
             store_path: log_history_dto.store_path.store_path,
             activation_type: log_history_dto.activation_type,
-            host_name: host_with_logs_dto.host_name.clone(),
-            host_group_name: host_with_logs_dto.host_group_name.clone(),
+            hostname: host_with_logs_dto.hostname.clone(),
         }
     }
 }
@@ -45,8 +43,7 @@ impl From<(CurrentHostDto, LogHistoryDto)> for CreateLogEntryModel {
             username: log_dto.username,
             store_path: log_dto.store_path.store_path,
             activation_type: log_dto.activation_type,
-            host_name: host_dto.host_name,
-            host_group_name: host_dto.host_group_name,
+            hostname: host_dto.hostname,
         }
     }
 }
@@ -58,8 +55,7 @@ pub struct LogEntryModel<IdType> {
     pub username: String,
     pub store_path: String,
     pub activation_type: String,
-    pub host_name: String,
-    pub host_group_name: String,
+    pub hostname: String,
     pub revision: Option<RevisionModel>,
 }
 
@@ -73,8 +69,7 @@ impl From<LogEntryWithRevision> for LogEntryModel<i64> {
             store_path: entry.store_path,
             activation_type: entry.activation_type,
             revision,
-            host_name: entry.host_name,
-            host_group_name: entry.host_group_name,
+            hostname: entry.hostname,
         }
     }
 }
@@ -91,8 +86,7 @@ impl From<(HostModel, LogEntryDto)> for NewLogEntryModel {
             store_path: log.store_path,
             activation_type: log.activation_type,
             revision: log.revision.map(Into::into),
-            host_name: host.host_name,
-            host_group_name: host.host_group_name,
+            hostname: host.hostname,
         }
     }
 }
@@ -104,8 +98,7 @@ pub struct LogEntryWithRevision {
     pub username: String,
     pub store_path: String,
     pub activation_type: String,
-    pub host_name: String,
-    pub host_group_name: String,
+    pub hostname: String,
     pub rev_id: Option<String>,
     pub branch: Option<String>,
 }
@@ -120,8 +113,7 @@ pub struct LogEntryWithRevision {
 //             store_path: entry.store_path,
 //             activation_type: entry.activation_type,
 //             revision,
-//             host_name: todo!(),
-//             host_group_name: todo!(),
+//             hostname: todo!(),
 //         }
 //     }
 // }
@@ -145,7 +137,7 @@ impl From<LogEntryWithRevision> for Option<RevisionModel> {
 //             username: value.logs.username,
 //             store_path: value.logs.store_path.store_path,
 //             activation_type: value.logs.activation_type,
-//             hostname: value.host_name,
+//             hostname: value.hostname,
 //         }
 //     }
 // }

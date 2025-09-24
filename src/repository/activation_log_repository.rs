@@ -22,19 +22,18 @@ impl ActivationLogRepository {
         const CHUNK_SIZE: usize = 1000;
         for chunk in _recs.chunks(CHUNK_SIZE) {
             let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
-                "INSERT INTO log_entry(timestamp, host_group_name, host_name, username, store_path, activation_type) ",
+                "INSERT INTO log_entry(timestamp, hostname, username, store_path, activation_type) ",
             );
             query_builder.push_values(chunk.iter(), |mut b, rec| {
                 b.push_bind(&rec.timestamp)
-                    .push_bind(&rec.host_group_name)
-                    .push_bind(&rec.host_name)
+                    .push_bind(&rec.hostname)
                     .push_bind(&rec.username)
                     .push_bind(&rec.store_path)
                     .push_bind(&rec.activation_type);
             });
             // on conflict do nothing to avoid duplicate entries
             query_builder
-                .push(" ON CONFLICT (host_group_name, host_name, username, timestamp, store_path, activation_type) DO NOTHING");
+                .push(" ON CONFLICT (hostname, username, timestamp, store_path, activation_type) DO NOTHING");
             let query = query_builder.build();
             query.execute(&self.pool).await?;
         }
@@ -48,16 +47,14 @@ impl ActivationLogRepository {
         let log_entry_with_rev = sqlx::query_as!(
             LogEntryWithRevision,
             r#"
-        SELECT log_entry_id, host_name, host_group_name, timestamp, username, store_path, activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch
-            FROM log_entry
-            WHERE 
-            host_name = $1
-            AND host_group_name = $2
-            ORDER BY timestamp desc
-            LIMIT 1
+        SELECT log_entry_id, hostname, timestamp, username, store_path,
+            activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch
+        FROM log_entry 
+        WHERE 1 = 1 
+            AND hostname = $1
+        ORDER BY timestamp desc LIMIT 1
         "#,
-            host.host_name,
-            host.host_group_name
+            host.hostname,
         )
         .fetch_optional(&self.pool)
         .await?;
@@ -65,19 +62,19 @@ impl ActivationLogRepository {
         Ok(log_entry)
     }
 
-    pub async fn get_logs_by_host_name(
+    pub async fn get_logs_by_hostname(
         &self,
-        host_name: &str,
+        hostname: &str,
     ) -> sqlx::Result<Vec<LogEntryWithRevision>> {
         let log_with_revision = sqlx::query_as!(
             LogEntryWithRevision,
             r#"
-        select log_entry_id, timestamp, username, host_name, host_group_name, store_path, activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch
-        from log_entry
-        where host_name = $1
+        select log_entry_id, timestamp, username, hostname,
+            store_path, activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch
+        from log_entry where hostname = $1
         order by timestamp desc
         "#,
-        host_name
+            hostname
         )
         .fetch_all(&self.pool)
         .await?;
