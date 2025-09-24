@@ -44,7 +44,7 @@ impl ActivationLogService {
     pub(crate) async fn bulk_insert_log_records(
         &self,
         log_entry_models: &[CreateLogEntryModel],
-    ) -> Result<(), RetError> {
+    ) -> Result<u64, RetError> {
         self.repo.bulk_insert_log_records(log_entry_models).await
     }
 }

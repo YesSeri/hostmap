@@ -12,17 +12,22 @@ use tracing_subscriber::EnvFilter;
 
 use crate::shared::dto::host::CurrentHostDto;
 
+fn create_client() -> Result<reqwest::Client, reqwest::Error> {
+    let builder = reqwest::Client::builder().connect_timeout(std::time::Duration::from_secs(10));
+    builder.build()
+}
+
 pub async fn run(
     host_group_file: PathBuf,
     scrape_interval: u64,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     let create_host_group_dtos = parse_hosts(&host_group_file).await;
-    scraper::insert_host_groups(&create_host_group_dtos).await?;
-
+    let client = create_client()?;
+    scraper::insert_host_groups(&create_host_group_dtos, &client).await?;
     loop {
         tracing::info!("running background scraper");
         let create_host_group_dtos = create_host_group_dtos.clone();
-        scraper::scrape_hosts(&create_host_group_dtos, scrape_interval)
+        scraper::scrape_hosts(&create_host_group_dtos, scrape_interval, &client)
             .await
             .unwrap_or_else(|err| {
                 tracing::info!("scraping failed due to {err:?}");

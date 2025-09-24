@@ -39,10 +39,10 @@ pub async fn render_history_page(
         host_repo,
         activation_log_service,
     }): State<AppState>,
-    Path(host_name): Path<(String)>,
+    Path(hostname): Path<(String)>,
 ) -> axum::response::Result<impl IntoResponse> {
     let host = host_repo
-        .get_host_from_hostname(host_name)
+        .get_host_from_hostname(hostname)
         .await?
         .ok_or(RetError::NotFound)?;
     let mut ctx = Context::new();

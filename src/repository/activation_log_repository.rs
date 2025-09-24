@@ -18,8 +18,9 @@ impl ActivationLogRepository {
     pub(crate) async fn bulk_insert_log_records(
         &self,
         _recs: &[CreateLogEntryModel],
-    ) -> Result<(), RetError> {
+    ) -> Result<u64, RetError> {
         const CHUNK_SIZE: usize = 1000;
+        let mut i = 0;
         for chunk in _recs.chunks(CHUNK_SIZE) {
             let mut query_builder: QueryBuilder<Postgres> = QueryBuilder::new(
                 "INSERT INTO log_entry(timestamp, hostname, username, store_path, activation_type) ",
@@ -35,9 +36,10 @@ impl ActivationLogRepository {
             query_builder
                 .push(" ON CONFLICT (hostname, username, timestamp, store_path, activation_type) DO NOTHING");
             let query = query_builder.build();
-            query.execute(&self.pool).await?;
+            let res = query.execute(&self.pool).await?;
+            i += res.rows_affected();
         }
-        Ok(())
+        Ok(i)
     }
 
     pub async fn latest_entry_for_host(

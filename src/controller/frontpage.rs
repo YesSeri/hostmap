@@ -66,7 +66,17 @@ pub async fn render_frontpage(
     // }
     // let host_group_dtos: Vec<HostGroupDto> = host_group_dtos.into_values().collect();
 
-    let hosts = host_repo.get_all_hosts().await.unwrap();
+    let host_models = host_repo
+        .get_all_hosts_with_latest_log_entry()
+        .await
+        .unwrap();
+    let hosts = host_models
+        .into_iter()
+        .map(|hwl| CurrentHostDto::from((hwl.host, hwl.logs)))
+        .collect::<Vec<CurrentHostDto>>();
+    for host in hosts.iter() {
+        tracing::info!("Host in frontpage: {:?}", host);
+    }
     let fp_ctx = FrontPageContext::new(hosts);
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");

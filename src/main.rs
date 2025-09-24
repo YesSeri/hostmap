@@ -6,6 +6,7 @@
 #![allow(unused_must_use)]
 
 pub(crate) mod controller;
+pub(crate) mod endpoints;
 pub(crate) mod repository;
 pub(crate) mod scraper;
 pub(crate) mod service;
@@ -135,15 +136,18 @@ async fn main() -> Result<(), RetError> {
             let app_state = AppState::new(tera, host_repo, log_service);
             let bg_scraper_state = app_state.clone();
             let app = Router::new()
-                .route("/api/hosts/bulk", post(host_controller::create_hosts))
+                .route(endpoints::hosts_bulk(), post(host_controller::create_hosts))
                 .route(
-                    "/api/log_entry/bulk",
+                    endpoints::log_entry_bulk(),
                     post(log_entry_controller::create_log_entry),
                 )
-                .route("/", get(controller::frontpage::render_frontpage))
+                .route(
+                    endpoints::frontpage(),
+                    get(controller::frontpage::render_frontpage),
+                )
                 .route("/{hostname}", get(controller::history::render_history_page))
                 .fallback(fallback)
-                .nest_service("/assets", ServeDir::new("assets"))
+                .nest_service(endpoints::assets_folder(), ServeDir::new("assets"))
                 .layer(tower_http::trace::TraceLayer::new_for_http())
                 .with_state(app_state);
 

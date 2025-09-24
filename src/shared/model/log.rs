@@ -114,6 +114,7 @@ pub struct LogEntryWithRevision {
 //             activation_type: entry.activation_type,
 //             revision,
 //             hostname: todo!(),
+//             hostgroup_name: todo!(),
 //         }
 //     }
 // }
@@ -137,7 +138,7 @@ impl From<LogEntryWithRevision> for Option<RevisionModel> {
 //             username: value.logs.username,
 //             store_path: value.logs.store_path.store_path,
 //             activation_type: value.logs.activation_type,
-//             hostname: value.hostname,
+//             hostname: value.host_name,
 //         }
 //     }
 // }
