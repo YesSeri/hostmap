@@ -129,14 +129,14 @@
             shellHook = ''
               	      ${preCommitHook} 
 
-                            export PG=$PWD/.dev_postgres/
+                            export PG=$PWD/.dev_postgres
                             export PGDATA=$PG/data
                             export PGPORT=5432
                             export PGHOST=localhost
                             export PGUSER=$USER
                             export PGPASSWORD=postgres
                             export PGDATABASE=hostmap-dev
-                            export DB_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
+                            export DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
 
                             alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
                             alias pg_stop="pg_ctl -D $PGDATA stop"

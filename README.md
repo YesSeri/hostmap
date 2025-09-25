@@ -13,5 +13,5 @@ run server:
 cargo run server --database-url 'postgres://heze:postgres@localhost:5432/hostmap-dev'
 
 run scraper:
-cargo run scraper --target-list ./test-assets/minimalTargetList.json --timeout 5
+cargo run scraper --host-group-file ./test-assets/minimalTargetList.json --scrape-interval 5
 ```
