@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT DISTINCT ON(hostname) log_entry_id, hostname, timestamp, username, store_path, activation_type,\n                (SELECT NULL) as rev_id, (SELECT NULL) as branch\n            FROM log_entry\n            ORDER BY hostname, timestamp desc\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "log_entry_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "hostname",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "timestamp",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "store_path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "activation_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "rev_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "branch",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "c0ad8d2d736f7aa673ccf8e4bdd2df81e3801eb15bb8f6b3dd369e833526c7b8"
+}

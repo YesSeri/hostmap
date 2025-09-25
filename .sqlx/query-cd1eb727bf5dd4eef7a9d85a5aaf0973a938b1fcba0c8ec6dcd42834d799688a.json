@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT hostname, host_url, metadata FROM host\n                WHERE hostname = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "hostname",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "host_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "metadata",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "cd1eb727bf5dd4eef7a9d85a5aaf0973a938b1fcba0c8ec6dcd42834d799688a"
+}
