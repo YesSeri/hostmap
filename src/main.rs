@@ -1,17 +1,18 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
+// #![allow(dead_code)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
+//
+
 #![allow(unused_mut)]
 #![allow(unused_parens)]
 #![allow(unused_must_use)]
 
-pub(crate) mod controller;
-pub(crate) mod endpoints;
-pub(crate) mod repository;
 pub(crate) mod scraper;
-pub(crate) mod service;
+pub(crate) mod server;
 pub(crate) mod shared;
+
 use std::{error, path::PathBuf, sync::Arc};
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 use axum::{
     Router,
@@ -25,11 +26,13 @@ use tera::Tera;
 use tower_http::services::ServeDir;
 
 use crate::{
-    controller::{host_controller, log_entry_controller},
-    repository::{
+    server::controller,
+    server::controller::{host_controller, log_entry_controller},
+    server::endpoint,
+    server::repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
     },
-    service::activation_log_service::ActivationLogService,
+    server::service::activation_log_service::ActivationLogService,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -86,17 +89,14 @@ impl AppState {
         }
     }
 }
-
 fn setup_logging() {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .or_else(|_| tracing_subscriber::EnvFilter::try_new(""))
-                .unwrap(),
-        )
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(fmt::layer())
         .init();
 }
-use tracing_subscriber::{EnvFilter, fmt};
 
 #[derive(Parser, Debug)]
 #[command(name = "app")]
@@ -114,7 +114,7 @@ enum Commands {
     },
     Scraper {
         #[arg(long)]
-        host_group_file: PathBuf,
+        hosts_file: PathBuf,
         #[arg(long)]
         scrape_interval: u64,
     },
@@ -134,20 +134,19 @@ async fn main() -> Result<(), RetError> {
             let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
             let tera = Arc::new(load_tera());
             let app_state = AppState::new(tera, host_repo, log_service);
-            let bg_scraper_state = app_state.clone();
             let app = Router::new()
-                .route(endpoints::hosts_bulk(), post(host_controller::create_hosts))
+                .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
                 .route(
-                    endpoints::log_entry_bulk(),
+                    endpoint::log_entry_bulk(),
                     post(log_entry_controller::create_log_entry),
                 )
                 .route(
-                    endpoints::frontpage(),
+                    endpoint::frontpage(),
                     get(controller::frontpage::render_frontpage),
                 )
                 .route("/{hostname}", get(controller::history::render_history_page))
                 .fallback(fallback)
-                .nest_service(endpoints::assets_folder(), ServeDir::new("assets"))
+                .nest_service(endpoint::assets_folder(), ServeDir::new("assets"))
                 .layer(tower_http::trace::TraceLayer::new_for_http())
                 .with_state(app_state);
 
@@ -167,16 +166,16 @@ async fn main() -> Result<(), RetError> {
                 .unwrap();
         }
         Commands::Scraper {
-            host_group_file,
+            hosts_file,
             scrape_interval,
         } => {
             // systemd restarts scraper on fail
             tracing::info!(
                 "Starting scraper with file: {:?} and interval: {}",
-                host_group_file,
+                hosts_file,
                 scrape_interval
             );
-            scraper::run(host_group_file, scrape_interval)
+            scraper::run(hosts_file, scrape_interval)
                 .await
                 .unwrap_or_else(|err| {
                     tracing::info!("scraping failed due to {err:?}");
@@ -186,37 +185,6 @@ async fn main() -> Result<(), RetError> {
     Ok(())
 }
 
-fn read_host_groups_from_file(path: &str) -> String {
-    std::fs::read_to_string(path).expect("could not read target list file")
-}
-
 fn load_tera() -> Tera {
     Tera::new("templates/**/*").unwrap()
 }
-
-// use std::path::PathBuf;
-// pub(crate) mod scraper;
-// // pub(crate) mod controller;
-// // pub(crate) mod repository;
-// // pub(crate) mod service;
-// pub(crate) mod shared;
-
-// fn setup_logging() {
-//     tracing_subscriber::fmt()
-//         .with_env_filter(
-//             tracing_subscriber::EnvFilter::try_from_default_env()
-//                 .or_else(|_| tracing_subscriber::EnvFilter::try_new(""))
-//                 .unwrap(),
-//         )
-//         .init();
-// }
-
-// #[tokio::main]
-// async fn main() {
-//     setup_logging();
-//     scraper::run(PathBuf::from("./test-assets/minimalTargetList.json"), 3)
-//         .await
-//         .unwrap_or_else(|err| {
-//             tracing::info!("scraping failed due to {err:?}");
-//         });
-// }

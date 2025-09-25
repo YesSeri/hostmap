@@ -1,12 +1,11 @@
 use axum::{Json, extract::State};
-use serde::Serialize;
 
 use crate::{
     AppState,
     shared::{dto::host::CurrentHostDto, model::host::HostModel},
 };
-#[derive(Debug, Clone, Serialize)]
-struct LogContext {}
+// #[derive(Debug, Clone, Serialize)]
+// struct LogContext {}
 
 #[axum::debug_handler]
 pub(crate) async fn create_hosts(

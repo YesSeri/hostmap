@@ -1,19 +1,6 @@
-use std::collections::HashMap;
-
-use crate::shared::{
-    dto::{host::HostWithLogsDto, log::LogEntryDto},
-    model::{
-        host::HostModel,
-        log::{CreateLogEntryModel, ExistingLogEntryModel},
-    },
-};
-use axum::{
-    Json,
-    extract::State,
-    response::{Html, IntoResponse},
-};
+use crate::shared::{dto::host::HostWithLogsDto, model::log::CreateLogEntryModel};
+use axum::{Json, extract::State};
 use serde::Serialize;
-use tera::Context;
 
 use crate::AppState;
 #[derive(Debug, Clone, Serialize)]

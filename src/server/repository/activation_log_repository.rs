@@ -1,6 +1,6 @@
 use crate::shared::model::{
     host::HostModel,
-    log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision, NewLogEntryModel},
+    log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision},
 };
 use sqlx::{Pool, Postgres, QueryBuilder};
 
@@ -26,7 +26,7 @@ impl ActivationLogRepository {
                 "INSERT INTO log_entry(timestamp, hostname, username, store_path, activation_type) ",
             );
             query_builder.push_values(chunk.iter(), |mut b, rec| {
-                b.push_bind(&rec.timestamp)
+                b.push_bind(rec.timestamp)
                     .push_bind(&rec.hostname)
                     .push_bind(&rec.username)
                     .push_bind(&rec.store_path)

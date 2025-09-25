@@ -18,16 +18,16 @@ fn create_client() -> Result<reqwest::Client, reqwest::Error> {
 }
 
 pub async fn run(
-    host_group_file: PathBuf,
+    host_file: PathBuf,
     scrape_interval: u64,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
-    let create_host_group_dtos = parse_hosts(&host_group_file).await;
+    let create_host_dtos = parse_hosts(&host_file).await;
     let client = create_client()?;
-    scraper::insert_host_groups(&create_host_group_dtos, &client).await?;
+    scraper::insert_hosts(&create_host_dtos, &client).await?;
     loop {
         tracing::info!("running background scraper");
-        let create_host_group_dtos = create_host_group_dtos.clone();
-        scraper::scrape_hosts(&create_host_group_dtos, scrape_interval, &client)
+        let create_host_dtos = create_host_dtos.clone();
+        scraper::scrape_hosts(&create_host_dtos, scrape_interval, &client)
             .await
             .unwrap_or_else(|err| {
                 tracing::info!("scraping failed due to {err:?}");
@@ -35,22 +35,19 @@ pub async fn run(
     }
 }
 
-fn read_host_groups_from_file(path: &PathBuf) -> String {
+fn read_hosts_from_file(path: &PathBuf) -> String {
     std::fs::read_to_string(path).expect("could not read target list file")
 }
 
-async fn parse_hosts(host_group_file: &PathBuf) -> Vec<CurrentHostDto> {
+async fn parse_hosts(host_file: &PathBuf) -> Vec<CurrentHostDto> {
     tracing::info!(
         "target list file with host groups and hosts: {}",
-        host_group_file.display()
+        host_file.display()
     );
-    let content = read_host_groups_from_file(host_group_file);
-    let host_group_dtos: Vec<CurrentHostDto> =
+    let content = read_hosts_from_file(host_file);
+    let host_dtos: Vec<CurrentHostDto> =
         serde_json::from_str(&content).expect("could not parse target list file as json");
 
-    // pretty print the parsed host groups
-    for host in &host_group_dtos {
-        tracing::info!("parsed host: {:?}", host);
-    }
-    host_group_dtos
+    tracing::info!("hosts len: {}", host_dtos.len());
+    host_dtos
 }

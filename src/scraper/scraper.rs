@@ -1,5 +1,5 @@
 use crate::{
-    endpoints,
+    server::endpoint,
     shared::{
         dto::{
             host::{CurrentHostDto, HostWithLogsDto},
@@ -8,6 +8,7 @@ use crate::{
         model::{host::HostModel, log::NewLogEntryModel},
     },
 };
+use axum::http::request;
 use reqwest::{Client, Response, Url};
 use serde_json::de;
 
@@ -40,14 +41,14 @@ async fn fetch_activationlog(
 
 const BASE_URL: &str = "http://localhost:3000";
 
-pub(crate) async fn insert_host_groups(
-    host_group_dtos: &[CurrentHostDto],
+pub(crate) async fn insert_hosts(
+    host_dtos: &[CurrentHostDto],
     client: &Client,
 ) -> Result<(), reqwest::Error> {
-    let url = format!("{BASE_URL}{}", endpoints::hosts_bulk());
+    let url = format!("{BASE_URL}{}", endpoint::hosts_bulk());
     client
         .post(url)
-        .json(&host_group_dtos)
+        .json(&host_dtos)
         .send()
         .await?
         .error_for_status()?;
@@ -75,13 +76,13 @@ pub async fn scrape_hosts(
                 metadata: host.metadata.clone(),
             };
 
-            let url = format!("{BASE_URL}{}", endpoints::log_entry_bulk());
+            let url = format!("{BASE_URL}{}", endpoint::log_entry_bulk());
             let mut res = client.post(url).json(&body).send().await?;
 
             res.error_for_status_ref()?;
             let res_text = res.text().await?;
 
-            tracing::info!(response_text=%res_text, "posted logs for host: {}", host.hostname);
+            tracing::info!(response_text=%res_text, request_host=%host.hostname);
             Ok::<(), reqwest::Error>(())
         }
         .await

@@ -1,9 +1,6 @@
 use crate::shared::{
-    dto::{
-        host::{CurrentHostDto, HostDto},
-        log::LogHistoryDto,
-    },
-    model::log::{HostName, LogEntryModel},
+    dto::{host::CurrentHostDto, log::LogHistoryDto},
+    model::log::LogEntryModel,
 };
 use axum::{
     extract::{Path, State},
@@ -39,7 +36,7 @@ pub async fn render_history_page(
         host_repo,
         activation_log_service,
     }): State<AppState>,
-    Path(hostname): Path<(String)>,
+    Path(hostname): Path<String>,
 ) -> axum::response::Result<impl IntoResponse> {
     let host = host_repo
         .get_host_from_hostname(hostname)

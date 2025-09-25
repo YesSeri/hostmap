@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::shared::{
     dto::host::CurrentHostDto,
-    model::log::{ExistingLogEntryModel, NewLogEntryModel},
+    model::log::ExistingLogEntryModel,
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use crate::shared::dto::host::{CurrentHostDto, HostDto, HostWithLogsDto};
+use crate::shared::dto::host::CurrentHostDto;
 use axum::{
     extract::State,
     response::{Html, IntoResponse},
@@ -18,7 +16,7 @@ struct FrontPageContext {
 
 impl FrontPageContext {
     fn new(hosts: Vec<CurrentHostDto>) -> Self {
-        let total_groups = hosts.len();
+        // let total_groups = hosts.len();
         let mut total_hosts = 0;
         for _ in &hosts {
             total_hosts += 1;

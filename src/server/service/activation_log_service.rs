@@ -1,15 +1,18 @@
 use std::collections::BTreeMap;
 
-use crate::shared::{
-    dto::host::{self, CurrentHostDto},
-    model::{
-        host::HostModel,
-        log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision, NewLogEntryModel},
-    },
-};
 use chrono::NaiveDate;
 
-use crate::{RetError, repository::activation_log_repository::ActivationLogRepository};
+use crate::{
+    RetError,
+    server::repository::activation_log_repository::ActivationLogRepository,
+    shared::{
+        dto::host::CurrentHostDto,
+        model::{
+            host::HostModel,
+            log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision},
+        },
+    },
+};
 
 #[derive(Debug, Clone)]
 pub struct ActivationLogService {
