@@ -1,0 +1,1472 @@
+[
+    {
+        "host_url": "artifactory-p101.pzz.dk",
+        "hostname": "artifactory-p101",
+        "metadata": {
+            "group_host_name": "artifactory-prod"
+        }
+    },
+    {
+        "host_url": "artifactory-p201.pzz.dk",
+        "hostname": "artifactory-p201",
+        "metadata": {
+            "group_host_name": "artifactory-prod"
+        }
+    },
+    {
+        "host_url": "artifactory-p301.pzz.dk",
+        "hostname": "artifactory-p301",
+        "metadata": {
+            "group_host_name": "artifactory-prod"
+        }
+    },
+    {
+        "host_url": "ca-platform-p01.pzz.dk",
+        "hostname": "ca-platform-p01",
+        "metadata": {
+            "group_host_name": "ca-platform-prod"
+        }
+    },
+    {
+        "host_url": "ceph-mon-p101.pzz.dk",
+        "hostname": "ceph-mon-p101",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-mon-p201.pzz.dk",
+        "hostname": "ceph-mon-p201",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-mon-p202.pzz.dk",
+        "hostname": "ceph-mon-p202",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-mon-p301.pzz.dk",
+        "hostname": "ceph-mon-p301",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-mon-p302.pzz.dk",
+        "hostname": "ceph-mon-p302",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-sto-p103.pzz.dk",
+        "hostname": "ceph-sto-p103",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-sto-p104.pzz.dk",
+        "hostname": "ceph-sto-p104",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-sto-p203.pzz.dk",
+        "hostname": "ceph-sto-p203",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-sto-p204.pzz.dk",
+        "hostname": "ceph-sto-p204",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-sto-p303.pzz.dk",
+        "hostname": "ceph-sto-p303",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-sto-p304.pzz.dk",
+        "hostname": "ceph-sto-p304",
+        "metadata": {
+            "group_host_name": "ceph-prod"
+        }
+    },
+    {
+        "host_url": "ceph-s01.pzz.dk",
+        "hostname": "ceph-s01",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "ceph-s02.pzz.dk",
+        "hostname": "ceph-s02",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "ceph-s03.pzz.dk",
+        "hostname": "ceph-s03",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "ceph-s04.pzz.dk",
+        "hostname": "ceph-s04",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "cephmon-s01.pzz.dk",
+        "hostname": "cephmon-s01",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "cephmon-s02.pzz.dk",
+        "hostname": "cephmon-s02",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "cephmon-s03.pzz.dk",
+        "hostname": "cephmon-s03",
+        "metadata": {
+            "group_host_name": "ceph-stg"
+        }
+    },
+    {
+        "host_url": "dc-nix-p01.pzz.dk",
+        "hostname": "dc-nix-p01",
+        "metadata": {
+            "group_host_name": "dc-nix"
+        }
+    },
+    {
+        "host_url": "devpi-p01.pzz.dk",
+        "hostname": "devpi-p01",
+        "metadata": {
+            "group_host_name": "devpi-prod"
+        }
+    },
+    {
+        "host_url": "devpi-p02.pzz.dk",
+        "hostname": "devpi-p02",
+        "metadata": {
+            "group_host_name": "devpi-prod"
+        }
+    },
+    {
+        "host_url": "devpi-s01.pzz.dk",
+        "hostname": "devpi-s01",
+        "metadata": {
+            "group_host_name": "devpi-stg"
+        }
+    },
+    {
+        "host_url": "devpi-s02.pzz.dk",
+        "hostname": "devpi-s02",
+        "metadata": {
+            "group_host_name": "devpi-stg"
+        }
+    },
+    {
+        "host_url": "dhcp103-p01.pzz.dk",
+        "hostname": "dhcp103-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp160-p01.pzz.dk",
+        "hostname": "dhcp160-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp1740-p01.pzz.dk",
+        "hostname": "dhcp1740-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp2032-p01.pzz.dk",
+        "hostname": "dhcp2032-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp2034-p01.pzz.dk",
+        "hostname": "dhcp2034-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp2036-p01.pzz.dk",
+        "hostname": "dhcp2036-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp2040-p01.pzz.dk",
+        "hostname": "dhcp2040-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp2044-p01.pzz.dk",
+        "hostname": "dhcp2044-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dhcp2064-p01.pzz.dk",
+        "hostname": "dhcp2064-p01",
+        "metadata": {
+            "group_host_name": "dhcp-server"
+        }
+    },
+    {
+        "host_url": "dmzproxy-p01.pzz.dk",
+        "hostname": "dmzproxy-p01",
+        "metadata": {
+            "group_host_name": "dmzproxy-prod"
+        }
+    },
+    {
+        "host_url": "dmzproxy-p02.pzz.dk",
+        "hostname": "dmzproxy-p02",
+        "metadata": {
+            "group_host_name": "dmzproxy-prod"
+        }
+    },
+    {
+        "host_url": "dmzproxy-p03.pzz.dk",
+        "hostname": "dmzproxy-p03",
+        "metadata": {
+            "group_host_name": "dmzproxy-prod"
+        }
+    },
+    {
+        "host_url": "dmzproxy-s01.pzz.dk",
+        "hostname": "dmzproxy-s01",
+        "metadata": {
+            "group_host_name": "dmzproxy-stg"
+        }
+    },
+    {
+        "host_url": "dmzproxy-s02.pzz.dk",
+        "hostname": "dmzproxy-s02",
+        "metadata": {
+            "group_host_name": "dmzproxy-stg"
+        }
+    },
+    {
+        "host_url": "dmzproxy-s03.pzz.dk",
+        "hostname": "dmzproxy-s03",
+        "metadata": {
+            "group_host_name": "dmzproxy-stg"
+        }
+    },
+    {
+        "host_url": "dns-primary-p01.pzz.dk",
+        "hostname": "dns-primary-p01",
+        "metadata": {
+            "group_host_name": "dns-ng-prod"
+        }
+    },
+    {
+        "host_url": "dns-secondary-p101.pzz.dk",
+        "hostname": "dns-secondary-p101",
+        "metadata": {
+            "group_host_name": "dns-ng-prod"
+        }
+    },
+    {
+        "host_url": "dns-secondary-p201.pzz.dk",
+        "hostname": "dns-secondary-p201",
+        "metadata": {
+            "group_host_name": "dns-ng-prod"
+        }
+    },
+    {
+        "host_url": "dns-secondary-p301.pzz.dk",
+        "hostname": "dns-secondary-p301",
+        "metadata": {
+            "group_host_name": "dns-ng-prod"
+        }
+    },
+    {
+        "host_url": "pnz-p01.pzz.dk",
+        "hostname": "pnz-p01",
+        "metadata": {
+            "group_host_name": "dns-ng-prod"
+        }
+    },
+    {
+        "host_url": "dns-primary-s01.pzz.dk",
+        "hostname": "dns-primary-s01",
+        "metadata": {
+            "group_host_name": "dns-ng-stg"
+        }
+    },
+    {
+        "host_url": "dns-secondary-s101.pzz.dk",
+        "hostname": "dns-secondary-s101",
+        "metadata": {
+            "group_host_name": "dns-ng-stg"
+        }
+    },
+    {
+        "host_url": "dns-secondary-s201.pzz.dk",
+        "hostname": "dns-secondary-s201",
+        "metadata": {
+            "group_host_name": "dns-ng-stg"
+        }
+    },
+    {
+        "host_url": "dns-secondary-s301.pzz.dk",
+        "hostname": "dns-secondary-s301",
+        "metadata": {
+            "group_host_name": "dns-ng-stg"
+        }
+    },
+    {
+        "host_url": "elastic-p101.pzz.dk",
+        "hostname": "elastic-p101",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p102.pzz.dk",
+        "hostname": "elastic-p102",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p104.pzz.dk",
+        "hostname": "elastic-p104",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p105.pzz.dk",
+        "hostname": "elastic-p105",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p201.pzz.dk",
+        "hostname": "elastic-p201",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p202.pzz.dk",
+        "hostname": "elastic-p202",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p204.pzz.dk",
+        "hostname": "elastic-p204",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p205.pzz.dk",
+        "hostname": "elastic-p205",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p301.pzz.dk",
+        "hostname": "elastic-p301",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p302.pzz.dk",
+        "hostname": "elastic-p302",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p304.pzz.dk",
+        "hostname": "elastic-p304",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elastic-p305.pzz.dk",
+        "hostname": "elastic-p305",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elk-p05.pzz.dk",
+        "hostname": "elk-p05",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elk-p07.pzz.dk",
+        "hostname": "elk-p07",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elk-p09.pzz.dk",
+        "hostname": "elk-p09",
+        "metadata": {
+            "group_host_name": "elk-prod"
+        }
+    },
+    {
+        "host_url": "elk-s01.pzz.dk",
+        "hostname": "elk-s01",
+        "metadata": {
+            "group_host_name": "elk-stg"
+        }
+    },
+    {
+        "host_url": "elk-s02.pzz.dk",
+        "hostname": "elk-s02",
+        "metadata": {
+            "group_host_name": "elk-stg"
+        }
+    },
+    {
+        "host_url": "elk-s03.pzz.dk",
+        "hostname": "elk-s03",
+        "metadata": {
+            "group_host_name": "elk-stg"
+        }
+    },
+    {
+        "host_url": "garage-p01.pzz.dk",
+        "hostname": "garage-p01",
+        "metadata": {
+            "group_host_name": "garage-prod"
+        }
+    },
+    {
+        "host_url": "garage-p02.pzz.dk",
+        "hostname": "garage-p02",
+        "metadata": {
+            "group_host_name": "garage-prod"
+        }
+    },
+    {
+        "host_url": "garage-p03.pzz.dk",
+        "hostname": "garage-p03",
+        "metadata": {
+            "group_host_name": "garage-prod"
+        }
+    },
+    {
+        "host_url": "hetzner-github-builder-p01.pzz.dk",
+        "hostname": "hetzner-github-builder-p01",
+        "metadata": {
+            "group_host_name": "github-builder"
+        }
+    },
+    {
+        "host_url": "gitlab-p01.pzz.dk",
+        "hostname": "gitlab-p01",
+        "metadata": {
+            "group_host_name": "gitlab"
+        }
+    },
+    {
+        "host_url": "gitlab-t01.pzz.dk",
+        "hostname": "gitlab-t01",
+        "metadata": {
+            "group_host_name": "gitlab"
+        }
+    },
+    {
+        "host_url": "headscale-p01.pzz.dk",
+        "hostname": "headscale-p01",
+        "metadata": {
+            "group_host_name": "headscale"
+        }
+    },
+    {
+        "host_url": "hosts-p01.pzz.dk",
+        "hostname": "hosts-p01",
+        "metadata": {
+            "group_host_name": "hosts-prod"
+        }
+    },
+    {
+        "host_url": "hosts-p02.pzz.dk",
+        "hostname": "hosts-p02",
+        "metadata": {
+            "group_host_name": "hosts-prod"
+        }
+    },
+    {
+        "host_url": "hosts-p03.pzz.dk",
+        "hostname": "hosts-p03",
+        "metadata": {
+            "group_host_name": "hosts-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-p101.pzz.dk",
+        "hostname": "container-gpu-p101",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-p102.pzz.dk",
+        "hostname": "container-gpu-p102",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-p201.pzz.dk",
+        "hostname": "container-gpu-p201",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-p202.pzz.dk",
+        "hostname": "container-gpu-p202",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-p301.pzz.dk",
+        "hostname": "container-gpu-p301",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-p302.pzz.dk",
+        "hostname": "container-gpu-p302",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p01.pzz.dk",
+        "hostname": "container-p01",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p02.pzz.dk",
+        "hostname": "container-p02",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p03.pzz.dk",
+        "hostname": "container-p03",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p04.pzz.dk",
+        "hostname": "container-p04",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p05.pzz.dk",
+        "hostname": "container-p05",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p06.pzz.dk",
+        "hostname": "container-p06",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p07.pzz.dk",
+        "hostname": "container-p07",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p08.pzz.dk",
+        "hostname": "container-p08",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p09.pzz.dk",
+        "hostname": "container-p09",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p10.pzz.dk",
+        "hostname": "container-p10",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p11.pzz.dk",
+        "hostname": "container-p11",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p12.pzz.dk",
+        "hostname": "container-p12",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p13.pzz.dk",
+        "hostname": "container-p13",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p14.pzz.dk",
+        "hostname": "container-p14",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p15.pzz.dk",
+        "hostname": "container-p15",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p16.pzz.dk",
+        "hostname": "container-p16",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p17.pzz.dk",
+        "hostname": "container-p17",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p18.pzz.dk",
+        "hostname": "container-p18",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p19.pzz.dk",
+        "hostname": "container-p19",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p20.pzz.dk",
+        "hostname": "container-p20",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p21.pzz.dk",
+        "hostname": "container-p21",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p22.pzz.dk",
+        "hostname": "container-p22",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p23.pzz.dk",
+        "hostname": "container-p23",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p24.pzz.dk",
+        "hostname": "container-p24",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p25.pzz.dk",
+        "hostname": "container-p25",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p26.pzz.dk",
+        "hostname": "container-p26",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p27.pzz.dk",
+        "hostname": "container-p27",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p28.pzz.dk",
+        "hostname": "container-p28",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p29.pzz.dk",
+        "hostname": "container-p29",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p30.pzz.dk",
+        "hostname": "container-p30",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p31.pzz.dk",
+        "hostname": "container-p31",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p32.pzz.dk",
+        "hostname": "container-p32",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p33.pzz.dk",
+        "hostname": "container-p33",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p34.pzz.dk",
+        "hostname": "container-p34",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p35.pzz.dk",
+        "hostname": "container-p35",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p36.pzz.dk",
+        "hostname": "container-p36",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p37.pzz.dk",
+        "hostname": "container-p37",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p38.pzz.dk",
+        "hostname": "container-p38",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p39.pzz.dk",
+        "hostname": "container-p39",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p40.pzz.dk",
+        "hostname": "container-p40",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p41.pzz.dk",
+        "hostname": "container-p41",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-p42.pzz.dk",
+        "hostname": "container-p42",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "control-plane-p101.pzz.dk",
+        "hostname": "control-plane-p101",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "control-plane-p201.pzz.dk",
+        "hostname": "control-plane-p201",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "control-plane-p301.pzz.dk",
+        "hostname": "control-plane-p301",
+        "metadata": {
+            "group_host_name": "k8s-prod"
+        }
+    },
+    {
+        "host_url": "container-gpu-s01.pzz.dk",
+        "hostname": "container-gpu-s01",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "container-s01.pzz.dk",
+        "hostname": "container-s01",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "container-s02.pzz.dk",
+        "hostname": "container-s02",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "container-s03.pzz.dk",
+        "hostname": "container-s03",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "container-s04.pzz.dk",
+        "hostname": "container-s04",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "container-s05.pzz.dk",
+        "hostname": "container-s05",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "control-plane-s01.pzz.dk",
+        "hostname": "control-plane-s01",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "control-plane-s02.pzz.dk",
+        "hostname": "control-plane-s02",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "control-plane-s03.pzz.dk",
+        "hostname": "control-plane-s03",
+        "metadata": {
+            "group_host_name": "k8s-stg"
+        }
+    },
+    {
+        "host_url": "kafka-p101.pzz.dk",
+        "hostname": "kafka-p101",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-p102.pzz.dk",
+        "hostname": "kafka-p102",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-p201.pzz.dk",
+        "hostname": "kafka-p201",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-p202.pzz.dk",
+        "hostname": "kafka-p202",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-p301.pzz.dk",
+        "hostname": "kafka-p301",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-p302.pzz.dk",
+        "hostname": "kafka-p302",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-zk-p01.pzz.dk",
+        "hostname": "kafka-zk-p01",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-zk-p02.pzz.dk",
+        "hostname": "kafka-zk-p02",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-zk-p03.pzz.dk",
+        "hostname": "kafka-zk-p03",
+        "metadata": {
+            "group_host_name": "kafka-prod"
+        }
+    },
+    {
+        "host_url": "kafka-controller-s101.pzz.dk",
+        "hostname": "kafka-controller-s101",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-controller-s201.pzz.dk",
+        "hostname": "kafka-controller-s201",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-controller-s301.pzz.dk",
+        "hostname": "kafka-controller-s301",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-s101.pzz.dk",
+        "hostname": "kafka-s101",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-s201.pzz.dk",
+        "hostname": "kafka-s201",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-s301.pzz.dk",
+        "hostname": "kafka-s301",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-zk-s01.pzz.dk",
+        "hostname": "kafka-zk-s01",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-zk-s02.pzz.dk",
+        "hostname": "kafka-zk-s02",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafka-zk-s03.pzz.dk",
+        "hostname": "kafka-zk-s03",
+        "metadata": {
+            "group_host_name": "kafka-stg"
+        }
+    },
+    {
+        "host_url": "kafkadata-p101.pzz.dk",
+        "hostname": "kafkadata-p101",
+        "metadata": {
+            "group_host_name": "kafkadata-prod"
+        }
+    },
+    {
+        "host_url": "kafkadata-p102.pzz.dk",
+        "hostname": "kafkadata-p102",
+        "metadata": {
+            "group_host_name": "kafkadata-prod"
+        }
+    },
+    {
+        "host_url": "kafkadata-p201.pzz.dk",
+        "hostname": "kafkadata-p201",
+        "metadata": {
+            "group_host_name": "kafkadata-prod"
+        }
+    },
+    {
+        "host_url": "kafkadata-p202.pzz.dk",
+        "hostname": "kafkadata-p202",
+        "metadata": {
+            "group_host_name": "kafkadata-prod"
+        }
+    },
+    {
+        "host_url": "kafkadata-p301.pzz.dk",
+        "hostname": "kafkadata-p301",
+        "metadata": {
+            "group_host_name": "kafkadata-prod"
+        }
+    },
+    {
+        "host_url": "kafkadata-p302.pzz.dk",
+        "hostname": "kafkadata-p302",
+        "metadata": {
+            "group_host_name": "kafkadata-prod"
+        }
+    },
+    {
+        "host_url": "kafkadata-s01.pzz.dk",
+        "hostname": "kafkadata-s01",
+        "metadata": {
+            "group_host_name": "kafkadata-staging"
+        }
+    },
+    {
+        "host_url": "kafkadata-s02.pzz.dk",
+        "hostname": "kafkadata-s02",
+        "metadata": {
+            "group_host_name": "kafkadata-staging"
+        }
+    },
+    {
+        "host_url": "kafkadata-s03.pzz.dk",
+        "hostname": "kafkadata-s03",
+        "metadata": {
+            "group_host_name": "kafkadata-staging"
+        }
+    },
+    {
+        "host_url": "kafkadata-s04.pzz.dk",
+        "hostname": "kafkadata-s04",
+        "metadata": {
+            "group_host_name": "kafkadata-staging"
+        }
+    },
+    {
+        "host_url": "platform-rescue-iso.pzz.dk",
+        "hostname": "platform-rescue-iso",
+        "metadata": {
+            "group_host_name": "livesystems"
+        }
+    },
+    {
+        "host_url": "platform-rescue-kexec.pzz.dk",
+        "hostname": "platform-rescue-kexec",
+        "metadata": {
+            "group_host_name": "livesystems"
+        }
+    },
+    {
+        "host_url": "platform-rescue-netboot.pzz.dk",
+        "hostname": "platform-rescue-netboot",
+        "metadata": {
+            "group_host_name": "livesystems"
+        }
+    },
+    {
+        "host_url": "logs-p101.pzz.dk",
+        "hostname": "logs-p101",
+        "metadata": {
+            "group_host_name": "logs-prod"
+        }
+    },
+    {
+        "host_url": "logs-p201.pzz.dk",
+        "hostname": "logs-p201",
+        "metadata": {
+            "group_host_name": "logs-prod"
+        }
+    },
+    {
+        "host_url": "logs-p301.pzz.dk",
+        "hostname": "logs-p301",
+        "metadata": {
+            "group_host_name": "logs-prod"
+        }
+    },
+    {
+        "host_url": "loki-s01.pzz.dk",
+        "hostname": "loki-s01",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "loki-s02.pzz.dk",
+        "hostname": "loki-s02",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "loki-s03.pzz.dk",
+        "hostname": "loki-s03",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "loki-sto-s01.pzz.dk",
+        "hostname": "loki-sto-s01",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "loki-sto-s02.pzz.dk",
+        "hostname": "loki-sto-s02",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "loki-sto-s03.pzz.dk",
+        "hostname": "loki-sto-s03",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "loki-sto-s04.pzz.dk",
+        "hostname": "loki-sto-s04",
+        "metadata": {
+            "group_host_name": "loki-stg"
+        }
+    },
+    {
+        "host_url": "manage-p01.pzz.dk",
+        "hostname": "manage-p01",
+        "metadata": {
+            "group_host_name": "manage-prod"
+        }
+    },
+    {
+        "host_url": "manage-p02.pzz.dk",
+        "hostname": "manage-p02",
+        "metadata": {
+            "group_host_name": "manage-prod"
+        }
+    },
+    {
+        "host_url": "manage-p03.pzz.dk",
+        "hostname": "manage-p03",
+        "metadata": {
+            "group_host_name": "manage-prod"
+        }
+    },
+    {
+        "host_url": "prometheus-p101.pzz.dk",
+        "hostname": "prometheus-p101",
+        "metadata": {
+            "group_host_name": "monitoring-prod"
+        }
+    },
+    {
+        "host_url": "prometheus-p201.pzz.dk",
+        "hostname": "prometheus-p201",
+        "metadata": {
+            "group_host_name": "monitoring-prod"
+        }
+    },
+    {
+        "host_url": "prometheus-p301.pzz.dk",
+        "hostname": "prometheus-p301",
+        "metadata": {
+            "group_host_name": "monitoring-prod"
+        }
+    },
+    {
+        "host_url": "prometheus-s01.pzz.dk",
+        "hostname": "prometheus-s01",
+        "metadata": {
+            "group_host_name": "monitoring-stg"
+        }
+    },
+    {
+        "host_url": "prometheus-s02.pzz.dk",
+        "hostname": "prometheus-s02",
+        "metadata": {
+            "group_host_name": "monitoring-stg"
+        }
+    },
+    {
+        "host_url": "prometheus-s03.pzz.dk",
+        "hostname": "prometheus-s03",
+        "metadata": {
+            "group_host_name": "monitoring-stg"
+        }
+    },
+    {
+        "host_url": "nix-build-p101.pzz.dk",
+        "hostname": "nix-build-p101",
+        "metadata": {
+            "group_host_name": "nix-build-new"
+        }
+    },
+    {
+        "host_url": "nix-build-p301.pzz.dk",
+        "hostname": "nix-build-p301",
+        "metadata": {
+            "group_host_name": "nix-build-new"
+        }
+    },
+    {
+        "host_url": "openbao-p01.pzz.dk",
+        "hostname": "openbao-p01",
+        "metadata": {
+            "group_host_name": "openbao-prod"
+        }
+    },
+    {
+        "host_url": "openbao-p02.pzz.dk",
+        "hostname": "openbao-p02",
+        "metadata": {
+            "group_host_name": "openbao-prod"
+        }
+    },
+    {
+        "host_url": "openbao-p03.pzz.dk",
+        "hostname": "openbao-p03",
+        "metadata": {
+            "group_host_name": "openbao-prod"
+        }
+    },
+    {
+        "host_url": "platform-monitor.pzz.dk",
+        "hostname": "platform-monitor",
+        "metadata": {
+            "group_host_name": "porthole"
+        }
+    },
+    {
+        "host_url": "pud-nix-cache-p01.pzz.dk",
+        "hostname": "pud-nix-cache-p01",
+        "metadata": {
+            "group_host_name": "pud-nix-cache"
+        }
+    },
+    {
+        "host_url": "dhcp2038-p01.pzz.dk",
+        "hostname": "dhcp2038-p01",
+        "metadata": {
+            "group_host_name": "pvm-dhcp-server"
+        }
+    },
+    {
+        "host_url": "platform-renovate-p101.pzz.dk",
+        "hostname": "platform-renovate-p101",
+        "metadata": {
+            "group_host_name": "renovate"
+        }
+    },
+    {
+        "host_url": "tang-p01.pzz.dk",
+        "hostname": "tang-p01",
+        "metadata": {
+            "group_host_name": "tang-prod"
+        }
+    },
+    {
+        "host_url": "tang-p02.pzz.dk",
+        "hostname": "tang-p02",
+        "metadata": {
+            "group_host_name": "tang-prod"
+        }
+    },
+    {
+        "host_url": "platform-tools.pzz.dk",
+        "hostname": "platform-tools",
+        "metadata": {
+            "group_host_name": "tools"
+        }
+    },
+    {
+        "host_url": "vault-a-p01.pzz.dk",
+        "hostname": "vault-a-p01",
+        "metadata": {
+            "group_host_name": "vault-a"
+        }
+    },
+    {
+        "host_url": "vault-a-p201.pzz.dk",
+        "hostname": "vault-a-p201",
+        "metadata": {
+            "group_host_name": "vault-a"
+        }
+    },
+    {
+        "host_url": "vault-a-p301.pzz.dk",
+        "hostname": "vault-a-p301",
+        "metadata": {
+            "group_host_name": "vault-a"
+        }
+    },
+    {
+        "host_url": "vault-b-p01.pzz.dk",
+        "hostname": "vault-b-p01",
+        "metadata": {
+            "group_host_name": "vault-b"
+        }
+    },
+    {
+        "host_url": "vault-s01.pzz.dk",
+        "hostname": "vault-s01",
+        "metadata": {
+            "group_host_name": "vault-stg"
+        }
+    },
+    {
+        "host_url": "vault-s02.pzz.dk",
+        "hostname": "vault-s02",
+        "metadata": {
+            "group_host_name": "vault-stg"
+        }
+    },
+    {
+        "host_url": "vault-s03.pzz.dk",
+        "hostname": "vault-s03",
+        "metadata": {
+            "group_host_name": "vault-stg"
+        }
+    },
+    {
+        "host_url": "wharfix-p01.pzz.dk",
+        "hostname": "wharfix-p01",
+        "metadata": {
+            "group_host_name": "wharfix"
+        }
+    },
+    {
+        "host_url": "wharfix-p02.pzz.dk",
+        "hostname": "wharfix-p02",
+        "metadata": {
+            "group_host_name": "wharfix"
+        }
+    }
+]

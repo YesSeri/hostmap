@@ -1,8 +1,6 @@
-// #![allow(dead_code)]
-// #![allow(unused_imports)]
-// #![allow(unused_variables)]
-//
-
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 #![allow(unused_mut)]
 #![allow(unused_parens)]
 #![allow(unused_must_use)]
@@ -25,14 +23,13 @@ use sqlx::postgres::PgPoolOptions;
 use tera::Tera;
 use tower_http::services::ServeDir;
 
-use crate::{
-    server::controller,
-    server::controller::{host_controller, log_entry_controller},
-    server::endpoint,
-    server::repository::{
+use crate::server::{
+    controller::{self, host_controller, log_entry_controller},
+    endpoint,
+    repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
     },
-    server::service::activation_log_service::ActivationLogService,
+    service::{activation_log_service::ActivationLogService, host_service::HostService},
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -72,19 +69,19 @@ async fn fallback() -> impl IntoResponse {
 #[derive(Debug, Clone)]
 struct AppState {
     tera: Arc<Tera>,
-    host_repo: HostRepository,
+    host_service: HostService,
     activation_log_service: ActivationLogService,
 }
 
 impl AppState {
     fn new(
         tera: Arc<Tera>,
-        host_repo: HostRepository,
+        host_service: HostService,
         activation_log_service: ActivationLogService,
     ) -> Self {
         Self {
             tera,
-            host_repo,
+            host_service,
             activation_log_service,
         }
     }
@@ -130,10 +127,10 @@ async fn main() -> Result<(), RetError> {
                 .connect(&database_url)
                 .await
                 .expect("failed to connect to DATABASE_URL");
-            let host_repo = HostRepository::new(pool.clone());
+            let host_service = HostService::new(HostRepository::new(pool.clone()));
             let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
             let tera = Arc::new(load_tera());
-            let app_state = AppState::new(tera, host_repo, log_service);
+            let app_state = AppState::new(tera, host_service, log_service);
             let app = Router::new()
                 .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
                 .route(

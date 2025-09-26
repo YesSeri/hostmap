@@ -1,4 +1,3 @@
-
 pub fn log_entry_bulk() -> &'static str {
     "/api/log_entry/bulk"
 }

@@ -9,7 +9,7 @@ use crate::{
 
 #[axum::debug_handler]
 pub(crate) async fn create_hosts(
-    State(AppState { host_repo, .. }): State<AppState>,
+    State(AppState { host_service, .. }): State<AppState>,
     Json(payload): Json<Vec<CurrentHostDto>>,
 ) -> axum::response::Result<String> {
     tracing::info!("Received payload: {:?}", payload);
@@ -18,7 +18,7 @@ pub(crate) async fn create_hosts(
         .map(|dto| HostModel::from(dto.clone()))
         .collect::<Vec<HostModel>>();
 
-    let num_hosts_inserted = host_repo.bulk_insert_hosts(&hosts).await.unwrap();
+    let num_hosts_inserted = host_service.bulk_insert_hosts(&hosts).await.unwrap();
     tracing::info!("Created {} hosts", num_hosts_inserted);
 
     Ok(num_hosts_inserted.to_string())

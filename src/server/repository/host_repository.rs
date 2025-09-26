@@ -1,7 +1,7 @@
 use crate::shared::model::{
-        host::{HostModel, HostWithLatestLog},
-        log::{ExistingLogEntryModel, LogEntryWithRevision},
-    };
+    host::{HostModel, HostWithLatestLog},
+    log::{ExistingLogEntryModel, LogEntryWithRevision},
+};
 use sqlx::{Execute, Pool, Postgres, QueryBuilder};
 
 use crate::RetError;
@@ -106,7 +106,8 @@ impl HostRepository {
         for host in hosts {
             let latest_log = all_logs
                 .iter()
-                .find(|log| log.hostname == host.hostname).cloned();
+                .find(|log| log.hostname == host.hostname)
+                .cloned();
             tracing::info!("Latest log for host {}: {:?}", host.hostname, latest_log);
 
             let host_with_latest_log = HostWithLatestLog {

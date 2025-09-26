@@ -32,13 +32,13 @@ impl HistoryPageContext {
 #[axum::debug_handler]
 pub async fn render_history_page(
     State(AppState {
-        tera,
-        host_repo,
+        host_service,
         activation_log_service,
+        tera,
     }): State<AppState>,
     Path(hostname): Path<String>,
 ) -> axum::response::Result<impl IntoResponse> {
-    let host = host_repo
+    let host = host_service
         .get_host_from_hostname(hostname)
         .await?
         .ok_or(RetError::NotFound)?;

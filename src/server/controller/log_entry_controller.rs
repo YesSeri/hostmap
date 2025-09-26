@@ -10,7 +10,7 @@ struct LogContext {}
 pub(crate) async fn create_log_entry(
     State(AppState {
         tera,
-        host_repo,
+        host_service,
         activation_log_service,
     }): State<AppState>,
     // post request in body
