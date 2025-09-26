@@ -1,7 +1,10 @@
-use crate::{server::{custom_error::RetError, ServerState}, shared::{
-    dto::{host::CurrentHostDto, log::LogHistoryDto},
-    model::log::LogEntryModel,
-}};
+use crate::{
+    server::{ServerState, custom_error::RetError},
+    shared::{
+        dto::{host::CurrentHostDto, log::LogHistoryDto},
+        model::log::LogEntryModel,
+    },
+};
 use axum::{
     extract::{Path, State},
     response::{Html, IntoResponse},
@@ -34,6 +37,7 @@ pub async fn render_history_page(
         host_service,
         activation_log_service,
         tera,
+        ..
     }): State<ServerState>,
     Path(hostname): Path<String>,
 ) -> axum::response::Result<impl IntoResponse> {

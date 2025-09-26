@@ -1,9 +1,12 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
-use crate::{server::{custom_error::RetError, ServerState}, shared::dto::host::CurrentHostDto};
+use crate::{
+    server::{ServerState, custom_error::RetError},
+    shared::dto::host::CurrentHostDto,
+};
 use axum::{
     extract::{Query, State},
-    response::{Html, IntoResponse},
+    response::Html,
 };
 use serde::{Deserialize, Serialize};
 use tera::Context;
@@ -11,46 +14,37 @@ use tera::Context;
 #[derive(Debug, Clone, Serialize)]
 struct FrontPageContext {
     hosts: Vec<CurrentHostDto>,
-    // total_groups: usize,
     total_hosts: usize,
 }
 
 impl FrontPageContext {
     fn new(hosts: Vec<CurrentHostDto>) -> Self {
-        // let total_groups = hosts.len();
-        let mut total_hosts = 0;
-        for _ in &hosts {
-            total_hosts += 1;
-        }
-        // for g in &host_groups {
-        //     for _ in &g.hosts {
-        //         total_hosts += 1;
-        //     }
-        // }
-        Self {
-            hosts,
-            // total_groups,
-            total_hosts,
-        }
+        let total_hosts = hosts.len();
+        Self { hosts, total_hosts }
     }
 }
 #[derive(Debug, Clone, Deserialize)]
 pub struct FrontPageQuery {
-    sorting_key: Option<String>,
+    grouping_key: Option<String>,
 }
 
 #[axum::debug_handler]
 pub async fn render_frontpage(
-    State(app_state): State<ServerState>,
+    State(server_state): State<ServerState>,
     Query(params): Query<FrontPageQuery>,
 ) -> axum::response::Result<Html<String>, RetError> {
-    tracing::debug!("Rendering frontpage with params: {:#?}", params);
-    if let Some(sorting_key) = params.sorting_key {
-        tracing::info!("Sorting key provided: {}", sorting_key);
-        render_frontpage_by_group(sorting_key, app_state).await
+    let grouping_key = params
+        .grouping_key
+        .as_ref()
+        .or(server_state.default_grouping_key.as_ref())
+        .cloned();
+    tracing::debug!("params from query: {:#?}", params);
+    tracing::debug!("Using grouping key: {:?}", grouping_key);
+
+    if let Some(grouping_key) = grouping_key {
+        render_frontpage_by_group(&grouping_key, server_state).await
     } else {
-        tracing::info!("No sorting key provided, using default sorting.");
-        render_frontpage_all_hosts(app_state).await
+        render_frontpage_all_hosts(server_state).await
     }
 }
 
@@ -58,11 +52,10 @@ async fn render_frontpage_all_hosts(
     ServerState {
         tera,
         host_service,
-        activation_log_service,
+        
+        ..
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
-    tracing::info!("No sorting key provided, using default sorting.");
-
     let host_models = host_service
         .get_all_hosts_with_latest_log_entry()
         .await
@@ -71,14 +64,10 @@ async fn render_frontpage_all_hosts(
         .into_iter()
         .map(|hwl| CurrentHostDto::from((hwl.host, hwl.logs)))
         .collect::<Vec<CurrentHostDto>>();
-    for host in hosts.iter() {
-        tracing::info!("Host in frontpage: {:?}", host);
-    }
     let fp_ctx = FrontPageContext::new(hosts);
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
-    tracing::debug!("frontpage with context: {:#?}", ctx);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
     Ok(Html(output))
@@ -106,7 +95,7 @@ impl FrontpageGroupedContext {
     }
 }
 async fn render_frontpage_by_group(
-    grouping_key: String,
+    grouping_key: &str,
     ServerState {
         tera, host_service, ..
     }: ServerState,
@@ -119,16 +108,16 @@ async fn render_frontpage_by_group(
     let mut grouped_hosts: BTreeMap<String, Vec<CurrentHostDto>> = BTreeMap::new();
 
     for host_with_log in host_with_logs {
+        tracing::debug!("Host metadata: {:#?}", host_with_log.host.metadata);
         let current_host_dto =
             CurrentHostDto::from((host_with_log.host.clone(), host_with_log.logs.clone()));
         let group_name = host_with_log
             .host
             .metadata
-            .get(&grouping_key)
+            .get(grouping_key)
             .and_then(|v| v.as_str().map(|s| s.to_owned()))
             .unwrap_or_else(|| "Ungrouped".to_string());
 
-        tracing::debug!("Hosts with logs: {:#?}", group_name);
         grouped_hosts
             .entry(group_name)
             .or_default()

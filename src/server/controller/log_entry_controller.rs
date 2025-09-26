@@ -1,4 +1,7 @@
-use crate::{server::ServerState, shared::{dto::host::HostWithLogsDto, model::log::CreateLogEntryModel}};
+use crate::{
+    server::ServerState,
+    shared::{dto::host::HostWithLogsDto, model::log::CreateLogEntryModel},
+};
 use axum::{Json, extract::State};
 use serde::Serialize;
 
@@ -11,6 +14,7 @@ pub(crate) async fn create_log_entry(
         tera,
         host_service,
         activation_log_service,
+        ..
     }): State<ServerState>,
     // post request in body
     Json(host_with_logs_dto): Json<HostWithLogsDto>,

@@ -13,13 +13,32 @@ pub(crate) struct Cli {
 #[derive(Subcommand, Debug)]
 pub(crate) enum Commands {
     Server {
-        #[arg(long)]
+        #[arg(long, help = "The database URL to connect to")]
         database_url: String,
+        #[arg(
+            long = "grouping-key",
+            help = "Default key from metadata to group by on the frontpage"
+        )]
+        default_grouping_key: Option<String>,
+        #[arg(
+            long,
+            default_value = "127.0.0.1",
+            help = "url run the server on"
+        )]
+        url: String,
+        #[arg(long, default_value = "3000", help = "port to run server on")]
+        port: u16,
     },
     Scraper {
         #[arg(long)]
         hosts_file: PathBuf,
         #[arg(long)]
         scrape_interval: u64,
+        #[arg(
+            long,
+            default_value = "http://localhost:3000",
+            help = "url of server to send logs to"
+        )]
+        url: String,
     },
 }

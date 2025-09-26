@@ -10,8 +10,8 @@ pub(crate) mod scraper;
 pub(crate) mod server;
 pub(crate) mod shared;
 
-use std::error;
 use clap::Parser;
+use std::error;
 
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -31,14 +31,20 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     let cli = Cli::parse();
     setup_logging();
     match cli.command {
-        Commands::Server { database_url } => {
-            server::run(database_url).await?;
+        Commands::Server {
+            database_url,
+            default_grouping_key,
+            url,
+            port,
+        } => {
+            server::run(database_url, default_grouping_key, &url, port).await?;
         }
         Commands::Scraper {
             hosts_file,
             scrape_interval,
+            url,
         } => {
-            scraper::run(hosts_file, scrape_interval).await?;
+            scraper::run(hosts_file, scrape_interval, &url).await?;
         }
     }
     Ok(())

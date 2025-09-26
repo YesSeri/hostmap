@@ -1,6 +1,9 @@
 use axum::{Json, extract::State};
 
-use crate::{server::ServerState, shared::{dto::host::CurrentHostDto, model::host::HostModel}};
+use crate::{
+    server::ServerState,
+    shared::{dto::host::CurrentHostDto, model::host::HostModel},
+};
 // #[derive(Debug, Clone, Serialize)]
 // struct LogContext {}
 
