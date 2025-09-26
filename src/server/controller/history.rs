@@ -1,7 +1,7 @@
-use crate::shared::{
+use crate::{server::{custom_error::RetError, ServerState}, shared::{
     dto::{host::CurrentHostDto, log::LogHistoryDto},
     model::log::LogEntryModel,
-};
+}};
 use axum::{
     extract::{Path, State},
     response::{Html, IntoResponse},
@@ -10,7 +10,6 @@ use chrono::NaiveDate;
 use serde::Serialize;
 use tera::Context;
 
-use crate::{AppState, RetError};
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
     host: CurrentHostDto,
@@ -31,11 +30,11 @@ impl HistoryPageContext {
 
 #[axum::debug_handler]
 pub async fn render_history_page(
-    State(AppState {
+    State(ServerState {
         host_service,
         activation_log_service,
         tera,
-    }): State<AppState>,
+    }): State<ServerState>,
     Path(hostname): Path<String>,
 ) -> axum::response::Result<impl IntoResponse> {
     let host = host_service

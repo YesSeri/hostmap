@@ -1,15 +1,12 @@
 use axum::{Json, extract::State};
 
-use crate::{
-    AppState,
-    shared::{dto::host::CurrentHostDto, model::host::HostModel},
-};
+use crate::{server::ServerState, shared::{dto::host::CurrentHostDto, model::host::HostModel}};
 // #[derive(Debug, Clone, Serialize)]
 // struct LogContext {}
 
 #[axum::debug_handler]
 pub(crate) async fn create_hosts(
-    State(AppState { host_service, .. }): State<AppState>,
+    State(ServerState { host_service, .. }): State<ServerState>,
     Json(payload): Json<Vec<CurrentHostDto>>,
 ) -> axum::response::Result<String> {
     tracing::info!("Received payload: {:?}", payload);

@@ -4,7 +4,7 @@ use crate::shared::model::{
 };
 use sqlx::{Execute, Pool, Postgres, QueryBuilder};
 
-use crate::RetError;
+use crate::server::custom_error::RetError;
 
 #[derive(Debug, Clone)]
 pub struct HostRepository {

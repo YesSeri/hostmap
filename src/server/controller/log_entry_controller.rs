@@ -1,18 +1,17 @@
-use crate::shared::{dto::host::HostWithLogsDto, model::log::CreateLogEntryModel};
+use crate::{server::ServerState, shared::{dto::host::HostWithLogsDto, model::log::CreateLogEntryModel}};
 use axum::{Json, extract::State};
 use serde::Serialize;
 
-use crate::AppState;
 #[derive(Debug, Clone, Serialize)]
 struct LogContext {}
 
 #[axum::debug_handler]
 pub(crate) async fn create_log_entry(
-    State(AppState {
+    State(ServerState {
         tera,
         host_service,
         activation_log_service,
-    }): State<AppState>,
+    }): State<ServerState>,
     // post request in body
     Json(host_with_logs_dto): Json<HostWithLogsDto>,
 ) -> axum::response::Result<String> {

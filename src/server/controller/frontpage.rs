@@ -1,12 +1,6 @@
 use std::collections::{BTreeMap, HashMap};
 
-use crate::{
-    RetError,
-    shared::{
-        dto::host::CurrentHostDto,
-        model::{host::HostModel, revision::RevisionModel},
-    },
-};
+use crate::{server::{custom_error::RetError, ServerState}, shared::dto::host::CurrentHostDto};
 use axum::{
     extract::{Query, State},
     response::{Html, IntoResponse},
@@ -14,7 +8,6 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tera::Context;
 
-use crate::AppState;
 #[derive(Debug, Clone, Serialize)]
 struct FrontPageContext {
     hosts: Vec<CurrentHostDto>,
@@ -48,7 +41,7 @@ pub struct FrontPageQuery {
 
 #[axum::debug_handler]
 pub async fn render_frontpage(
-    State(app_state): State<AppState>,
+    State(app_state): State<ServerState>,
     Query(params): Query<FrontPageQuery>,
 ) -> axum::response::Result<Html<String>, RetError> {
     tracing::debug!("Rendering frontpage with params: {:#?}", params);
@@ -62,11 +55,11 @@ pub async fn render_frontpage(
 }
 
 async fn render_frontpage_all_hosts(
-    AppState {
+    ServerState {
         tera,
         host_service,
         activation_log_service,
-    }: AppState,
+    }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     tracing::info!("No sorting key provided, using default sorting.");
 
@@ -114,9 +107,9 @@ impl FrontpageGroupedContext {
 }
 async fn render_frontpage_by_group(
     grouping_key: String,
-    AppState {
+    ServerState {
         tera, host_service, ..
-    }: AppState,
+    }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_with_logs = host_service
         .get_all_hosts_with_latest_log_entry()
@@ -138,7 +131,7 @@ async fn render_frontpage_by_group(
         tracing::debug!("Hosts with logs: {:#?}", group_name);
         grouped_hosts
             .entry(group_name)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(current_host_dto);
     }
     tracing::debug!("Grouped hosts: {:#?}", grouped_hosts);

@@ -8,18 +8,11 @@
 		updated.
 	</p>
 
+	<h2>All hosts ungrouped</h2>
 	{# {% include "debug.html.tera" %} #}
 	<table cellpadding="5">
 		{% for host in frontpage_ctx.hosts %}
 		<tbody>
-			<tr>
-				<th>host</th>
-				<th>url</th>
-				<th>store path</th>
-				<th>time</th>
-				<th>rev</th>
-				<th>ref</th>
-			</tr>
 			<tr>
 				<td><a href="/{{ host.hostname }}">{{ host.hostname }}</a></td>
 				<td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>

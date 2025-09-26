@@ -4,7 +4,7 @@ use crate::shared::model::{
 };
 use sqlx::{Pool, Postgres, QueryBuilder};
 
-use crate::RetError;
+use crate::server::custom_error::RetError;
 
 #[derive(Debug, Clone)]
 pub struct ActivationLogRepository {

@@ -3,8 +3,7 @@ use std::collections::BTreeMap;
 use chrono::NaiveDate;
 
 use crate::{
-    RetError,
-    server::repository::activation_log_repository::ActivationLogRepository,
+    server::{custom_error::RetError, repository::activation_log_repository::ActivationLogRepository},
     shared::{
         dto::host::CurrentHostDto,
         model::{

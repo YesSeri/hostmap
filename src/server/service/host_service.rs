@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use chrono::NaiveDate;
 
 use crate::{
-    RetError,
+    server::custom_error::RetError,
     server::repository::host_repository::HostRepository,
     shared::model::host::{HostModel, HostWithLatestLog},
 };

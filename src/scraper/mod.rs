@@ -18,10 +18,15 @@ fn create_client() -> Result<reqwest::Client, reqwest::Error> {
 }
 
 pub async fn run(
-    host_file: PathBuf,
+    hosts_file: PathBuf,
     scrape_interval: u64,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
-    let create_host_dtos = parse_hosts(&host_file).await;
+    tracing::info!(
+        "Starting scraper with file: {:?} and interval: {}",
+        hosts_file,
+        scrape_interval
+    );
+    let create_host_dtos = parse_hosts(&hosts_file).await;
     let client = create_client()?;
     scraper::insert_hosts(&create_host_dtos, &client).await?;
     loop {
