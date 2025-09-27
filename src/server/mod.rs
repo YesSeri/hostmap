@@ -66,7 +66,10 @@ pub async fn run(
         .expect("failed to run database migrations");
     let host_service = HostService::new(HostRepository::new(pool.clone()));
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
-    let tera = Arc::new(load_tera(&templates_dir));
+    let tera = Arc::new(load_tera(&templates_dir).expect(&format!(
+        "Failed to load templates from directory: {}",
+        &templates_dir
+    )));
     let server_state = ServerState::new(tera, default_grouping_key, host_service, log_service);
     let router = Router::new()
         .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
@@ -108,16 +111,7 @@ pub async fn run(
     Ok(())
 }
 
-fn load_tera(templates_dir: &str) -> Tera {
+fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     let tera_pattern = format!("{}/**/*", templates_dir);
-    match Tera::new(&tera_pattern) {
-        Ok(t) => {
-            tracing::info!("Successfully loaded templates from {}", &tera_pattern);
-            t
-        }
-        Err(e) => {
-            tracing::error!("Parsing error(s): {}", e);
-            panic!("Failed to load templates");
-        }
-    }
+    Tera::new(&tera_pattern)
 }

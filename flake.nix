@@ -56,19 +56,7 @@
     in
     {
       packages.${system} = lib.mapAttrs (n: _: pkgs.${n}) outputPackages;
-      defaultPackage.${system} =
-        let
-          localTeraTemplates = ./templates;
-          templatesPath = pkgs.runCommand "copy-templates" { } ''
-            mkdir -p $out/share/hostmap
-            cp -r ${./templates} $out/share/hostmap/templates
-          '';
-          realHostmap = pkgs.${pname};
-        in
-        pkgs.writeShellScript "hostmap" ''
-          export HOSTMAP_TEMPLATES_DIR=${templatesPath}/share/hostmap/templates
-          exec ${realHostmap}/bin/hostmap "$@"
-        '';
+      defaultPackage.${system} = self.packages.${system}.hostmap;
       overlay =
         final: prev:
         let
@@ -84,17 +72,30 @@
                       drvnix = path: _type: builtins.match ".*/drv.nix" path != null;
                       migrations = path: _type: builtins.match ".*/migrations/.*\\.up\\.sql" path != null;
                       sqlxMetadata = path: _type: builtins.match ".*/\\.sqlx/.*\\.json" path != null;
+                      templates = path: _type: builtins.match ".*/templates/.*\\.tera" path != null;
                     in
                     path: type:
                     craneLib.filterCargoSources path type
                     || drvnix path type
                     || migrations path type
+                    || templates path type
                     || sqlxMetadata path type;
                 };
-              nativeBuildInputs = with final; [ pkg-config ];
+              nativeBuildInputs = with final; [
+                pkg-config
+                makeWrapper
+              ];
               buildInputs = with final; [ openssl ];
               env.SQLX_OFFLINE = "true";
               cargoExtraArgs = final.lib.concatMapStringsSep " " (f: "--features=${f}") features;
+              postInstall = ''
+                mkdir -p $out/share/hostmap/templates
+                cp -R --no-preserve=mode,ownership ./templates/* $out/share/hostmap/templates
+                chmod -R u+w $out/share/hostmap/templates
+                wrapProgram $out/bin/hostmap \
+                  --set HOSTMAP_TEMPLATES_DIR $out/share/hostmap/templates
+              '';
+
             });
         in
         lib.mapAttrs cratePackage outputPackages;
