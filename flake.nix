@@ -58,13 +58,16 @@
       packages.${system} = lib.mapAttrs (n: _: pkgs.${n}) outputPackages;
       defaultPackage.${system} =
         let
+          localTeraTemplates = ./templates;
+          templatesPath = pkgs.runCommand "copy-templates" { } ''
+            mkdir -p $out/share/hostmap
+            cp -r ${./templates} $out/share/hostmap/templates
+          '';
           realHostmap = pkgs.${pname};
         in
         pkgs.writeShellScript "hostmap" ''
-          # run migratoins
-          echo 'hello' > /tmp/hello-test.txt
-          # run hostmap binary
-          ${realHostmap} "$@"
+          export HOSTMAP_TEMPLATES_DIR=${templatesPath}/share/hostmap/templates
+          exec ${realHostmap}/bin/hostmap "$@"
         '';
       overlay =
         final: prev:

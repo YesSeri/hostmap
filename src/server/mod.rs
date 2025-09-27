@@ -58,13 +58,15 @@ pub async fn run(
         .expect("failed to connect to DATABASE_URL");
 
     // run migrations
+    let templates_dir = std::env::var("HOSTMAP_TEMPLATES_DIR")?;
+    tracing::info!("Using templates directory: {}", &templates_dir);
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
         .expect("failed to run database migrations");
     let host_service = HostService::new(HostRepository::new(pool.clone()));
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
-    let tera = Arc::new(load_tera());
+    let tera = Arc::new(load_tera(&templates_dir));
     let server_state = ServerState::new(tera, default_grouping_key, host_service, log_service);
     let router = Router::new()
         .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
@@ -106,6 +108,16 @@ pub async fn run(
     Ok(())
 }
 
-fn load_tera() -> Tera {
-    Tera::new("templates/**/*").unwrap()
+fn load_tera(templates_dir: &str) -> Tera {
+    let tera_pattern = format!("{}/**/*", templates_dir);
+    match Tera::new(&tera_pattern) {
+        Ok(t) => {
+            tracing::info!("Successfully loaded templates from {}", &tera_pattern);
+            t
+        }
+        Err(e) => {
+            tracing::error!("Parsing error(s): {}", e);
+            panic!("Failed to load templates");
+        }
+    }
 }
