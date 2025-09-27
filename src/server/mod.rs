@@ -83,7 +83,6 @@ pub async fn run(
         )
         .route("/{hostname}", get(controller::history::render_history_page))
         .fallback(custom_error::fallback)
-        .nest_service(endpoint::assets_folder(), ServeDir::new("assets"))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(server_state);
 

@@ -7,11 +7,6 @@ pub fn hosts_bulk() -> &'static str {
 pub fn frontpage() -> &'static str {
     "/"
 }
-
-pub fn assets_folder() -> &'static str {
-    "/assets"
-}
-
 pub fn history_page(hostname: &str) -> String {
     "/".to_string() + hostname
 }
