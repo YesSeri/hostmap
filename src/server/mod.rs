@@ -57,7 +57,7 @@ pub async fn run(
         .await
         .expect("failed to connect to DATABASE_URL");
 
-        // run migrations
+    // run migrations
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
@@ -84,7 +84,13 @@ pub async fn run(
 
     let bind_addr = format!("{}:{}", url, port);
     tracing::debug!("Binding to {}", &bind_addr);
-    let listener = tokio::net::TcpListener::bind(&bind_addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(&bind_addr).await.expect(
+        format!(
+            "Failed to bind to address {}, is the port already in use?",
+            &bind_addr
+        )
+        .as_str(),
+    );
 
     tracing::info!("Creating server at http://{}", &bind_addr);
 

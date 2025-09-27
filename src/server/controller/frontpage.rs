@@ -50,10 +50,7 @@ pub async fn render_frontpage(
 
 async fn render_frontpage_all_hosts(
     ServerState {
-        tera,
-        host_service,
-        
-        ..
+        tera, host_service, ..
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_models = host_service

@@ -20,11 +20,7 @@ pub(crate) enum Commands {
             help = "Default key from metadata to group by on the frontpage"
         )]
         default_grouping_key: Option<String>,
-        #[arg(
-            long,
-            default_value = "127.0.0.1",
-            help = "url run the server on"
-        )]
+        #[arg(long, default_value = "127.0.0.1", help = "url run the server on")]
         url: String,
         #[arg(long, default_value = "3000", help = "port to run server on")]
         port: u16,

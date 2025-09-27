@@ -1,5 +1,3 @@
-
-
 use crate::{
     server::custom_error::RetError,
     server::repository::host_repository::HostRepository,
