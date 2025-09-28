@@ -87,7 +87,7 @@ pub(crate) async fn insert_hosts(
     client: &Client,
     url: &str,
 ) -> Result<(), reqwest::Error> {
-    let url = format!("{}/{}", url, endpoint::hosts_bulk());
+    let url = format!("{}{}", url, endpoint::hosts_bulk());
     client
         .post(url)
         .json(&host_dtos)
@@ -119,7 +119,7 @@ pub async fn scrape_hosts(
                 metadata: host.metadata.clone(),
             };
 
-            let url = format!("{}/{}", url, endpoint::log_entry_bulk());
+            let url = format!("{}{}", url, endpoint::log_entry_bulk());
             let res = client.post(url).json(&body).send().await?;
 
             res.error_for_status_ref()?;
