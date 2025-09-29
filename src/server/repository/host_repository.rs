@@ -19,7 +19,6 @@ impl HostRepository {
     pub async fn bulk_insert_hosts(&self, hosts: &[HostModel]) -> Result<u64, sqlx::Error> {
         const CHUNK_SIZE: usize = 500; // rows (hosts) per INSERT
         tracing::info!("Inserting {} hosts", hosts.len());
-        tracing::info!("Hosts: {hosts:?}");
         let tuple_vec: Vec<(&str, &str, &serde_json::Value)> = hosts
             .iter()
             .map(|h| (h.hostname.as_str(), h.host_url.as_str(), &h.metadata))
@@ -28,7 +27,6 @@ impl HostRepository {
 
         for chunk in tuple_vec.chunks(CHUNK_SIZE) {
             tracing::info!("Inserting chunk of {} hosts", chunk.len());
-            tracing::info!("Chunk: {chunk:?}");
             let mut query_builder =
                 QueryBuilder::new("INSERT INTO host(hostname, host_url, metadata) ");
             query_builder.push_values(chunk.iter(), |mut b, row| {
@@ -38,9 +36,7 @@ impl HostRepository {
             // on conflict do nothing to avoid duplicate entries
             query_builder.push(" ON CONFLICT (hostname) DO NOTHING ");
             let query = query_builder.build();
-            tracing::info!("Executing query: {:?}", query.sql());
             let res = query.execute(&self.pool).await?;
-            tracing::info!("Affected rows: {:?}", res.rows_affected());
             rows_inserted += res.rows_affected();
         }
         Ok(rows_inserted)
@@ -108,7 +104,6 @@ impl HostRepository {
                 .iter()
                 .find(|log| log.hostname == host.hostname)
                 .cloned();
-            tracing::info!("Latest log for host {}: {:?}", host.hostname, latest_log);
 
             let host_with_latest_log = HostWithLatestLog {
                 host: host.clone(),

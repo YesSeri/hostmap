@@ -12,7 +12,6 @@ pub(crate) async fn create_hosts(
     State(ServerState { host_service, .. }): State<ServerState>,
     Json(payload): Json<Vec<CurrentHostDto>>,
 ) -> axum::response::Result<String> {
-    tracing::info!("Received payload: {:?}", payload);
     let hosts = payload
         .iter()
         .map(|dto| HostModel::from(dto.clone()))

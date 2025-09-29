@@ -58,12 +58,13 @@ pub async fn run(
         .expect("failed to connect to DATABASE_URL");
 
     // run migrations
-    let templates_dir = std::env::var("HOSTMAP_TEMPLATES_DIR")?;
-    tracing::info!("Using templates directory: {}", &templates_dir);
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
         .expect("failed to run database migrations");
+
+    let templates_dir = std::env::var("HOSTMAP_TEMPLATES_DIR").expect("user must specificy the env variable HOSTMAP_TEMPLATES_DIR. This should not be something end user needs to specify, since the flake will wrap this.");
+    tracing::info!("Using templates directory: {}", &templates_dir);
     let host_service = HostService::new(HostRepository::new(pool.clone()));
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
     let tera = Arc::new(load_tera(&templates_dir).expect(&format!(
@@ -87,7 +88,7 @@ pub async fn run(
         .with_state(server_state);
 
     let bind_addr = format!("{}:{}", url, port);
-    tracing::debug!("Binding to {}", &bind_addr);
+    tracing::info!("Starting server at {}", &bind_addr);
     let listener = tokio::net::TcpListener::bind(&bind_addr).await.expect(
         format!(
             "Failed to bind to address {}, is the port already in use?",

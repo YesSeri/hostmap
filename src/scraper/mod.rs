@@ -137,10 +137,6 @@ pub async fn scrape_hosts(
     Ok(())
 }
 
-fn log_error(err: reqwest::Error) -> reqwest::Error {
-    tracing::error!("Error occurred: {}", err);
-    err
-}
 async fn scrape_host(
     host: &CurrentHostDto,
     client: &Client,
@@ -151,8 +147,8 @@ async fn scrape_host(
     )
     .to_owned();
     let url = Url::parse(&url_text).expect("could not parse url");
-    let recs = fetch_activationlog(&url, client).await.map_err(log_error)?;
-    tracing::debug!("records fetched from url {}: {:?}", url, recs);
+    let recs = fetch_activationlog(&url, client).await?;
+    tracing::debug!("{} records fetched from url {}", recs.len(), url);
     let host_model: HostModel = host.clone().into();
     let log_entry_models = recs
         .into_iter()

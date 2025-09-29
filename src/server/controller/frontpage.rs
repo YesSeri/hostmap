@@ -105,7 +105,6 @@ async fn render_frontpage_by_group(
     let mut grouped_hosts: BTreeMap<String, Vec<CurrentHostDto>> = BTreeMap::new();
 
     for host_with_log in host_with_logs {
-        tracing::debug!("Host metadata: {:#?}", host_with_log.host.metadata);
         let current_host_dto =
             CurrentHostDto::from((host_with_log.host.clone(), host_with_log.logs.clone()));
         let group_name = host_with_log
@@ -120,7 +119,6 @@ async fn render_frontpage_by_group(
             .or_default()
             .push(current_host_dto);
     }
-    tracing::debug!("Grouped hosts: {:#?}", grouped_hosts);
 
     let fp_ctx = FrontpageGroupedContext::new(grouped_hosts);
     let mut ctx = Context::new();
