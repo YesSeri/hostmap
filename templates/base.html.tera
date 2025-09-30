@@ -5,6 +5,16 @@
   <title>hostmap - {{ title }}</title>
   <link rel="stylesheet" href="/assets/styles.css">
   <style>
+    dl {
+      display: grid;
+      grid-template-columns: auto auto;
+      width: fit-content;
+    }
+    dd, dt {
+      outline: 1px solid black;
+      margin: 0;
+      padding: 0.5em;
+    }
     td {
       border: 1px solid black;
     }
@@ -35,11 +45,12 @@
 
   {% block content %}{% endblock %}
 
-  <footer>
+  <footer style="padding-top: 1em">
+    <hr>
     <ul>
-      <li>Here is a footer item 1</li>
-      <li>Here is a footer item 2</li>
-      <li>Here is a footer item 3</li>
+      <li>footer item 1</li>
+      <li>footer item 2</li>
+      <li>footer item 3</li>
     </ul>
   </footer>
 </body>

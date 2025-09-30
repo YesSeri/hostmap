@@ -1,34 +1,43 @@
-{% extends "base.html.tera" %}
-{% block content %}
-{# <pre>{{ history_ctx | json_encode(pretty=true) | safe }}</pre> #}
+{% extends "base.html.tera" %} {% block content %}
+<h2>metadata</h2>
+<dl>
+  <dt style="font-weight: bold">key</dt>
+  <dd style="font-weight: bold">value</dd>
+  {% for k,v in history_ctx.host.metadata %}
+  <dt>{{ k }}</dt>
+  {% if v is string or v is number %}
+  <dd>{{ v }}</dd>
+  {% else %}
+  <dd>{{ v | json_encode(pretty=true) }}</dd>
+  {% endif %}
+  {% endfor %}
+</dl>
 
+<h2>activation logs</h2>
 <table>
-	{% for tuple in history_ctx.activations_by_date | reverse %}
-	{% set date = tuple.0 %}
-	{% set logs = tuple.1 %}
+  {% for tuple in history_ctx.activations_by_date | reverse %} {% set date = tuple.0 %} {% set logs = tuple.1 %}
 
-	<tr>
-		<th colspan="5">
-			<h2>{{ date }}</h2>
-		</th>
-	</tr>
-	<tr>
-		<th>Time</th>
-		<th>User</th>
-		<th>System</th>
-		<th>Action</th>
-		<th>Git Ref</th>
-	</tr>
-	{% for entry in logs %}
-	<tr style="font-family: monospace;">
-		<td>{{ entry.timestamp | date(format="%H:%M:%S") }}</td>
-		<td>{{ entry.username }}</td>
-		<td>{{ entry.store_path.abbreviated_path }}</td>
-		<td>{{ entry.activation_type }}</td>
-		<td>{{ entry.rev_id | default(value="unknown") }}</td>
-	</tr>
-	{% endfor %}
-	{% endfor %}
+  <tr>
+    <th colspan="5">
+      <h3>{{ date }}</h3>
+    </th>
+  </tr>
+  <tr>
+    <th>Time</th>
+    <th>User</th>
+    <th>System</th>
+    <th>Action</th>
+    <th>Git Ref</th>
+  </tr>
+  {% for entry in logs %}
+  <tr style="font-family: monospace">
+    <td>{{ entry.timestamp | date(format="%H:%M:%S") }}</td>
+    <td>{{ entry.username }}</td>
+    <td>{{ entry.store_path.abbreviated_path }}</td>
+    <td>{{ entry.activation_type }}</td>
+    <td>{{ entry.rev_id | default(value="unknown") }}</td>
+  </tr>
+  {% endfor %} {% endfor %}
 </table>
 
 {% endblock %}

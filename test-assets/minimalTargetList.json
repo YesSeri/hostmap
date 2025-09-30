@@ -1,26 +1,38 @@
 [
-    {
-      "hostname": "hosts-p01",
-      "host_url": "hosts-p01.pzz.dk",
-      "metadata" : {
-        "env": "prod",
-        "host_group_name": "hosts-prod"
-      }
-    },
-    {
-      "hostname": "hosts-p02",
-      "host_url": "hosts-p02.pzz.dk",
-      "metadata" : {
-        "env": "prod",
-        "host_group_name": "hosts-prod"
-      }
-    },
-    {
-      "hostname": "hosts-p03",
-      "host_url": "hosts-p03.pzz.dk",
-      "metadata" : {
-        "env": "test",
-        "host_group_name": "hosts-prod"
+  {
+    "hostname": "hosts-p01",
+    "host_url": "hosts-p01.pzz.dk",
+    "metadata": {
+      "env": "prod",
+      "host_group_name": "hosts-prod",
+      "nested_data": {
+        "foo": "bar",
+        "baz": "quc"
       }
     }
+  },
+  {
+    "hostname": "hosts-p02",
+    "host_url": "hosts-p02.pzz.dk",
+    "metadata": {
+      "env": "prod",
+      "host_group_name": "hosts-prod",
+      "nested_data": {
+        "foo": "bar",
+        "baz": "quc"
+      }
+    }
+  },
+  {
+    "hostname": "hosts-p03",
+    "host_url": "hosts-p03.pzz.dk",
+    "metadata": {
+      "env": "test",
+      "host_group_name": "hosts-prod",
+      "nested_data": {
+        "foo": "bar",
+        "baz": "quc"
+      }
+    }
+  }
 ]

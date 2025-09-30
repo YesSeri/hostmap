@@ -45,6 +45,7 @@ pub async fn render_history_page(
         .get_host_from_hostname(hostname)
         .await?
         .ok_or(RetError::NotFound)?;
+    tracing::debug!("Found host: {:?}", host);
     let mut ctx = Context::new();
     let date_map = activation_log_service
         .host_with_logs_by_hostname(&host.hostname)
@@ -62,10 +63,10 @@ pub async fn render_history_page(
     }
 
     let host_dto = CurrentHostDto::from(host.clone());
-    let fp_ctx = HistoryPageContext::new(host_dto, date_dto_vec);
+    let history_ctx = HistoryPageContext::new(host_dto, date_dto_vec);
 
     ctx.insert("title", format!("History for {}", host.hostname).as_str());
-    ctx.insert("history_ctx", &fp_ctx);
+    ctx.insert("history_ctx", &history_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Ok(Html(output))
 }

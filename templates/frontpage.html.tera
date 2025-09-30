@@ -1,30 +1,31 @@
-{% extends "base.html.tera" %}
-{% block content %}
+{% extends "base.html.tera" %} {% block content %}
 <main>
-	<p>
-		Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI) revision that produces a given system
-		path. That means that: Given two revs; A and B, which both produce the same system path, and of which A is the
-		earliest known (that is, built by CI), an "update" from A to B will <em>not</em> result in the rev column being
-		updated.
-	</p>
+  <p>
+    Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI)
+    revision that produces a given system path. That means that: Given two revs;
+    A and B, which both produce the same system path, and of which A is the
+    earliest known (that is, built by CI), an "update" from A to B will
+    <em>not</em> result in the rev column being updated.
+  </p>
 
-	<h2>All hosts ungrouped</h2>
-	{# {% include "debug.html.tera" %} #}
-	<table cellpadding="5">
-		{% for host in frontpage_ctx.hosts %}
-		<tbody>
-			<tr>
-				<td><a href="/{{ host.hostname }}">{{ host.hostname }}</a></td>
-				<td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
-				<td>{{ host.logs.store_path.abbreviated_path | default(value="no path available") }}</td>
-				<td>{{ host.logs.timestamp | default(value="no timestamp available")}}</td>
-				<td>{{ host.logs.rev_id | default(value="unknown") }}</td>
-				<td>{{ host.logs.branch | default(value="unknown") }}</td>
-			</tr>
-		</tbody>
-		{% endfor %}
-	</table>
+  <h2>All hosts ungrouped</h2>
+  <table cellpadding="5">
+    <thead>
+      <tr>
+        <th>host</th>
+        <th>url</th>
+        <th>store path</th>
+        <th>time</th>
+        <th>rev</th>
+        <th>ref</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for host in frontpage_ctx.hosts %} {% include "host.html.tera" %} {%
+      endfor %}
+    </tbody>
+  </table>
 
-	<h3>Total hosts: {{ frontpage_ctx.total_hosts }}</h3>
+  <h3>Total hosts: {{ frontpage_ctx.total_hosts }}</h3>
 </main>
 {% endblock %}
