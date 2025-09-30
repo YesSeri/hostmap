@@ -12,14 +12,13 @@ pub(crate) async fn create_hosts(
     State(ServerState { host_service, .. }): State<ServerState>,
     Json(payload): Json<Vec<CurrentHostDto>>,
 ) -> axum::response::Result<String> {
-    tracing::info!("Received payload with {:?} hosts", payload);
     let hosts = payload
         .iter()
         .map(|dto| HostModel::from(dto.clone()))
         .collect::<Vec<HostModel>>();
 
-    let num_hosts_inserted = host_service.bulk_insert_hosts(&hosts).await.unwrap();
-    tracing::info!("Created {} hosts", num_hosts_inserted);
+    let num_inserted = host_service.create_many(&hosts).await.unwrap();
+    tracing::info!("Created {} hosts", num_inserted);
 
-    Ok(num_hosts_inserted.to_string())
+    Ok(num_inserted.to_string())
 }

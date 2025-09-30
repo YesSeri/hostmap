@@ -37,9 +37,6 @@ pub async fn render_frontpage(
         .or(server_state.server_config.default_grouping_key.as_ref())
         .cloned();
 
-    tracing::debug!("params from query: {:#?}", params);
-    tracing::debug!("Using grouping key: {:?}", grouping_key);
-
     if let Some(grouping_key) = grouping_key {
         render_frontpage_by_group(&grouping_key, server_state).await
     } else {
@@ -56,9 +53,9 @@ async fn render_frontpage_all_hosts(
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_models = host_service
-        .get_all_hosts_with_latest_log_entry()
+        .get_all_with_latest_log()
         .await
-        .unwrap();
+        .expect("Failed to fetch hosts");
     let hosts = host_models
         .into_iter()
         .map(|hwl| CurrentHostDto::from((hwl.host, hwl.logs)))
@@ -103,10 +100,7 @@ async fn render_frontpage_by_group(
         ..
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
-    let host_with_logs = host_service
-        .get_all_hosts_with_latest_log_entry()
-        .await
-        .unwrap();
+    let host_with_logs = host_service.get_all_with_latest_log().await.unwrap();
 
     let mut grouped_hosts: BTreeMap<String, Vec<CurrentHostDto>> = BTreeMap::new();
 

@@ -74,27 +74,6 @@ impl HostRepository {
         Ok(result)
     }
 
-    // pub async fn latest_entry_for_host(
-    //     &self,
-    //     host: HostModel,
-    // ) -> Result<Option<ExistingLogEntryModel>, RetError> {
-    //     let log_entry_with_rev = sqlx::query_as!(
-    //         LogEntryWithRevision,
-    //         r#"
-    //     SELECT log_entry_id, hostname, timestamp, username, store_path,
-    //         activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch
-    //     FROM log_entry
-    //     WHERE 1 = 1
-    //         AND hostname = $1
-    //     ORDER BY timestamp desc LIMIT 1
-    //     "#,
-    //         host.hostname,
-    //     )
-    //     .fetch_optional(&self.pool)
-    //     .await?;
-    //     let log_entry = log_entry_with_rev.map(|el| el.into());
-    //     Ok(log_entry)
-    // }
     pub async fn get_all_hosts_with_latest_log_entry(
         &self,
     ) -> Result<Vec<HostWithLatestLog>, RetError> {
@@ -102,7 +81,7 @@ impl HostRepository {
             LogEntryWithRevision,
             r#"
             SELECT DISTINCT ON(hostname) log_entry_id, hostname, timestamp, username, store_path, activation_type,
-                (SELECT NULL) as rev_id, (SELECT NULL) as branch
+                (SELECT 'asdkajsnd') as rev_id, (SELECT 'master') as branch
             FROM log_entry
             ORDER BY hostname, timestamp desc
             "#,
@@ -123,7 +102,6 @@ impl HostRepository {
             };
             result.push(host_with_latest_log);
         }
-
         Ok(result)
     }
     pub async fn get_all_hosts(&self) -> Result<Vec<HostModel>, RetError> {
