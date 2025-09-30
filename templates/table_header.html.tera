@@ -1,0 +1,11 @@
+<tr>
+  <th>host</th>
+  <th>url</th>
+  <th>store path</th>
+  <th>time</th>
+  <th>rev</th>
+  <th>ref</th>
+  {% for col in columns %}
+  <th>{{ col }}</th>
+  {% endfor %}
+</tr>

@@ -24,6 +24,8 @@ pub(crate) enum Commands {
         url: String,
         #[arg(long, default_value = "3000", help = "port to run server on")]
         port: u16,
+        #[arg(long, help = "metadata columns to show in the frontpage table")]
+        columns: Option<Vec<String>>,
     },
     Scraper {
         #[arg(long)]

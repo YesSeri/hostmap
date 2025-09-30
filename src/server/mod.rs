@@ -15,6 +15,7 @@ use tera::Tera;
 use tower_http::services::ServeDir;
 
 use crate::server::{
+    self,
     controller::{host_controller, log_entry_controller},
     repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
@@ -23,9 +24,22 @@ use crate::server::{
 };
 
 #[derive(Debug, Clone)]
+struct ServerConfig {
+    default_grouping_key: Option<String>,
+    columns: Vec<String>,
+}
+impl ServerConfig {
+    fn new(default_grouping_key: Option<String>, columns: Vec<String>) -> Self {
+        Self {
+            default_grouping_key,
+            columns,
+        }
+    }
+}
+#[derive(Debug, Clone)]
 struct ServerState {
     tera: Arc<Tera>,
-    default_grouping_key: Option<String>,
+    server_config: ServerConfig,
     host_service: HostService,
     activation_log_service: ActivationLogService,
 }
@@ -33,13 +47,13 @@ struct ServerState {
 impl ServerState {
     fn new(
         tera: Arc<Tera>,
-        default_grouping_key: Option<String>,
+        server_config: ServerConfig,
         host_service: HostService,
         activation_log_service: ActivationLogService,
     ) -> Self {
         Self {
             tera,
-            default_grouping_key,
+            server_config,
             host_service,
             activation_log_service,
         }
@@ -50,6 +64,7 @@ pub async fn run(
     default_grouping_key: Option<String>,
     url: &str,
     port: u16,
+    columns: Option<Vec<String>>,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     let pool = PgPoolOptions::new()
         .max_connections(8)
@@ -71,7 +86,8 @@ pub async fn run(
         "Failed to load templates from directory: {}",
         &templates_dir
     )));
-    let server_state = ServerState::new(tera, default_grouping_key, host_service, log_service);
+    let server_config = ServerConfig::new(default_grouping_key, columns.unwrap_or_default());
+    let server_state = ServerState::new(tera, server_config, host_service, log_service);
     let router = Router::new()
         .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
         .route(

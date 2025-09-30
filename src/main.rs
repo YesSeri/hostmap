@@ -30,14 +30,16 @@ fn setup_logging() {
 async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     let cli = Cli::parse();
     setup_logging();
+    tracing::debug!("running with cli config: {:?}", cli);
     match cli.command {
         Commands::Server {
             database_url,
             default_grouping_key,
             url,
             port,
+            columns,
         } => {
-            server::run(database_url, default_grouping_key, &url, port).await?;
+            server::run(database_url, default_grouping_key, &url, port, columns).await?;
         }
         Commands::Scraper {
             hosts_file,

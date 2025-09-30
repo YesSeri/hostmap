@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use crate::shared::{dto::host::CurrentHostDto, model::log::ExistingLogEntryModel};
 
@@ -6,7 +7,7 @@ use crate::shared::{dto::host::CurrentHostDto, model::log::ExistingLogEntryModel
 pub struct HostModel {
     pub hostname: String,
     pub host_url: String,
-    pub metadata: serde_json::Value,
+    pub metadata: HashMap<String, String>,
 }
 
 impl From<CurrentHostDto> for HostModel {

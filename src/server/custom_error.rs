@@ -11,6 +11,8 @@ pub(super) enum RetError {
     Other(Box<dyn error::Error + Send + Sync + 'static>),
     #[error("Not Found")]
     NotFound,
+    #[error("Failed to parse JSON, nested json in metadata is not allowed")]
+    NestedJson(#[from] serde_json::Error),
 }
 
 impl IntoResponse for RetError {
@@ -25,6 +27,14 @@ impl IntoResponse for RetError {
             RetError::NotFound => (
                 StatusCode::NOT_FOUND,
                 "The thing you were looking for could not be found".to_string(),
+            )
+                .into_response(),
+            RetError::NestedJson(error) => (
+                StatusCode::BAD_REQUEST,
+                format!(
+                    "Failed to parse JSON, nested json in metadata is not allowed: {}",
+                    error
+                ),
             )
                 .into_response(),
         }

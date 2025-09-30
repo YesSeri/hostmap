@@ -5,4 +5,8 @@
   <td>{{ host.logs.timestamp | default(value="no timestamp available")}}</td>
   <td>{{ host.logs.rev_id | default(value="unknown") }}</td>
   <td>{{ host.logs.branch | default(value="unknown") }}</td>
+
+  {% for col in columns %}
+    <td>{{host.metadata[col] | default(value="unknown") }}</td>
+  {% endfor %}
 </tr>

@@ -11,21 +11,15 @@
   <h2>All hosts ungrouped</h2>
   <table cellpadding="5">
     <thead>
-      <tr>
-        <th>host</th>
-        <th>url</th>
-        <th>store path</th>
-        <th>time</th>
-        <th>rev</th>
-        <th>ref</th>
-      </tr>
+			{% include "table_header.html.tera" %}
     </thead>
     <tbody>
-      {% for host in frontpage_ctx.hosts %} {% include "host.html.tera" %} {%
-      endfor %}
+      {% for host in frontpage_ctx.hosts %} 
+      {% include "host.html.tera" %} 
+      {% endfor %}
     </tbody>
   </table>
 
-  <h3>Total hosts: {{ frontpage_ctx.total_hosts }}</h3>
+  <h3>Total hosts: {{ frontpage_ctx.hosts | length }}</h3>
 </main>
 {% endblock %}

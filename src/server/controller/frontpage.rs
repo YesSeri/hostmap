@@ -14,13 +14,11 @@ use tera::Context;
 #[derive(Debug, Clone, Serialize)]
 struct FrontPageContext {
     hosts: Vec<CurrentHostDto>,
-    total_hosts: usize,
 }
 
 impl FrontPageContext {
     fn new(hosts: Vec<CurrentHostDto>) -> Self {
-        let total_hosts = hosts.len();
-        Self { hosts, total_hosts }
+        Self { hosts }
     }
 }
 #[derive(Debug, Clone, Deserialize)]
@@ -36,8 +34,9 @@ pub async fn render_frontpage(
     let grouping_key = params
         .grouping_key
         .as_ref()
-        .or(server_state.default_grouping_key.as_ref())
+        .or(server_state.server_config.default_grouping_key.as_ref())
         .cloned();
+
     tracing::debug!("params from query: {:#?}", params);
     tracing::debug!("Using grouping key: {:?}", grouping_key);
 
@@ -50,7 +49,10 @@ pub async fn render_frontpage(
 
 async fn render_frontpage_all_hosts(
     ServerState {
-        tera, host_service, ..
+        tera,
+        host_service,
+        server_config,
+        ..
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_models = host_service
@@ -65,6 +67,7 @@ async fn render_frontpage_all_hosts(
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
+    ctx.insert("columns", &server_config.columns);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
     Ok(Html(output))
@@ -94,7 +97,10 @@ impl FrontpageGroupedContext {
 async fn render_frontpage_by_group(
     grouping_key: &str,
     ServerState {
-        tera, host_service, ..
+        tera,
+        host_service,
+        server_config,
+        ..
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_with_logs = host_service
@@ -111,7 +117,7 @@ async fn render_frontpage_by_group(
             .host
             .metadata
             .get(grouping_key)
-            .and_then(|v| v.as_str().map(|s| s.to_owned()))
+            .and_then(|v| Some(v.to_owned()))
             .unwrap_or_else(|| "Ungrouped".to_string());
 
         grouped_hosts
@@ -124,6 +130,7 @@ async fn render_frontpage_by_group(
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("grouped_frontpage_ctx", &fp_ctx);
+    ctx.insert("columns", &server_config.columns);
 
     Ok(Html(
         tera.render("grouped_frontpage.html.tera", &ctx).unwrap(),

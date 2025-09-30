@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::shared::model::{
     host::{HostModel, HostWithLatestLog},
     log::{ExistingLogEntryModel, LogEntryWithRevision},
@@ -19,9 +21,9 @@ impl HostRepository {
     pub async fn bulk_insert_hosts(&self, hosts: &[HostModel]) -> Result<u64, sqlx::Error> {
         const CHUNK_SIZE: usize = 500; // rows (hosts) per INSERT
         tracing::info!("Inserting {} hosts", hosts.len());
-        let tuple_vec: Vec<(&str, &str, &serde_json::Value)> = hosts
+        let tuple_vec: Vec<(&str, &str, HashMap<String, String>)> = hosts
             .iter()
-            .map(|h| (h.hostname.as_str(), h.host_url.as_str(), &h.metadata))
+            .map(|h| (h.hostname.as_str(), h.host_url.as_str(), h.metadata.clone()))
             .collect();
         let mut rows_inserted = 0;
 
@@ -30,11 +32,13 @@ impl HostRepository {
             let mut query_builder =
                 QueryBuilder::new("INSERT INTO host(hostname, host_url, metadata) ");
             query_builder.push_values(chunk.iter(), |mut b, row| {
-                b.push_bind(row.0).push_bind(row.1).push_bind(row.2);
+                b.push_bind(row.0)
+                    .push_bind(row.1)
+                    .push_bind(serde_json::to_value(&row.2).unwrap());
             });
 
             // on conflict do nothing to avoid duplicate entries
-            query_builder.push(" ON CONFLICT (hostname) DO NOTHING ");
+            query_builder.push(" ON CONFLICT (hostname) DO UPDATE SET host_url = EXCLUDED.host_url, metadata = EXCLUDED.metadata, updated_at = NOW(), created_at = host.created_at");
             let query = query_builder.build();
             let res = query.execute(&self.pool).await?;
             rows_inserted += res.rows_affected();
@@ -47,14 +51,22 @@ impl HostRepository {
         hostname: String,
     ) -> Result<Option<HostModel>, RetError> {
         dbg!("fetching host from db with name: {:?}", &hostname);
-        let result = sqlx::query_as!(
-            HostModel,
+        let result = sqlx::query!(
             r#"
             SELECT hostname, host_url, metadata FROM host
                 WHERE hostname = $1
             "#,
             hostname,
         )
+        .map(|record| HostModel {
+            hostname: record.hostname,
+            host_url: record.host_url,
+            // json to hashmap
+            metadata: serde_json::from_value(record.metadata).unwrap_or(HashMap::from([(
+                "error".to_string(),
+                "nested json metadata is not allowed".to_string(),
+            )])),
+        })
         .fetch_optional(&self.pool)
         .await?;
         dbg!(&result);
@@ -115,12 +127,20 @@ impl HostRepository {
         Ok(result)
     }
     pub async fn get_all_hosts(&self) -> Result<Vec<HostModel>, RetError> {
-        let result = sqlx::query_as!(
-            HostModel,
+        let result = sqlx::query!(
             r#"
             SELECT hostname, host_url, metadata FROM host
             "#
         )
+        .map(|record| HostModel {
+            hostname: record.hostname,
+            host_url: record.host_url,
+            // json to hashmap
+            metadata: serde_json::from_value(record.metadata).unwrap_or(HashMap::from([(
+                "error".to_string(),
+                "nested json metadata is not allowed".to_string(),
+            )])),
+        })
         .fetch_all(&self.pool)
         .await?;
         Ok(result)

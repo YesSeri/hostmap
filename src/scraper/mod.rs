@@ -49,7 +49,7 @@ fn parse_hosts(host_file: &PathBuf) -> Vec<CurrentHostDto> {
     );
     let content = read_hosts_from_file(host_file);
     let host_dtos: Vec<CurrentHostDto> =
-        serde_json::from_str(&content).expect("could not parse target list file as json");
+        serde_json::from_str(&content).expect("could not parse target list file as json. the metadata field must be a key-value pair. nested json is not supported");
 
     tracing::info!("hosts len: {}", host_dtos.len());
     host_dtos

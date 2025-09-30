@@ -1,37 +1,27 @@
-{% extends "base.html.tera" %}
-{% block content %}
+{% extends "base.html.tera" %} {% block content %}
 <main>
-	<p>
-		Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI) revision that produces a given system
-		path. That means that: Given two revs; A and B, which both produce the same system path, and of which A is the
-		earliest known (that is, built by CI), an "update" from A to B will <em>not</em> result in the rev column being
-		updated.
-	</p>
+  <p>
+    Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI)
+    revision that produces a given system path. That means that: Given two revs;
+    A and B, which both produce the same system path, and of which A is the
+    earliest known (that is, built by CI), an "update" from A to B will
+    <em>not</em> result in the rev column being updated.
+  </p>
 
-	{% for group_name, hosts in grouped_frontpage_ctx.groups %}
-	<table cellpadding="5">
-		<tbody>
-			<tr>
-				<th colspan="6">
-					<h2>{{ group_name }}</h2>
-				</th>
-			</tr>
-			<tr>
-				<th>host</th>
-				<th>url</th>
-				<th>store path</th>
-				<th>time</th>
-				<th>rev</th>
-				<th>ref</th>
-			</tr>
-			{% for host in hosts %}
-			{% include "host.html.tera" %}
-			{% endfor %}
-		</tbody>
+  <table cellpadding="0">
+    {% for group_name, hosts in grouped_frontpage_ctx.groups %}
+    <tr>
+      <td style="border: none">
+        <h2 style="margin-top: 0.2em; margin-bottom: 0.1em">
+          {{ group_name }}
+        </h2>
+      </td>
+    </tr>
 
-	</table>
-
-	{% endfor %}
-
+    {% include "table_header.html.tera" %} {% for host in hosts %} {% include
+    "host.html.tera" %} {% endfor %} {% endfor %}
+  </table>
+  <h4>Total groups: {{ grouped_frontpage_ctx.total_groups }}</h4>
+  <h4>Total hosts: {{ grouped_frontpage_ctx.total_hosts }}</h4>
 </main>
 {% endblock %}

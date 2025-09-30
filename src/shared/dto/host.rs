@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::shared::{
@@ -9,7 +11,7 @@ use crate::shared::{
 pub struct HostDto<L> {
     pub hostname: String,
     pub host_url: String,
-    pub metadata: serde_json::Value,
+    pub metadata: HashMap<String, String>,
     pub logs: L,
 }
 
