@@ -8,7 +8,7 @@ use crate::{
 // struct LogContext {}
 
 #[axum::debug_handler]
-pub(crate) async fn create_hosts(
+pub(crate) async fn post_hosts_bulk(
     State(ServerState { host_service, .. }): State<ServerState>,
     Json(payload): Json<Vec<CurrentHostDto>>,
 ) -> axum::response::Result<String> {

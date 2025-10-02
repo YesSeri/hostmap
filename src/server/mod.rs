@@ -89,14 +89,21 @@ pub async fn run(
     let server_config = ServerConfig::new(default_grouping_key, columns.unwrap_or_default());
     let server_state = ServerState::new(tera, server_config, host_service, log_service);
     let router = Router::new()
-        .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
+        .route(
+            endpoint::hosts_bulk(),
+            post(host_controller::post_hosts_bulk),
+        )
         .route(
             endpoint::log_entry_bulk(),
-            post(log_entry_controller::create_log_entry),
+            post(log_entry_controller::post_log_entry),
         )
         .route(
             endpoint::frontpage(),
             get(controller::frontpage::render_frontpage),
+        )
+        .route(
+            endpoint::mapping_entry(),
+            get(controller::mapping_controller::post_nix_git_mapping),
         )
         .route("/{hostname}", get(controller::history::render_history_page))
         .fallback(custom_error::fallback)

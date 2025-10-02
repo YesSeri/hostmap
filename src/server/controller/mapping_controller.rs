@@ -9,7 +9,7 @@ use serde::Serialize;
 struct LogContext {}
 
 #[axum::debug_handler]
-pub(crate) async fn post_log_entry(
+pub(crate) async fn post_nix_git_mapping(
     State(ServerState {
         tera,
         host_service,
