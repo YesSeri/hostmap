@@ -3,7 +3,7 @@
   <td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
   <td>{{ host.logs.store_path.abbreviated_path | default(value="no path available") }}</td>
   <td>{{ host.logs.timestamp | default(value="no timestamp available")}}</td>
-  <td>{{ host.logs.rev_id | default(value="unknown") }}</td>
+  <td>{{ host.logs.revision.rev_id | default(value="unknown") | json_encode(pretty_print=true) }}</td>
   <td>{{ host.logs.branch | default(value="unknown") }}</td>
 
   {% for col in columns %}

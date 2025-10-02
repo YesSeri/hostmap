@@ -58,7 +58,7 @@ async fn render_frontpage_all_hosts(
     let host_models = host_service
         .get_all_hosts_with_latest_log_entry()
         .await
-        .unwrap();
+        .expect("Failed to fetch hosts");
     let hosts = host_models
         .into_iter()
         .map(|hwl| CurrentHostDto::from((hwl.host, hwl.logs)))

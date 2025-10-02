@@ -59,6 +59,9 @@ impl ServerState {
         }
     }
 }
+const MIGRATIONS_DIR_DEV: &str = "./migrations_dev";
+const MIGRATIONS_DIR: &str = "./migrations";
+
 pub async fn run(
     database_url: String,
     default_grouping_key: Option<String>,
@@ -73,7 +76,12 @@ pub async fn run(
         .expect("failed to connect to DATABASE_URL");
 
     // run migrations
-    sqlx::migrate!("./migrations")
+    let migrator = if std::env::var("HOSTMAP_DEV").is_ok() {
+        sqlx::migrate!("./migrations_dev")
+    } else {
+        sqlx::migrate!("./migrations")
+    };
+    migrator
         .run(&pool)
         .await
         .expect("failed to run database migrations");

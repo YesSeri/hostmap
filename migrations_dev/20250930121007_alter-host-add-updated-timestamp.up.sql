@@ -1,0 +1,1 @@
+../migrations/20250930121007_alter-host-add-updated-timestamp.up.sql
