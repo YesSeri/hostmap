@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::shared::{dto::host::CurrentHostDto, model::log::ExistingLogEntryModel};
+use crate::shared::{dto::host::CurrentHostDto, model::activation::Activation};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct HostModel {
@@ -30,5 +30,5 @@ impl From<CurrentHostDto> for HostModel {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HostWithLatestLog {
     pub host: HostModel,
-    pub logs: Option<ExistingLogEntryModel>,
+    pub logs: Option<Activation>,
 }

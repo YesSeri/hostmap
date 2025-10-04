@@ -4,14 +4,14 @@ pub(crate) mod endpoint;
 mod repository;
 mod service;
 
-use std::{error, sync::Arc};
+use std::{collections::HashMap, error, sync::Arc};
 
 use axum::{
     Router,
     routing::{get, post},
 };
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
-use tera::Tera;
+use tera::{Tera, Value, try_get_value};
 use tower_http::services::ServeDir;
 
 use crate::server::{
@@ -121,7 +121,7 @@ pub async fn run(
     let router = Router::new()
         .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
         .route(
-            endpoint::log_entry_bulk(),
+            endpoint::activations_bulk(),
             post(activation_controller::create_activation),
         )
         .route(
@@ -161,7 +161,23 @@ pub async fn run(
     Ok(())
 }
 
+fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = try_get_value!("nix_name", "value", String, value);
+    let s = s.strip_prefix("/nix/store").unwrap_or(&s);
+    // remove from idx 10 to idx 20
+    let s = if s.len() > 28 {
+        format!("{}...{}", &s[..12], &s[28..])
+    } else {
+        s.to_string()
+    };
+    Ok(Value::String(s.to_string()))
+}
+
+// register once
 fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     let tera_pattern = format!("{}/**/*", templates_dir);
-    Tera::new(&tera_pattern)
+    let mut tera = Tera::new(&tera_pattern);
+    tera.as_mut()
+        .map(|t| t.register_filter("nix_name", nix_name));
+    tera
 }

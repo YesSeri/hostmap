@@ -1,1 +1,1 @@
-drop table if exists log_entry;
+drop table if exists activation;

@@ -2,7 +2,7 @@ use crate::{
     server::ServerState,
     shared::{
         dto::{host::HostWithLogsDto, nix_git_link::NixGitLinkDto},
-        model::log::CreateLogEntryModel,
+        model::activation::NewActivation,
     },
 };
 use axum::{Json, extract::State};

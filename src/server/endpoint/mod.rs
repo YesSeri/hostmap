@@ -1,5 +1,5 @@
-pub fn log_entry_bulk() -> &'static str {
-    "/api/log_entry/bulk"
+pub fn activations_bulk() -> &'static str {
+    "/api/activation/bulk"
 }
 pub fn hosts_bulk() -> &'static str {
     "/api/hosts/bulk"

@@ -1,27 +1,42 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::shared::dto::revision::RevisionDto;
+use crate::shared::{dto::revision::RevisionDto, model::activation::ActivationWithRevision};
 
-use super::log::LogEntryWithRevision;
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct RevisionModel {
-    pub rev_id: String,
+    pub commit_hash: String,
     pub branch: String,
 }
 
-impl From<LogEntryWithRevision> for RevisionModel {
-    fn from(LogEntryWithRevision { rev_id, branch, .. }: LogEntryWithRevision) -> Self {
-        let rev_id = rev_id.unwrap_or("Commit id unknown".to_owned());
+impl From<ActivationWithRevision> for RevisionModel {
+    fn from(
+        ActivationWithRevision {
+            branch,
+            commit_hash,
+            ..
+        }: ActivationWithRevision,
+    ) -> Self {
+        let commit_hash = commit_hash.unwrap_or("Commit id unknown".to_owned());
         let branch = branch.unwrap_or("Unknown branch".to_owned());
-        Self { rev_id, branch }
+        Self {
+            commit_hash,
+            branch,
+        }
     }
 }
 
 impl From<RevisionDto> for RevisionModel {
-    fn from(RevisionDto { rev_id, branch }: RevisionDto) -> Self {
-        Self { rev_id, branch }
+    fn from(
+        RevisionDto {
+            branch,
+            commit_hash,
+        }: RevisionDto,
+    ) -> Self {
+        Self {
+            branch,
+            commit_hash,
+        }
     }
 }
 

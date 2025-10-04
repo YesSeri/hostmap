@@ -4,10 +4,10 @@ use crate::{
     server::endpoint,
     shared::{
         dto::{
+            activation::ActivationDto,
             host::{CurrentHostDto, HostWithLogsDto},
-            log::{LogEntryDto, LogHistoryDto},
         },
-        model::{host::HostModel, log::NewLogEntryModel},
+        model::{activation::NewActivation, host::HostModel},
     },
 };
 use reqwest::{Client, Url};
@@ -54,7 +54,7 @@ fn parse_hosts(host_file: &PathBuf) -> Vec<CurrentHostDto> {
 async fn fetch_activationlog(
     url: &Url,
     client: &Client,
-) -> Result<Vec<LogEntryDto>, reqwest::Error> {
+) -> Result<Vec<ActivationDto>, reqwest::Error> {
     let url = url.as_str();
     let res = client.get(url).send().await?;
     let body = res.text().await?;
@@ -66,7 +66,7 @@ async fn fetch_activationlog(
 
     let mut log_records = Vec::new();
     for line in rdr.deserialize() {
-        let line: LogEntryDto = match line {
+        let line: ActivationDto = match line {
             Ok(line) => line,
             Err(err) => {
                 tracing::warn!("could not parse line in csv from url: {url} because of {err}");
@@ -102,10 +102,10 @@ pub async fn scrape_hosts(
     tracing::debug!("running scraper from start");
     for host in hosts.iter() {
         if let Err(e) = async {
-            let log_entry_models = scrape_host(host, client).await?;
-            let dtos: Vec<LogHistoryDto> = log_entry_models
+            let new_activations = scrape_host(host, client).await?;
+            let dtos: Vec<ActivationDto> = new_activations
                 .into_iter()
-                .map(LogHistoryDto::from)
+                .map(ActivationDto::from)
                 .collect();
 
             let body = HostWithLogsDto {
@@ -115,7 +115,7 @@ pub async fn scrape_hosts(
                 metadata: host.metadata.clone(),
             };
 
-            let url = format!("{}{}", url, endpoint::log_entry_bulk());
+            let url = format!("{}{}", url, endpoint::activations_bulk());
             let res = client.post(url).json(&body).send().await?;
             res.error_for_status_ref()?;
             let res_text = res.text().await?;
@@ -135,7 +135,7 @@ pub async fn scrape_hosts(
 async fn scrape_host(
     host: &CurrentHostDto,
     client: &Client,
-) -> Result<Vec<NewLogEntryModel>, reqwest::Error> {
+) -> Result<Vec<NewActivation>, reqwest::Error> {
     let url_text = format!(
         "http://{}/activationlog.csv",
         host.host_url.trim_end_matches('/')
@@ -143,11 +143,11 @@ async fn scrape_host(
     .to_owned();
     let url = Url::parse(&url_text).expect("could not parse url");
     let recs = fetch_activationlog(&url, client).await?;
-    let host_model: HostModel = host.clone().into();
-    let log_entry_models = recs
+    // let host_model: HostModel = host.clone().into();
+    let activation_models = recs
         .into_iter()
-        .map(|dto| NewLogEntryModel::from((host_model.clone(), dto)))
-        .collect::<Vec<NewLogEntryModel>>();
+        .map(|dto| NewActivation::from((host, dto)))
+        .collect::<Vec<NewActivation>>();
 
-    Ok(log_entry_models)
+    Ok(activation_models)
 }
