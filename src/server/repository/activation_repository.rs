@@ -7,11 +7,11 @@ use sqlx::{Pool, Postgres, QueryBuilder};
 use crate::server::custom_error::RetError;
 
 #[derive(Debug, Clone)]
-pub struct ActivationLogRepository {
+pub struct ActivationRepository {
     pool: Pool<Postgres>,
 }
 
-impl ActivationLogRepository {
+impl ActivationRepository {
     pub fn new(pool: Pool<Postgres>) -> Self {
         Self { pool }
     }
@@ -34,10 +34,7 @@ impl ActivationLogRepository {
         }
         Ok(i)
     }
-    async fn bulk_insert_log_records(
-        &self,
-        log_models: &[CreateLogEntryModel],
-    ) -> Result<u64, RetError> {
+    async fn insert_many(&self, log_models: &[CreateLogEntryModel]) -> Result<u64, RetError> {
         const CHUNK_SIZE: usize = 1000;
         let mut i = 0;
         for chunk in log_models.chunks(CHUNK_SIZE) {
@@ -60,15 +57,18 @@ impl ActivationLogRepository {
         }
         Ok(i)
     }
-    pub(crate) async fn bulk_insert_log_records_with_store_paths(
+    pub(crate) async fn insert_many_activations_with_store_paths(
         &self,
-        log_models: &[CreateLogEntryModel],
+        activation_model: &[CreateLogEntryModel],
     ) -> Result<u64, RetError> {
         let mut tx = self.pool.begin().await?;
 
-        let store_paths: Vec<&str> = log_models.iter().map(|el| el.store_path.as_str()).collect();
+        let store_paths: Vec<&str> = activation_model
+            .iter()
+            .map(|el| el.store_path.as_str())
+            .collect();
         self.bulk_insert_store_paths(&store_paths).await?;
-        let inserted_count = self.bulk_insert_log_records(log_models).await?;
+        let inserted_count = self.insert_many(activation_model).await?;
 
         tx.commit().await?;
         Ok(inserted_count)
