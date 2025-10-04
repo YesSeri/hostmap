@@ -37,9 +37,6 @@ pub async fn render_frontpage(
         .or(server_state.server_config.default_grouping_key.as_ref())
         .cloned();
 
-    tracing::debug!("params from query: {:#?}", params);
-    tracing::debug!("Using grouping key: {:?}", grouping_key);
-
     if let Some(grouping_key) = grouping_key {
         render_frontpage_by_group(&grouping_key, server_state).await
     } else {

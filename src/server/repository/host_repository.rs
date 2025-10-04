@@ -102,8 +102,6 @@ impl HostRepository {
             };
             result.push(host_with_latest_log);
         }
-        tracing::debug!(?result, "Fetched all hosts with latest log entry");
-
         Ok(result)
     }
     pub async fn get_all_hosts(&self) -> Result<Vec<HostModel>, RetError> {

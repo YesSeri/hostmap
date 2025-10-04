@@ -43,10 +43,6 @@ fn read_hosts_from_file(path: &PathBuf) -> String {
 }
 
 fn parse_hosts(host_file: &PathBuf) -> Vec<CurrentHostDto> {
-    tracing::info!(
-        "target list file with host groups and hosts: {}",
-        host_file.display()
-    );
     let content = read_hosts_from_file(host_file);
     let host_dtos: Vec<CurrentHostDto> =
         serde_json::from_str(&content).expect("could not parse target list file as json. the metadata field must be a key-value pair. nested json is not supported");
@@ -103,15 +99,10 @@ pub async fn scrape_hosts(
     client: &Client,
     url: &str,
 ) -> Result<(), reqwest::Error> {
-    tracing::info!("running scraper from start");
+    tracing::debug!("running scraper from start");
     for host in hosts.iter() {
         if let Err(e) = async {
             let log_entry_models = scrape_host(host, client).await?;
-            tracing::debug!(
-                "scraped {} log entries from host {}",
-                log_entry_models.len(),
-                host.hostname
-            );
             let dtos: Vec<LogHistoryDto> = log_entry_models
                 .into_iter()
                 .map(LogHistoryDto::from)
@@ -126,17 +117,10 @@ pub async fn scrape_hosts(
 
             let url = format!("{}{}", url, endpoint::log_entry_bulk());
             let res = client.post(url).json(&body).send().await?;
-            tracing::debug!("post response: {:?}", &res);
-            tracing::debug!("post response status: {:?}", &res.status());
-            tracing::debug!(
-                "post response json: {}",
-                serde_json::to_string(&body).unwrap()
-            );
+            res.error_for_status_ref()?;
             let res_text = res.text().await?;
-            tracing::debug!("error response text: {}", res_text);
-            // res.error_for_status_ref()?;
 
-            tracing::info!(response_text=%res_text, request_host=%host.hostname);
+            tracing::debug!(response_text=%res_text, request_host=%host.hostname);
             Ok::<(), reqwest::Error>(())
         }
         .await
@@ -159,7 +143,6 @@ async fn scrape_host(
     .to_owned();
     let url = Url::parse(&url_text).expect("could not parse url");
     let recs = fetch_activationlog(&url, client).await?;
-    tracing::debug!("{} records fetched from url {}", recs.len(), url);
     let host_model: HostModel = host.clone().into();
     let log_entry_models = recs
         .into_iter()

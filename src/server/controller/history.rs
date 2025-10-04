@@ -45,7 +45,6 @@ pub async fn render_history_page(
         .get_host_from_hostname(hostname)
         .await?
         .ok_or(RetError::NotFound)?;
-    tracing::debug!("Found host: {:?}", host);
     let mut ctx = Context::new();
     let date_map = activation_log_service
         .host_with_logs_by_hostname(&host.hostname)
