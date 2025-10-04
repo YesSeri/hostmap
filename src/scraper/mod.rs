@@ -70,7 +70,7 @@ async fn fetch_activationlog(
 
     let mut log_records = Vec::new();
     for line in rdr.deserialize() {
-        let line = match line {
+        let line: LogEntryDto = match line {
             Ok(line) => line,
             Err(err) => {
                 tracing::warn!("could not parse line in csv from url: {url} because of {err}");
@@ -107,6 +107,11 @@ pub async fn scrape_hosts(
     for host in hosts.iter() {
         if let Err(e) = async {
             let log_entry_models = scrape_host(host, client).await?;
+            tracing::debug!(
+                "scraped {} log entries from host {}",
+                log_entry_models.len(),
+                host.hostname
+            );
             let dtos: Vec<LogHistoryDto> = log_entry_models
                 .into_iter()
                 .map(LogHistoryDto::from)
@@ -121,9 +126,15 @@ pub async fn scrape_hosts(
 
             let url = format!("{}{}", url, endpoint::log_entry_bulk());
             let res = client.post(url).json(&body).send().await?;
-
-            res.error_for_status_ref()?;
+            tracing::debug!("post response: {:?}", &res);
+            tracing::debug!("post response status: {:?}", &res.status());
+            tracing::debug!(
+                "post response json: {}",
+                serde_json::to_string(&body).unwrap()
+            );
             let res_text = res.text().await?;
+            tracing::debug!("error response text: {}", res_text);
+            // res.error_for_status_ref()?;
 
             tracing::info!(response_text=%res_text, request_host=%host.hostname);
             Ok::<(), reqwest::Error>(())

@@ -130,15 +130,3 @@ impl From<LogEntryWithRevision> for Option<RevisionModel> {
         }
     }
 }
-
-// impl From<CurrentHostDto> for CreateLogEntryModel {
-//     fn from(value: CurrentHostDto) -> Self {
-//         Self {
-//             timestamp: value.logs.timestamp,
-//             username: value.logs.username,
-//             store_path: value.logs.store_path.store_path,
-//             activation_type: value.logs.activation_type,
-//             hostname: value.host_name,
-//         }
-//     }
-// }

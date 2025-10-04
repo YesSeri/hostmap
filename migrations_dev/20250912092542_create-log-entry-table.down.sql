@@ -1,1 +1,0 @@
-../migrations/20250912092542_create-log-entry-table.down.sql

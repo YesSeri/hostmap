@@ -8,7 +8,7 @@ use crate::{
 // struct LogContext {}
 
 #[axum::debug_handler]
-pub(crate) async fn post_hosts_bulk(
+pub(crate) async fn create_hosts(
     State(ServerState { host_service, .. }): State<ServerState>,
     Json(payload): Json<Vec<CurrentHostDto>>,
 ) -> axum::response::Result<String> {
@@ -18,8 +18,8 @@ pub(crate) async fn post_hosts_bulk(
         .map(|dto| HostModel::from(dto.clone()))
         .collect::<Vec<HostModel>>();
 
-    let num_hosts_inserted = host_service.bulk_insert_hosts(&hosts).await.unwrap();
-    tracing::info!("Created {} hosts", num_hosts_inserted);
+    let num_inserted = host_service.create_many(&hosts).await.unwrap();
+    tracing::info!("Created {} hosts", num_inserted);
 
-    Ok(num_hosts_inserted.to_string())
+    Ok(num_inserted.to_string())
 }

@@ -56,7 +56,7 @@ async fn render_frontpage_all_hosts(
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_models = host_service
-        .get_all_hosts_with_latest_log_entry()
+        .get_all_with_latest_log()
         .await
         .expect("Failed to fetch hosts");
     let hosts = host_models
@@ -103,10 +103,7 @@ async fn render_frontpage_by_group(
         ..
     }: ServerState,
 ) -> axum::response::Result<Html<String>, RetError> {
-    let host_with_logs = host_service
-        .get_all_hosts_with_latest_log_entry()
-        .await
-        .unwrap();
+    let host_with_logs = host_service.get_all_with_latest_log().await.unwrap();
 
     let mut grouped_hosts: BTreeMap<String, Vec<CurrentHostDto>> = BTreeMap::new();
 

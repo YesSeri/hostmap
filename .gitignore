@@ -7,3 +7,5 @@
 /.dev_postgres
 /setup.sh
 /.vscode
+
+/scratch.sql

@@ -49,6 +49,8 @@ impl ActivationLogService {
         &self,
         log_entry_models: &[CreateLogEntryModel],
     ) -> Result<u64, RetError> {
-        self.repo.bulk_insert_log_records(log_entry_models).await
+        self.repo
+            .bulk_insert_log_records_with_store_paths(log_entry_models)
+            .await
     }
 }

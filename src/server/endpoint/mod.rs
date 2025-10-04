@@ -11,9 +11,9 @@ pub fn history_page(hostname: &str) -> String {
     "/".to_string() + hostname
 }
 
-pub fn mapping_entry() -> &'static str {
-    "/api/mapping"
+pub fn link_entry() -> &'static str {
+    "/api/link"
 }
-pub fn mapping_entry_bulk() -> &'static str {
-    "/api/mapping/bulk"
+pub fn link_entry_bulk() -> &'static str {
+    "/api/link/bulk"
 }

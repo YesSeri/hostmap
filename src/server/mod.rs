@@ -10,17 +10,22 @@ use axum::{
     Router,
     routing::{get, post},
 };
-use sqlx::postgres::PgPoolOptions;
+use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tera::Tera;
 use tower_http::services::ServeDir;
 
 use crate::server::{
     self,
     controller::{host_controller, log_entry_controller},
+    custom_error::RetError,
     repository::{
         activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
+        nix_git_link_repository::NixGitLinkRepository,
     },
-    service::{activation_log_service::ActivationLogService, host_service::HostService},
+    service::{
+        activation_log_service::ActivationLogService, host_service::HostService,
+        nix_git_link_service::NixGitLinkService,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -42,6 +47,7 @@ struct ServerState {
     server_config: ServerConfig,
     host_service: HostService,
     activation_log_service: ActivationLogService,
+    nix_git_link_service: NixGitLinkService,
 }
 
 impl ServerState {
@@ -50,17 +56,37 @@ impl ServerState {
         server_config: ServerConfig,
         host_service: HostService,
         activation_log_service: ActivationLogService,
+        nix_git_link_service: NixGitLinkService,
     ) -> Self {
         Self {
             tera,
             server_config,
             host_service,
             activation_log_service,
+            nix_git_link_service,
         }
     }
 }
 const MIGRATIONS_DIR_DEV: &str = "./migrations_dev";
 const MIGRATIONS_DIR: &str = "./migrations";
+
+async fn build_pool(database_url: String) -> Result<Pool<Postgres>, sqlx::Error> {
+    PgPoolOptions::new()
+        .max_connections(8)
+        .acquire_timeout(std::time::Duration::from_secs(10))
+        .idle_timeout(Some(std::time::Duration::from_secs(300)))
+        .max_lifetime(Some(std::time::Duration::from_secs(3600)))
+        .after_connect(|conn, _meta| {
+            Box::pin(async move {
+                sqlx::query("SET application_name = 'hostmap'")
+                    .execute(conn)
+                    .await?;
+                Ok(())
+            })
+        })
+        .connect(&database_url)
+        .await
+}
 
 pub async fn run(
     database_url: String,
@@ -69,19 +95,8 @@ pub async fn run(
     port: u16,
     columns: Option<Vec<String>>,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
-    let pool = PgPoolOptions::new()
-        .max_connections(8)
-        .connect(&database_url)
-        .await
-        .expect("failed to connect to DATABASE_URL");
-
-    // run migrations
-    let migrator = if std::env::var("HOSTMAP_DEV").is_ok() {
-        sqlx::migrate!("./migrations_dev")
-    } else {
-        sqlx::migrate!("./migrations")
-    };
-    migrator
+    let pool = build_pool(database_url).await?;
+    sqlx::migrate!()
         .run(&pool)
         .await
         .expect("failed to run database migrations");
@@ -90,17 +105,21 @@ pub async fn run(
     tracing::info!("Using templates directory: {}", &templates_dir);
     let host_service = HostService::new(HostRepository::new(pool.clone()));
     let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
+    let nix_git_link_service = NixGitLinkService::new(NixGitLinkRepository::new(pool.clone()));
     let tera = Arc::new(load_tera(&templates_dir).expect(&format!(
         "Failed to load templates from directory: {}",
         &templates_dir
     )));
     let server_config = ServerConfig::new(default_grouping_key, columns.unwrap_or_default());
-    let server_state = ServerState::new(tera, server_config, host_service, log_service);
+    let server_state = ServerState::new(
+        tera,
+        server_config,
+        host_service,
+        log_service,
+        nix_git_link_service,
+    );
     let router = Router::new()
-        .route(
-            endpoint::hosts_bulk(),
-            post(host_controller::post_hosts_bulk),
-        )
+        .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
         .route(
             endpoint::log_entry_bulk(),
             post(log_entry_controller::post_log_entry),
@@ -110,8 +129,8 @@ pub async fn run(
             get(controller::frontpage::render_frontpage),
         )
         .route(
-            endpoint::mapping_entry(),
-            get(controller::mapping_controller::post_nix_git_mapping),
+            endpoint::link_entry(),
+            get(controller::nix_git_link_controller::create_link),
         )
         .route("/{hostname}", get(controller::history::render_history_page))
         .fallback(custom_error::fallback)

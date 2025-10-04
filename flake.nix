@@ -1,5 +1,5 @@
 {
-  description = "hostmap shows git revision to nix store path mapping and more";
+  description = "hostmap shows git revision to nix store path link and more";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -115,6 +115,7 @@
             inputsFrom = [ self.defaultPackage.${system} ];
             nativeBuildInputs = [
               sqlx-cli
+              gdb
               cargo
               rustc
               nix
