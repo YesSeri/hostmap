@@ -3,9 +3,7 @@ use std::collections::BTreeMap;
 use chrono::NaiveDate;
 
 use crate::{
-    server::{
-        custom_error::RetError, repository::activation_log_repository::ActivationLogRepository,
-    },
+    server::{custom_error::RetError, repository::activation_repository::ActivationRepository},
     shared::{
         dto::host::CurrentHostDto,
         model::{
@@ -17,11 +15,11 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct ActivationLogService {
-    repo: ActivationLogRepository,
+    repo: ActivationRepository,
 }
 
 impl ActivationLogService {
-    pub fn new(repo: ActivationLogRepository) -> Self {
+    pub fn new(repo: ActivationRepository) -> Self {
         Self { repo }
     }
     pub(crate) async fn latest_entry_for_host(
@@ -50,7 +48,7 @@ impl ActivationLogService {
         log_entry_models: &[CreateLogEntryModel],
     ) -> Result<u64, RetError> {
         self.repo
-            .bulk_insert_log_records_with_store_paths(log_entry_models)
+            .insert_many_activations_with_store_paths(log_entry_models)
             .await
     }
 }

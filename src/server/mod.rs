@@ -16,10 +16,10 @@ use tower_http::services::ServeDir;
 
 use crate::server::{
     self,
-    controller::{host_controller, log_entry_controller},
+    controller::{activation_controller, host_controller},
     custom_error::RetError,
     repository::{
-        activation_log_repository::ActivationLogRepository, host_repository::HostRepository,
+        activation_repository::ActivationRepository, host_repository::HostRepository,
         nix_git_link_repository::NixGitLinkRepository,
     },
     service::{
@@ -104,7 +104,7 @@ pub async fn run(
     let templates_dir = std::env::var("HOSTMAP_TEMPLATES_DIR").expect("user must specificy the env variable HOSTMAP_TEMPLATES_DIR. This should not be something end user needs to specify, since the flake will wrap this.");
     tracing::info!("Using templates directory: {}", &templates_dir);
     let host_service = HostService::new(HostRepository::new(pool.clone()));
-    let log_service = ActivationLogService::new(ActivationLogRepository::new(pool.clone()));
+    let log_service = ActivationLogService::new(ActivationRepository::new(pool.clone()));
     let nix_git_link_service = NixGitLinkService::new(NixGitLinkRepository::new(pool.clone()));
     let tera = Arc::new(load_tera(&templates_dir).expect(&format!(
         "Failed to load templates from directory: {}",
@@ -122,7 +122,7 @@ pub async fn run(
         .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
         .route(
             endpoint::log_entry_bulk(),
-            post(log_entry_controller::post_log_entry),
+            post(activation_controller::create_activation),
         )
         .route(
             endpoint::frontpage(),

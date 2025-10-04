@@ -9,14 +9,13 @@ use serde::Serialize;
 struct LogContext {}
 
 #[axum::debug_handler]
-pub(crate) async fn post_log_entry(
+pub(crate) async fn create_activation(
     State(ServerState {
         tera,
         host_service,
         activation_log_service,
         ..
     }): State<ServerState>,
-    // post request in body
     Json(host_with_logs_dto): Json<HostWithLogsDto>,
 ) -> axum::response::Result<String> {
     let models: Vec<CreateLogEntryModel> = host_with_logs_dto
