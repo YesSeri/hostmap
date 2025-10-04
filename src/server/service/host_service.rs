@@ -15,7 +15,7 @@ impl HostService {
     }
 
     pub async fn get_all_with_latest_log(&self) -> Result<Vec<HostWithLatestLog>, RetError> {
-        let hosts = self.repo.get_all_hosts_with_latest_log_entry().await?;
+        let hosts = self.repo.get_all_hosts_with_latest_activation().await?;
         Ok(hosts)
     }
     pub async fn get_all(&self) -> Result<Vec<HostModel>, RetError> {

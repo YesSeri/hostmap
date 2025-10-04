@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::shared::model::{
+    activation::{Activation, ActivationWithRevision},
     host::{HostModel, HostWithLatestLog},
-    log::{ExistingLogEntryModel, LogEntryWithRevision},
 };
 use sqlx::{Execute, Pool, Postgres, QueryBuilder};
 
@@ -74,26 +74,38 @@ impl HostRepository {
         Ok(result)
     }
 
-    pub async fn get_all_hosts_with_latest_log_entry(
+    pub async fn get_all_hosts_with_latest_activation(
         &self,
     ) -> Result<Vec<HostWithLatestLog>, RetError> {
         let logs = sqlx::query_as!(
-            LogEntryWithRevision,
+            ActivationWithRevision,
             r#"
-            SELECT DISTINCT ON(hostname) log_entry_id, hostname, timestamp, username, store_path, activation_type,
-                (SELECT 'asdkajsnd') as rev_id, (SELECT 'master') as branch
-            FROM log_entry
-            ORDER BY hostname, timestamp desc
+
+WITH latest AS (
+SELECT 
+DISTINCT ON (ac.hostname)
+ac.activation_id, ac.activated_at, ac.username, ac.store_path, ac.activation_type, ac.hostname
+FROM activation ac 
+     ORDER BY ac.hostname, ac.activated_at DESC 
+)
+SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username, 
+    l.store_path, l.activation_type, l.hostname, ngl.commit_hash, ngl.branch
+    FROM latest l
+    INNER JOIN nix_git_link ngl ON ngl.store_path = l.store_path
+    ORDER BY l.hostname, ngl.branch = 'master' desc, ngl.linked_at asc
+;
             "#,
-        ).fetch_all(&self.pool).await?;
-        let all_logs: Vec<ExistingLogEntryModel> = logs.into_iter().map(|el| el.into()).collect();
+        )
+        .fetch_all(&self.pool)
+        .await?;
+        let all_logs: Vec<Activation> = logs.into_iter().map(|el| el.into()).collect();
         let hosts = self.get_all_hosts().await?;
 
         let mut result = Vec::new();
         for host in hosts {
             let latest_log = all_logs
                 .iter()
-                .find(|log| log.hostname == host.hostname)
+                .find(|log| log.core.hostname == host.hostname)
                 .cloned();
 
             let host_with_latest_log = HostWithLatestLog {

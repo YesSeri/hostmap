@@ -1,8 +1,8 @@
 use crate::{
     server::{ServerState, custom_error::RetError},
     shared::{
-        dto::{host::CurrentHostDto, log::LogHistoryDto},
-        model::log::LogEntryModel,
+        dto::{activation::ActivationDto, host::CurrentHostDto},
+        model::activation::Activation,
     },
 };
 use axum::{
@@ -16,13 +16,13 @@ use tera::Context;
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
     host: CurrentHostDto,
-    activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>,
+    activations_by_date: Vec<(NaiveDate, Vec<ActivationDto>)>,
 }
 
 impl HistoryPageContext {
     fn new(
         host: CurrentHostDto,
-        activations_by_date: Vec<(NaiveDate, Vec<LogHistoryDto>)>,
+        activations_by_date: Vec<(NaiveDate, Vec<ActivationDto>)>,
     ) -> Self {
         Self {
             host,
@@ -54,8 +54,8 @@ pub async fn render_history_page(
     for (date, entries) in date_map {
         let mut dto_vec = Vec::new();
         for entry in entries {
-            let log_entry_model: LogEntryModel<i64> = entry.into();
-            let dto = LogHistoryDto::from(log_entry_model);
+            let activation: Activation = entry.into();
+            let dto = ActivationDto::from(activation);
             dto_vec.push(dto);
         }
         date_dto_vec.push((date, dto_vec));

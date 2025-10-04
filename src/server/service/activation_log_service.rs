@@ -7,8 +7,8 @@ use crate::{
     shared::{
         dto::host::CurrentHostDto,
         model::{
+            activation::{Activation, ActivationWithRevision, NewActivation},
             host::HostModel,
-            log::{CreateLogEntryModel, ExistingLogEntryModel, LogEntryWithRevision},
         },
     },
 };
@@ -25,7 +25,7 @@ impl ActivationLogService {
     pub(crate) async fn latest_entry_for_host(
         &self,
         host_dto: CurrentHostDto,
-    ) -> Result<Option<ExistingLogEntryModel>, RetError> {
+    ) -> Result<Option<Activation>, RetError> {
         let model: HostModel = host_dto.into();
         self.repo.latest_entry_for_host(model).await
     }
@@ -33,11 +33,11 @@ impl ActivationLogService {
     pub async fn host_with_logs_by_hostname(
         &self,
         hostname: &str,
-    ) -> Result<BTreeMap<NaiveDate, Vec<LogEntryWithRevision>>, RetError> {
+    ) -> Result<BTreeMap<NaiveDate, Vec<ActivationWithRevision>>, RetError> {
         let logs = self.repo.get_logs_by_hostname(hostname).await?;
-        let mut map: BTreeMap<NaiveDate, Vec<LogEntryWithRevision>> = BTreeMap::new();
+        let mut map: BTreeMap<NaiveDate, Vec<ActivationWithRevision>> = BTreeMap::new();
         for log in logs {
-            let date = log.timestamp.date_naive();
+            let date = log.activated_at.date_naive();
             map.entry(date).or_default().push(log.clone());
         }
         Ok(map)
@@ -45,10 +45,10 @@ impl ActivationLogService {
 
     pub(crate) async fn bulk_insert_log_records(
         &self,
-        log_entry_models: &[CreateLogEntryModel],
+        new_activations: &[NewActivation],
     ) -> Result<u64, RetError> {
         self.repo
-            .insert_many_activations_with_store_paths(log_entry_models)
+            .insert_many_activations_with_store_paths(new_activations)
             .await
     }
 }

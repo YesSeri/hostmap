@@ -4,12 +4,21 @@ use crate::shared::model::revision::RevisionModel;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
 pub struct RevisionDto {
-    pub rev_id: String,
+    pub commit_hash: String,
     pub branch: String,
 }
 impl From<RevisionModel> for RevisionDto {
-    fn from(RevisionModel { rev_id, branch, .. }: RevisionModel) -> Self {
-        Self { rev_id, branch }
+    fn from(
+        RevisionModel {
+            commit_hash,
+            branch,
+            ..
+        }: RevisionModel,
+    ) -> Self {
+        Self {
+            commit_hash,
+            branch,
+        }
     }
 }
 
@@ -59,7 +68,7 @@ impl StorePathDto {
 
 //     fn try_from(value: RevisionModel) -> Result<Self, Self::Error> {
 //         Ok(Self {
-//             rev_id: value.rev_id,
+//             commit_hash: value.commit_hash,
 //             branch: value.branch,
 //         })
 //     }

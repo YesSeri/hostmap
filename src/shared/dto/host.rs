@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::shared::{
-    dto::log::LogHistoryDto,
-    model::{host::HostModel, log::ExistingLogEntryModel},
+    dto::activation::ActivationDto,
+    model::{activation::Activation, host::HostModel},
 };
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
@@ -15,7 +15,7 @@ pub struct HostDto<L> {
     pub logs: L,
 }
 
-impl From<(HostModel, Option<ExistingLogEntryModel>)> for HostDto<Option<LogHistoryDto>> {
+impl From<(HostModel, Option<Activation>)> for HostDto<Option<ActivationDto>> {
     fn from(
         (
             HostModel {
@@ -23,19 +23,19 @@ impl From<(HostModel, Option<ExistingLogEntryModel>)> for HostDto<Option<LogHist
                 host_url,
                 metadata,
             },
-            log_entry,
-        ): (HostModel, Option<ExistingLogEntryModel>),
+            activation,
+        ): (HostModel, Option<Activation>),
     ) -> Self {
         Self {
             hostname,
             host_url,
-            logs: log_entry.map(Into::into),
+            logs: activation.map(Into::into),
             metadata,
         }
     }
 }
 
-impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostDto<Vec<LogHistoryDto>> {
+impl From<(HostModel, Vec<Activation>)> for HostDto<Vec<ActivationDto>> {
     fn from(
         (
             HostModel {
@@ -44,7 +44,7 @@ impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostDto<Vec<LogHistoryDto
                 metadata,
             },
             entries,
-        ): (HostModel, Vec<ExistingLogEntryModel>),
+        ): (HostModel, Vec<Activation>),
     ) -> Self {
         Self {
             hostname,
@@ -55,8 +55,8 @@ impl From<(HostModel, Vec<ExistingLogEntryModel>)> for HostDto<Vec<LogHistoryDto
     }
 }
 
-pub type HostWithLogsDto = HostDto<Vec<LogHistoryDto>>;
-pub type CurrentHostDto = HostDto<Option<LogHistoryDto>>;
+pub type HostWithLogsDto = HostDto<Vec<ActivationDto>>;
+pub type CurrentHostDto = HostDto<Option<ActivationDto>>;
 
 impl From<HostModel> for CurrentHostDto {
     fn from(

@@ -24,11 +24,11 @@ VALUES
 
 ON CONFLICT (store_path) DO NOTHING;
 
-INSERT INTO log_entry (timestamp, hostname, username, store_path, activation_type)
+INSERT INTO activation(activated_at, hostname, username, store_path, activation_type)
 VALUES
 -- don't use now, use fixed times to make tests reliable
+  ('2023-03-01 12:30:00',  'test-1',       'alice', '/nix/store/efgh5678', 'boot'),
   ('2023-03-01 12:00:00',  'test-1',       'alice', '/nix/store/abcd1234', 'switch'),
-  ('2023-03-01 11:30:00',  'test-1',       'alice', '/nix/store/efgh5678', 'boot'),
   ('2023-03-01 11:30:00',  'test-1',       'alice', '/nix/store/ffff1111', 'switch'),
   ('2023-03-01 11:10:00',  'test-2',       'bob',   '/nix/store/ndkj2312', 'switch'),
   ('2023-03-01 10:40:00',  'test-2',       'bob',   '/nix/store/ndkj2312', 'switch'),
@@ -44,7 +44,7 @@ VALUES
   ('2023-03-01 05:30:00',  'other-test-3', 'bob',   '/nix/store/xyz89012', 'switch')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO nix_git_link (store_path, commit_hash, branch, deployed_at)
+INSERT INTO nix_git_link (store_path, commit_hash, branch, linked_at)
 VALUES
   ('/nix/store/efgh5678', '00latest', 'master',     '2025-10-01 10:00:00'),
   ('/nix/store/efgh5678', '1111aaaa', 'develop',    '2025-10-01 09:00:00'),

@@ -1,6 +1,6 @@
-CREATE TABLE log_entry (
-    log_entry_id BIGSERIAL PRIMARY KEY,
-    timestamp TIMESTAMPTZ NOT NULL,
+CREATE TABLE activation (
+    activation_id BIGSERIAL PRIMARY KEY,
+    activated_at TIMESTAMPTZ NOT NULL,
     hostname TEXT NOT NULL,
     username TEXT NOT NULL,
     store_path TEXT NOT NULL ,
@@ -11,5 +11,5 @@ CREATE TABLE log_entry (
     FOREIGN KEY (hostname)
         REFERENCES host(hostname)
         ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE (hostname, username, timestamp, store_path, activation_type)
+	UNIQUE (hostname, username, activated_at, store_path, activation_type)
 );

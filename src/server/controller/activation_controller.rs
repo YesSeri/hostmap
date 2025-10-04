@@ -1,6 +1,6 @@
 use crate::{
     server::ServerState,
-    shared::{dto::host::HostWithLogsDto, model::log::CreateLogEntryModel},
+    shared::{dto::host::HostWithLogsDto, model::activation::NewActivation},
 };
 use axum::{Json, extract::State};
 use serde::Serialize;
@@ -18,10 +18,10 @@ pub(crate) async fn create_activation(
     }): State<ServerState>,
     Json(host_with_logs_dto): Json<HostWithLogsDto>,
 ) -> axum::response::Result<String> {
-    let models: Vec<CreateLogEntryModel> = host_with_logs_dto
+    let models: Vec<NewActivation> = host_with_logs_dto
         .logs
         .iter()
-        .map(|dto| CreateLogEntryModel::from((&host_with_logs_dto, dto.clone())))
+        .map(|dto| NewActivation::from((&host_with_logs_dto, dto.clone())))
         .collect();
     let i = activation_log_service
         .bulk_insert_log_records(models.as_ref())

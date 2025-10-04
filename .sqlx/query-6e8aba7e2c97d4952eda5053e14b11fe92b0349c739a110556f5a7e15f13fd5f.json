@@ -1,16 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select log_entry_id, timestamp, username, hostname,\n            store_path, activation_type, (SELECT NULL) as rev_id, (SELECT NULL) as branch\n        from log_entry where hostname = $1\n        order by timestamp desc\n        ",
+  "query": "\n        select activation_id, activated_at, username, hostname,\n            store_path, activation_type, (SELECT NULL) as commit_hash, (SELECT NULL) as branch\n        from activation where hostname = $1\n        order by activated_at desc\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "log_entry_id",
+        "name": "activation_id",
         "type_info": "Int8"
       },
       {
         "ordinal": 1,
-        "name": "timestamp",
+        "name": "activated_at",
         "type_info": "Timestamptz"
       },
       {
@@ -35,7 +35,7 @@
       },
       {
         "ordinal": 6,
-        "name": "rev_id",
+        "name": "commit_hash",
         "type_info": "Text"
       },
       {
@@ -60,5 +60,5 @@
       null
     ]
   },
-  "hash": "ef1c1d5c931a56230447fda75aa94d03ab690d59e993a1c686ecda3bf19c7f0f"
+  "hash": "6e8aba7e2c97d4952eda5053e14b11fe92b0349c739a110556f5a7e15f13fd5f"
 }

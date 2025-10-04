@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n\nWITH latest AS (\nSELECT \nDISTINCT ON (ac.hostname)\nac.activation_id, ac.activated_at, ac.username, ac.store_path, ac.activation_type, ac.hostname\nFROM activation ac \n     ORDER BY ac.hostname, ac.activated_at DESC \n)\nSELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username, \n    l.store_path, l.activation_type, l.hostname, ngl.commit_hash, ngl.branch\n    FROM latest l\n    INNER JOIN nix_git_link ngl ON ngl.store_path = l.store_path\n    ORDER BY l.hostname, ngl.branch = 'master' desc, ngl.linked_at asc\n;\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "activation_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "activated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "store_path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "activation_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "hostname",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "commit_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "branch",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6d18aeb4600320a2bc35b10644add05cd22fddf7567d206623cceacff394462a"
+}
