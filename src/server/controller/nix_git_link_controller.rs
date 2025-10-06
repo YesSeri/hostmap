@@ -5,7 +5,8 @@ use crate::{
         model::activation::NewActivation,
     },
 };
-use axum::{Json, extract::State};
+use axum::http::StatusCode;
+use axum::{Json, extract::State, response::IntoResponse};
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
@@ -19,9 +20,9 @@ pub(crate) async fn create_links(
         ..
     }): State<ServerState>,
     Json(nix_git_link): Json<Vec<NixGitLinkDto>>,
-) -> axum::response::Result<String> {
-    nix_git_link_service.create_many(nix_git_link).await?;
-    Ok("Not implemented".to_string())
+) -> axum::response::Result<impl IntoResponse> {
+    let i = nix_git_link_service.create_many(nix_git_link).await?;
+    Ok((StatusCode::CREATED, format!("Num links created: {}", i)))
 }
 
 #[axum::debug_handler]
@@ -29,10 +30,11 @@ pub(crate) async fn create_link(
     State(ServerState {
         tera,
         nix_git_link_service,
+        activation_log_service,
         ..
     }): State<ServerState>,
     Json(nix_git_link): Json<NixGitLinkDto>,
-) -> axum::response::Result<String> {
+) -> axum::response::Result<impl IntoResponse> {
     nix_git_link_service.create(nix_git_link).await?;
-    Ok("Not implemented".to_string())
+    Ok(StatusCode::CREATED)
 }

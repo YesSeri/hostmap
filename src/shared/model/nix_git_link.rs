@@ -8,7 +8,7 @@ pub struct NixGitLinkModel {
     // pub commit_hash: String,
     // pub branch: String,
     pub revision: RevisionModel,
-    pub deployed_at: chrono::DateTime<chrono::Utc>,
+    pub linked_at: chrono::DateTime<chrono::Utc>,
 }
 impl From<NixGitLinkDto> for NixGitLinkModel {
     fn from(
@@ -21,7 +21,7 @@ impl From<NixGitLinkDto> for NixGitLinkModel {
         Self {
             nix_store_path,
             revision: revision.into(),
-            deployed_at,
+            linked_at: deployed_at,
         }
     }
 }

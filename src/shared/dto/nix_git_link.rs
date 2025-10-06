@@ -15,7 +15,7 @@ impl From<NixGitLinkModel> for NixGitLinkDto {
         NixGitLinkModel {
             nix_store_path,
             revision,
-            deployed_at,
+            linked_at: deployed_at,
         }: NixGitLinkModel,
     ) -> Self {
         Self {

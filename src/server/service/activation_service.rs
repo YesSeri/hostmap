@@ -1,9 +1,15 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
+use sqlx::{Pool, Postgres};
 
 use crate::{
-    server::{custom_error::RetError, repository::activation_repository::ActivationRepository},
+    server::{
+        custom_error::RetError,
+        repository::{
+            activation_repository::ActivationRepository, store_path_repository::StorePathRepository,
+        },
+    },
     shared::{
         dto::host::CurrentHostDto,
         model::{
@@ -15,26 +21,27 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct ActivationLogService {
-    repo: ActivationRepository,
+    pool: Pool<Postgres>,
 }
 
 impl ActivationLogService {
-    pub fn new(repo: ActivationRepository) -> Self {
-        Self { repo }
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool }
     }
+
     pub(crate) async fn latest_entry_for_host(
         &self,
         host_dto: CurrentHostDto,
     ) -> Result<Option<Activation>, RetError> {
         let model: HostModel = host_dto.into();
-        self.repo.latest_entry_for_host(model).await
+        ActivationRepository::latest_entry_for_host(&self.pool, model).await
     }
 
     pub async fn host_with_logs_by_hostname(
         &self,
         hostname: &str,
     ) -> Result<BTreeMap<NaiveDate, Vec<ActivationWithRevision>>, RetError> {
-        let logs = self.repo.get_logs_by_hostname(hostname).await?;
+        let logs = ActivationRepository::get_logs_by_hostname(&self.pool, hostname).await?;
         let mut map: BTreeMap<NaiveDate, Vec<ActivationWithRevision>> = BTreeMap::new();
         for log in logs {
             let date = log.activated_at.date_naive();
@@ -47,8 +54,16 @@ impl ActivationLogService {
         &self,
         new_activations: &[NewActivation],
     ) -> Result<u64, RetError> {
-        self.repo
-            .insert_many_activations_with_store_paths(new_activations)
-            .await
+        let mut tx = self.pool.begin().await?;
+
+        let store_paths: Vec<&str> = new_activations
+            .iter()
+            .map(|el| el.core.store_path.as_str())
+            .collect();
+        StorePathRepository::bulk_insert_store_paths(&mut tx, &store_paths).await?;
+
+        let i = ActivationRepository::insert_many(&mut tx, new_activations).await?;
+        tx.commit().await?;
+        Ok(i)
     }
 }

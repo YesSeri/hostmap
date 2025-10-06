@@ -23,7 +23,7 @@ use crate::server::{
         nix_git_link_repository::NixGitLinkRepository,
     },
     service::{
-        activation_log_service::ActivationLogService, host_service::HostService,
+        activation_service::ActivationLogService, host_service::HostService,
         nix_git_link_service::NixGitLinkService,
     },
 };
@@ -104,8 +104,8 @@ pub async fn run(
     let templates_dir = std::env::var("HOSTMAP_TEMPLATES_DIR").expect("user must specificy the env variable HOSTMAP_TEMPLATES_DIR. This should not be something end user needs to specify, since the flake will wrap this.");
     tracing::info!("Using templates directory: {}", &templates_dir);
     let host_service = HostService::new(HostRepository::new(pool.clone()));
-    let log_service = ActivationLogService::new(ActivationRepository::new(pool.clone()));
-    let nix_git_link_service = NixGitLinkService::new(NixGitLinkRepository::new(pool.clone()));
+    let log_service = ActivationLogService::new(pool.clone());
+    let nix_git_link_service = NixGitLinkService::new(pool.clone());
     let tera = Arc::new(load_tera(&templates_dir).expect(&format!(
         "Failed to load templates from directory: {}",
         &templates_dir
@@ -129,8 +129,12 @@ pub async fn run(
             get(controller::frontpage::render_frontpage),
         )
         .route(
-            endpoint::link_entry(),
+            endpoint::nix_git_link(),
             get(controller::nix_git_link_controller::create_link),
+        )
+        .route(
+            endpoint::nix_git_link_bulk(),
+            get(controller::nix_git_link_controller::create_links),
         )
         .route("/{hostname}", get(controller::history::render_history_page))
         .fallback(custom_error::fallback)
