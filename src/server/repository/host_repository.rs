@@ -89,18 +89,20 @@ FROM activation ac
      ORDER BY ac.hostname, ac.activated_at DESC 
 )
 SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username, 
-    l.store_path, l.activation_type, l.hostname, ngl.commit_hash, ngl.branch
+    l.store_path, l.activation_type, l.hostname, ngl.commit_hash AS "commit_hash?", ngl.branch AS "branch?"
     FROM latest l
-    INNER JOIN nix_git_link ngl ON ngl.store_path = l.store_path
+    LEFT JOIN nix_git_link ngl ON ngl.store_path = l.store_path
     ORDER BY l.hostname, ngl.branch = 'master' desc, ngl.linked_at asc
 ;
             "#,
         )
         .fetch_all(&self.pool)
         .await?;
+        tracing::debug!("Fetched {:?} logs", logs);
         let all_logs: Vec<Activation> = logs.into_iter().map(|el| el.into()).collect();
         let hosts = self.get_all_hosts().await?;
 
+        tracing::debug!("Fetched {:?} hosts and {:?} logs", hosts, all_logs);
         let mut result = Vec::new();
         for host in hosts {
             let latest_log = all_logs
