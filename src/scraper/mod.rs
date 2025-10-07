@@ -7,15 +7,16 @@ use crate::{
             activation::ActivationDto,
             host::{CurrentHostDto, HostWithLogsDto},
         },
-        model::{activation::NewActivation, host::HostModel},
+        model::activation::NewActivation,
     },
 };
-use reqwest::{Client, Url};
+use reqwest::{Client, Url, header};
 
 pub async fn run(
     hosts_file: PathBuf,
     scrape_interval: u64,
     url: &str,
+    api_key: String,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     tracing::info!(
         "Starting scraper with file: {:?} and interval: {}",
@@ -23,8 +24,14 @@ pub async fn run(
         scrape_interval
     );
     let create_host_dtos = parse_hosts(&hosts_file);
+    let mut headers = header::HeaderMap::new();
+    headers.insert(
+        header::AUTHORIZATION,
+        header::HeaderValue::from_str("AUTHORIZATION_HEADER").expect("needs authrization header"),
+    );
     let client = reqwest::Client::builder()
         .connect_timeout(std::time::Duration::from_secs(10))
+        .default_headers(headers)
         .build()?;
     insert_hosts(&create_host_dtos, &client, url).await?;
     loop {
@@ -47,7 +54,6 @@ fn parse_hosts(host_file: &PathBuf) -> Vec<CurrentHostDto> {
     let host_dtos: Vec<CurrentHostDto> =
         serde_json::from_str(&content).expect("could not parse target list file as json. the metadata field must be a key-value pair. nested json is not supported");
 
-    tracing::info!("hosts len: {}", host_dtos.len());
     host_dtos
 }
 

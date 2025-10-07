@@ -1,3 +1,5 @@
+use sqlx::{Pool, Postgres};
+
 use crate::{
     server::custom_error::RetError,
     server::repository::host_repository::HostRepository,
@@ -6,25 +8,21 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct HostService {
-    repo: HostRepository,
+    pool: Pool<Postgres>,
 }
 
 impl HostService {
-    pub fn new(repo: HostRepository) -> Self {
-        Self { repo }
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool }
     }
 
     pub async fn get_all_with_latest_log(&self) -> Result<Vec<HostWithLatestLog>, RetError> {
-        let hosts = self.repo.get_all_hosts_with_latest_activation().await?;
-        Ok(hosts)
-    }
-    pub async fn get_all(&self) -> Result<Vec<HostModel>, RetError> {
-        let hosts = self.repo.get_all_hosts().await?;
+        let hosts = HostRepository::get_all_hosts_with_latest_activation(&self.pool).await?;
         Ok(hosts)
     }
 
     pub async fn create_many(&self, hosts: &[HostModel]) -> Result<u64, sqlx::Error> {
-        let hosts = self.repo.bulk_insert_hosts(hosts).await?;
+        let hosts = HostRepository::bulk_insert_hosts(&self.pool, hosts).await?;
         Ok(hosts)
     }
 
@@ -32,7 +30,7 @@ impl HostService {
         &self,
         hostname: String,
     ) -> Result<Option<HostModel>, RetError> {
-        let host = self.repo.get_host_from_hostname(hostname).await?;
+        let host = HostRepository::get_host_from_hostname(&self.pool, hostname).await?;
         Ok(host)
     }
 }

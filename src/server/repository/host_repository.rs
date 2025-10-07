@@ -4,21 +4,18 @@ use crate::shared::model::{
     activation::{Activation, ActivationWithRevision},
     host::{HostModel, HostWithLatestLog},
 };
-use sqlx::{Execute, Pool, Postgres, QueryBuilder};
+use sqlx::{Pool, Postgres, QueryBuilder};
 
 use crate::server::custom_error::RetError;
 
 #[derive(Debug, Clone)]
-pub struct HostRepository {
-    pool: Pool<Postgres>,
-}
+pub struct HostRepository {}
 
 impl HostRepository {
-    pub fn new(pool: Pool<Postgres>) -> Self {
-        Self { pool }
-    }
-
-    pub async fn bulk_insert_hosts(&self, hosts: &[HostModel]) -> Result<u64, sqlx::Error> {
+    pub async fn bulk_insert_hosts(
+        pool: &Pool<Postgres>,
+        hosts: &[HostModel],
+    ) -> Result<u64, sqlx::Error> {
         const CHUNK_SIZE: usize = 500; // rows (hosts) per INSERT
         tracing::info!("Inserting {} hosts", hosts.len());
         let tuple_vec: Vec<(&str, &str, HashMap<String, String>)> = hosts
@@ -40,14 +37,14 @@ impl HostRepository {
             // on conflict do nothing to avoid duplicate entries
             query_builder.push(" ON CONFLICT (hostname) DO UPDATE SET host_url = EXCLUDED.host_url, metadata = EXCLUDED.metadata, updated_at = NOW(), created_at = host.created_at");
             let query = query_builder.build();
-            let res = query.execute(&self.pool).await?;
+            let res = query.execute(pool).await?;
             rows_inserted += res.rows_affected();
         }
         Ok(rows_inserted)
     }
 
     pub async fn get_host_from_hostname(
-        &self,
+        pool: &Pool<Postgres>,
         hostname: String,
     ) -> Result<Option<HostModel>, RetError> {
         dbg!("fetching host from db with name: {:?}", &hostname);
@@ -67,7 +64,7 @@ impl HostRepository {
                 "nested json metadata is not allowed".to_string(),
             )])),
         })
-        .fetch_optional(&self.pool)
+        .fetch_optional(pool)
         .await?;
         dbg!(&result);
 
@@ -75,7 +72,7 @@ impl HostRepository {
     }
 
     pub async fn get_all_hosts_with_latest_activation(
-        &self,
+        pool: &Pool<Postgres>,
     ) -> Result<Vec<HostWithLatestLog>, RetError> {
         let logs = sqlx::query_as!(
             ActivationWithRevision,
@@ -96,13 +93,11 @@ SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,
 ;
             "#,
         )
-        .fetch_all(&self.pool)
+        .fetch_all(pool)
         .await?;
-        tracing::debug!("Fetched {:?} logs", logs);
         let all_logs: Vec<Activation> = logs.into_iter().map(|el| el.into()).collect();
-        let hosts = self.get_all_hosts().await?;
+        let hosts = Self::get_all_hosts(pool).await?;
 
-        tracing::debug!("Fetched {:?} hosts and {:?} logs", hosts, all_logs);
         let mut result = Vec::new();
         for host in hosts {
             let latest_log = all_logs
@@ -118,7 +113,7 @@ SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,
         }
         Ok(result)
     }
-    pub async fn get_all_hosts(&self) -> Result<Vec<HostModel>, RetError> {
+    pub(crate) async fn get_all_hosts(pool: &Pool<Postgres>) -> Result<Vec<HostModel>, RetError> {
         let result = sqlx::query!(
             r#"
             SELECT hostname, host_url, metadata FROM host
@@ -133,7 +128,7 @@ SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,
                 "nested json metadata is not allowed".to_string(),
             )])),
         })
-        .fetch_all(&self.pool)
+        .fetch_all(pool)
         .await?;
         Ok(result)
     }

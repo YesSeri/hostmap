@@ -7,15 +7,9 @@ use sqlx::{Pool, Postgres, QueryBuilder};
 use crate::server::custom_error::RetError;
 
 #[derive(Debug, Clone)]
-pub struct ActivationRepository {
-    pool: Pool<Postgres>,
-}
+pub struct ActivationRepository;
 
 impl ActivationRepository {
-    pub fn new(pool: Pool<Postgres>) -> Self {
-        Self { pool }
-    }
-
     pub(crate) async fn insert_many(
         transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         log_models: &[NewActivation],
@@ -41,28 +35,6 @@ impl ActivationRepository {
             i += res.rows_affected();
         }
         Ok(i)
-    }
-
-    pub async fn latest_entry_for_host(
-        pool: &Pool<Postgres>,
-        host: HostModel,
-    ) -> Result<Option<Activation>, RetError> {
-        let activation_with_revision = sqlx::query_as!(
-            ActivationWithRevision,
-            r#"
-        SELECT activation_id, hostname, activated_at, username, store_path,
-            activation_type, (SELECT NULL) as commit_hash, (SELECT NULL) as branch
-        FROM activation 
-        WHERE 1 = 1 
-            AND hostname = $1
-        ORDER BY activated_at desc LIMIT 1
-        "#,
-            host.hostname,
-        )
-        .fetch_optional(pool)
-        .await?;
-        let activation = activation_with_revision.map(|el| el.into());
-        Ok(activation)
     }
 
     pub async fn get_logs_by_hostname(

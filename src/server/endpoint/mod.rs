@@ -7,13 +7,13 @@ pub fn hosts_bulk() -> &'static str {
 pub fn frontpage() -> &'static str {
     "/"
 }
-pub fn history_page(hostname: &str) -> String {
-    "/".to_string() + hostname
-}
 
 pub fn nix_git_link() -> &'static str {
     "/api/link"
 }
 pub fn nix_git_link_bulk() -> &'static str {
     "/api/link/bulk"
+}
+pub fn history() -> &'static str {
+    "/{hostname}"
 }

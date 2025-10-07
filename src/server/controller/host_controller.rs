@@ -4,8 +4,6 @@ use crate::{
     server::ServerState,
     shared::{dto::host::CurrentHostDto, model::host::HostModel},
 };
-// #[derive(Debug, Clone, Serialize)]
-// struct LogContext {}
 
 #[axum::debug_handler]
 pub(crate) async fn create_hosts(

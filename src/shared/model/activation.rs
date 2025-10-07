@@ -37,7 +37,7 @@ impl<T: HasHostname> From<(&T, ActivationDto)> for NewActivation {
                 activated_at: dto.activated_at,
                 username: dto.username,
                 store_path: dto.store_path,
-                activation_type: dto.activation_type.into(),
+                activation_type: dto.activation_type,
                 hostname: host.hostname().to_string(),
                 revision: dto.revision.map(|r| RevisionModel {
                     commit_hash: r.commit_hash,
@@ -88,7 +88,7 @@ impl From<ActivationWithRevision> for Activation {
                 activated_at: e.activated_at,
                 username: e.username,
                 store_path: e.store_path,
-                activation_type: e.activation_type.into(),
+                activation_type: e.activation_type,
                 hostname: e.hostname,
                 revision: match (e.commit_hash, e.branch) {
                     (Some(r), Some(b)) => Some(RevisionModel {

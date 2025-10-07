@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::shared::{
-    dto::revision::{RevisionDto, StorePathDto},
+    dto::revision::RevisionDto,
     model::activation::{Activation, ActivationCore, NewActivation},
 };
 
@@ -21,7 +21,7 @@ impl From<ActivationCore> for ActivationDto {
             activated_at: core.activated_at,
             username: core.username,
             store_path: core.store_path,
-            activation_type: core.activation_type.into(),
+            activation_type: core.activation_type,
             revision: core.revision.map(|r| r.into()),
         }
     }

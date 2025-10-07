@@ -5,9 +5,6 @@ use crate::{
 use axum::{Json, extract::State};
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize)]
-struct LogContext {}
-
 #[axum::debug_handler]
 pub(crate) async fn create_activation(
     State(ServerState {

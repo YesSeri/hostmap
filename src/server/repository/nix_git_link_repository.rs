@@ -1,16 +1,11 @@
-use sqlx::{Pool, Postgres, QueryBuilder};
+use sqlx::{Postgres, QueryBuilder};
 
 use crate::{server::RetError, shared::model::nix_git_link::NixGitLinkModel};
 
 #[derive(Debug, Clone)]
-pub struct NixGitLinkRepository {
-    pool: Pool<Postgres>,
-}
+pub struct NixGitLinkRepository;
 
 impl NixGitLinkRepository {
-    pub fn new(pool: Pool<Postgres>) -> Self {
-        Self { pool }
-    }
     pub async fn create_many(
         tx: &mut sqlx::Transaction<'_, Postgres>,
         nix_git_links: Vec<NixGitLinkModel>,

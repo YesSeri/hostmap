@@ -1,21 +1,11 @@
-use crate::{
-    server::ServerState,
-    shared::{
-        dto::{host::HostWithLogsDto, nix_git_link::NixGitLinkDto},
-        model::activation::NewActivation,
-    },
-};
+use crate::{server::ServerState, shared::dto::nix_git_link::NixGitLinkDto};
 use axum::http::StatusCode;
 use axum::{Json, extract::State, response::IntoResponse};
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize)]
-struct LogContext {}
-
 #[axum::debug_handler]
 pub(crate) async fn create_links(
     State(ServerState {
-        tera,
         nix_git_link_service,
         ..
     }): State<ServerState>,

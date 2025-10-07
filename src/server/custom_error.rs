@@ -7,8 +7,6 @@ use reqwest::StatusCode;
 pub(super) enum RetError {
     #[error("Database error: {0}")]
     DbError(#[from] sqlx::Error),
-    #[error(transparent)]
-    Other(Box<dyn error::Error + Send + Sync + 'static>),
     #[error("Not Found")]
     NotFound,
 }
@@ -17,9 +15,6 @@ impl IntoResponse for RetError {
     fn into_response(self) -> axum::response::Response {
         match self {
             RetError::DbError(err) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
-            }
-            RetError::Other(err) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response()
             }
             RetError::NotFound => (

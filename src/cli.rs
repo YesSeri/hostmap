@@ -35,7 +35,7 @@ pub(crate) enum Commands {
         #[arg(
             long,
             default_value = "http://localhost:3000",
-            help = "url of server to send logs to"
+            help = "url of server to send scraped activations to(the server you started with `hostmap server ...`"
         )]
         url: String,
     },

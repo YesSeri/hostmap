@@ -1,4 +1,4 @@
-use sqlx::{Pool, Postgres, QueryBuilder};
+use sqlx::{Postgres, QueryBuilder};
 
 use crate::server::RetError;
 

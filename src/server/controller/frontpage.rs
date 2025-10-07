@@ -111,7 +111,7 @@ async fn render_frontpage_by_group(
             .host
             .metadata
             .get(grouping_key)
-            .and_then(|v| Some(v.to_owned()))
+            .map(|v| v.to_owned())
             .unwrap_or_else(|| "Ungrouped".to_string());
 
         grouped_hosts

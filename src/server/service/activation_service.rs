@@ -29,14 +29,6 @@ impl ActivationLogService {
         Self { pool }
     }
 
-    pub(crate) async fn latest_entry_for_host(
-        &self,
-        host_dto: CurrentHostDto,
-    ) -> Result<Option<Activation>, RetError> {
-        let model: HostModel = host_dto.into();
-        ActivationRepository::latest_entry_for_host(&self.pool, model).await
-    }
-
     pub async fn host_with_logs_by_hostname(
         &self,
         hostname: &str,
