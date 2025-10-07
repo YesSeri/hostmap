@@ -31,9 +31,9 @@
   </tr>
   {% for entry in logs %}
   <tr style="font-family: monospace">
-    <td>{{ entry.timestamp | date(format="%H:%M:%S") }}</td>
+    <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
     <td>{{ entry.username }}</td>
-    <td>{{ entry.store_path.abbreviated_path }}</td>
+    <td>{{ entry.store_path | nix_name }}</td>
     <td>{{ entry.activation_type }}</td>
     <td>{{ entry.rev_id | default(value="unknown") }}</td>
   </tr>
