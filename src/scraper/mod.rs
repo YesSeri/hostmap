@@ -27,7 +27,7 @@ pub async fn run(
     let mut headers = header::HeaderMap::new();
     headers.insert(
         header::AUTHORIZATION,
-        header::HeaderValue::from_str("AUTHORIZATION_HEADER").expect("needs authrization header"),
+        header::HeaderValue::from_str(&format!("Api-Key {api_key}"))?,
     );
     let client = reqwest::Client::builder()
         .connect_timeout(std::time::Duration::from_secs(10))

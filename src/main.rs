@@ -36,9 +36,10 @@ fn get_api_key() -> Result<String, env::VarError> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
+    setup_logging();
+
     let cli = Cli::parse();
     let api_key = get_api_key()?;
-    setup_logging();
     tracing::debug!("running with cli config: {:?}", cli);
 
     match cli.command {

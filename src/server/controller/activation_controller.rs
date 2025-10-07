@@ -3,7 +3,6 @@ use crate::{
     shared::{dto::host::HostWithLogsDto, model::activation::NewActivation},
 };
 use axum::{Json, extract::State};
-use serde::Serialize;
 
 #[axum::debug_handler]
 pub(crate) async fn create_activation(
@@ -23,5 +22,6 @@ pub(crate) async fn create_activation(
     let i = activation_log_service
         .bulk_insert_log_records(models.as_ref())
         .await?;
-    Ok(format!("Num log entries created: {}", i))
+    tracing::debug!("{i} log entries created");
+    Ok(format!("{i} log entries created"))
 }

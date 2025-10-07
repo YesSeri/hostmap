@@ -1,7 +1,4 @@
-use crate::shared::model::{
-    activation::{Activation, ActivationWithRevision, NewActivation},
-    host::HostModel,
-};
+use crate::shared::model::activation::{ActivationWithRevision, NewActivation};
 use sqlx::{Pool, Postgres, QueryBuilder};
 
 use crate::server::custom_error::RetError;

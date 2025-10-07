@@ -1,5 +1,3 @@
-use std::error;
-
 use axum::response::IntoResponse;
 use reqwest::StatusCode;
 

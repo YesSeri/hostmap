@@ -1,18 +1,22 @@
+mod api_authentication;
 mod controller;
 mod custom_error;
 pub(crate) mod endpoint;
 mod repository;
 mod service;
 
+use crate::server::api_authentication::api_authentication;
 use std::{collections::HashMap, error, sync::Arc};
 
 use axum::http::header;
+use axum::middleware::from_fn_with_state;
 use axum::{
     Router,
     routing::{get, post},
 };
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tera::{Tera, Value, try_get_value};
+use tower_http::sensitive_headers::SetSensitiveRequestHeadersLayer;
 
 use crate::server::{
     controller::{activation_controller, host_controller},
@@ -43,6 +47,7 @@ struct ServerState {
     host_service: HostService,
     activation_log_service: ActivationLogService,
     nix_git_link_service: NixGitLinkService,
+    //api_key: String,
 }
 
 impl ServerState {
@@ -52,6 +57,7 @@ impl ServerState {
         host_service: HostService,
         activation_log_service: ActivationLogService,
         nix_git_link_service: NixGitLinkService,
+        //api_key: String
     ) -> Self {
         Self {
             tera,
@@ -59,6 +65,7 @@ impl ServerState {
             host_service,
             activation_log_service,
             nix_git_link_service,
+            //api_key,
         }
     }
 }
@@ -70,6 +77,39 @@ async fn build_pool(database_url: String) -> Result<Pool<Postgres>, sqlx::Error>
         .idle_timeout(Some(std::time::Duration::from_secs(300)))
         .connect(&database_url)
         .await
+}
+
+fn create_public_router() -> Router<ServerState> {
+    let public_routes = Router::new()
+        .route(
+            endpoint::frontpage(),
+            get(controller::frontpage::render_frontpage),
+        )
+        .route(
+            endpoint::history(),
+            get(controller::history::render_history_page),
+        );
+    public_routes
+}
+fn create_protected_router(api_key: String) -> Router<ServerState> {
+    let sensitive_headers: Vec<header::HeaderName> = vec![header::AUTHORIZATION];
+    let protected_routes = Router::new()
+        .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
+        .route(
+            endpoint::activations_bulk(),
+            post(activation_controller::create_activation),
+        )
+        .route(
+            endpoint::nix_git_link(),
+            get(controller::nix_git_link_controller::create_link),
+        )
+        .route(
+            endpoint::nix_git_link_bulk(),
+            get(controller::nix_git_link_controller::create_links),
+        )
+        .layer(SetSensitiveRequestHeadersLayer::new(sensitive_headers))
+        .layer(from_fn_with_state(api_key, api_authentication));
+    protected_routes
 }
 
 pub async fn run(
@@ -98,7 +138,6 @@ pub async fn run(
         )
     }));
     let server_config = ServerConfig::new(default_grouping_key, columns.unwrap_or_default());
-    let sensitive_headers: Vec<header::HeaderName> = vec![header::AUTHORIZATION];
     let server_state = ServerState::new(
         tera,
         server_config,
@@ -106,31 +145,8 @@ pub async fn run(
         log_service,
         nix_git_link_service,
     );
-    let public_routes = Router::new()
-        .route(
-            endpoint::frontpage(),
-            get(controller::frontpage::render_frontpage),
-        )
-        .route(
-            endpoint::history(),
-            get(controller::history::render_history_page),
-        );
-    let protected_routes = Router::new()
-        .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
-        .route(
-            endpoint::activations_bulk(),
-            post(activation_controller::create_activation),
-        )
-        .route(
-            endpoint::nix_git_link(),
-            get(controller::nix_git_link_controller::create_link),
-        )
-        .route(
-            endpoint::nix_git_link_bulk(),
-            get(controller::nix_git_link_controller::create_links),
-        );
-    let router = public_routes
-        .merge(protected_routes)
+    let router = create_public_router()
+        .merge(create_protected_router(api_key))
         .fallback(custom_error::fallback)
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(server_state);
@@ -172,7 +188,6 @@ fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value
     Ok(Value::String(s.to_string()))
 }
 
-// register once
 fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     let tera_pattern = format!("{}/**/*", templates_dir);
     let mut tera = Tera::new(&tera_pattern);

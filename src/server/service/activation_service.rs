@@ -10,13 +10,7 @@ use crate::{
             activation_repository::ActivationRepository, store_path_repository::StorePathRepository,
         },
     },
-    shared::{
-        dto::host::CurrentHostDto,
-        model::{
-            activation::{Activation, ActivationWithRevision, NewActivation},
-            host::HostModel,
-        },
-    },
+    shared::model::activation::{ActivationWithRevision, NewActivation},
 };
 
 #[derive(Debug, Clone)]
