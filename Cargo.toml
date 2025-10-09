@@ -19,5 +19,15 @@ tracing = "0.1.41"
 log = "0.4.28"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 thiserror = "2.0.16"
-clap = { version = "4.5.48", features = ["derive"] }
+clap = { version = "4.5.48", default-features = false, features = ["derive", "std"] }
 tower = "0.5.2"
+subtle = "2.6.1"
+
+# [profile.release] # When compiling in release mode
+# # https://ospfranco.com/rust-reduce-binary-size/
+# debug = false # Exclude debug symbols
+# strip = "symbols" # Exclude the rest of the symbols
+# lto = true # Link time optimization, not sure what this does but it helps reduce the size
+# codegen-units = 1 # Cargo specifies 16 parallel codegen units for release builds. This improves compile times, but prevents some optimizations.
+# panic = "abort" # when Rust code encounters a situation when it must call panic!(), it unwinds the stack and produces a helpful backtrace. The unwinding code, however, does require extra binary size. rustc can be instructed to abort immediately rather than unwind, which removes the need for this extra unwinding code.
+# opt-level = "z"  # Optimize for size.

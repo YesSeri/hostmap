@@ -5,6 +5,7 @@ use axum::{
 };
 
 use axum::http::{HeaderMap, HeaderValue, StatusCode, header::AUTHORIZATION};
+use subtle::ConstantTimeEq;
 
 pub async fn api_authentication(
     State(api_key): State<String>,
@@ -35,5 +36,5 @@ fn get_token(headers: &HeaderMap) -> Option<&str> {
 }
 
 fn token_is_valid(client_api_key: &str, server_api_key: &str) -> bool {
-    client_api_key == server_api_key
+    bool::from(client_api_key.as_bytes().ct_eq(server_api_key.as_bytes()))
 }
