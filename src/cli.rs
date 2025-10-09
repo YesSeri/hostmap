@@ -16,6 +16,11 @@ pub(crate) enum Commands {
         #[arg(long, help = "The database URL to connect to")]
         database_url: String,
         #[arg(
+            long,
+            help = "File with api key used for communication between scraper and CI server with mappings to server"
+        )]
+        api_key_file: PathBuf,
+        #[arg(
             long = "grouping-key",
             help = "Default key from metadata to group by on the frontpage"
         )]
@@ -32,6 +37,11 @@ pub(crate) enum Commands {
         hosts_file: PathBuf,
         #[arg(long)]
         scrape_interval: u64,
+        #[arg(
+            long,
+            help = "File with api key used for communication between scraper and CI server with mappings to server"
+        )]
+        api_key_file: PathBuf,
         #[arg(
             long,
             default_value = "http://localhost:3000",

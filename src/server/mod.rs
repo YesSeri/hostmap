@@ -57,7 +57,6 @@ impl ServerState {
         host_service: HostService,
         activation_log_service: ActivationLogService,
         nix_git_link_service: NixGitLinkService,
-        //api_key: String
     ) -> Self {
         Self {
             tera,
@@ -65,7 +64,6 @@ impl ServerState {
             host_service,
             activation_log_service,
             nix_git_link_service,
-            //api_key,
         }
     }
 }

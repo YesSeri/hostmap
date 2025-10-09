@@ -11,7 +11,7 @@ pub(crate) mod server;
 pub(crate) mod shared;
 
 use clap::Parser;
-use std::{env, error};
+use std::{error, path::PathBuf};
 
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -24,24 +24,19 @@ fn setup_logging() {
         .with(fmt::layer())
         .init();
 }
-fn get_api_key() -> Result<String, env::VarError> {
-    let api_key = env::var("HOSTMAP_API_KEY").inspect_err(|err| {
-        match err {
-            env::VarError::NotPresent => tracing::warn!("please supply a HOSTMAP_API_KEY env variable for your server or scraper"),
-            env::VarError::NotUnicode(_) => tracing::warn!("please supply a valid HOSTMAP_API_KEY for your server or scraper, the current one is not unicode"),
-        }
-    })?;
-    Ok(api_key)
+fn read_api_key(path: PathBuf) -> String {
+    std::fs::read_to_string(&path)
+        .expect(&format!(
+            "Could not read api_key from api_key_file {path:?}"
+        ))
+        .trim()
+        .to_owned()
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     setup_logging();
-
     let cli = Cli::parse();
-    let api_key = get_api_key()?;
-    tracing::debug!("running with cli config: {:?}", cli);
-
     match cli.command {
         Commands::Server {
             database_url,
@@ -49,7 +44,9 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
             url,
             port,
             columns,
+            api_key_file,
         } => {
+            let api_key = read_api_key(api_key_file);
             server::run(
                 database_url,
                 default_grouping_key,
@@ -64,7 +61,9 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
             hosts_file,
             scrape_interval,
             url,
+            api_key_file,
         } => {
+            let api_key = read_api_key(api_key_file);
             scraper::run(hosts_file, scrape_interval, &url, api_key).await?;
         }
     }
