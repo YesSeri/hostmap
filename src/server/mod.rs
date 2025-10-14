@@ -173,24 +173,90 @@ pub async fn run(
         .unwrap();
     Ok(())
 }
-
-fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
-    let s = try_get_value!("nix_name", "value", String, value);
-    let s = s.strip_prefix("/nix/store").unwrap_or(&s);
-    // remove from idx 10 to idx 20
-    let s = if s.len() > 28 {
-        format!("{}...{}", &s[..12], &s[28..])
-    } else {
-        s.to_string()
-    };
-    Ok(Value::String(s.to_string()))
-}
-
 fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     let tera_pattern = format!("{}/**/*", templates_dir);
     let mut tera = Tera::new(&tera_pattern);
     if let Ok(t) = tera.as_mut() {
-        t.register_filter("nix_name", nix_name)
+        t.register_filter("nix_name", nix_name);
+        t.register_filter("background_color", background_color);
+        t.register_filter("foreground_color", foreground_color);
     }
     tera
+}
+
+fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = try_get_value!("nix_name", "value", String, value);
+    Ok(Value::String(
+        nix_name_fn(&s).unwrap_or("unknown_path".into()),
+    ))
+}
+fn nix_name_fn(s: &str) -> Option<String> {
+    let s = s.strip_prefix("/nix/store/")?.strip_suffix("pre-git")?;
+    let (prefix, rest) = s.split_at(10);
+    let (_, suffix) = rest.split_once("-nixos-system-")?;
+    Some(format!("{}-{}", prefix.to_string(), suffix))
+}
+fn background_color(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = try_get_value!("background_color", "value", String, value);
+    Ok(Value::String(background_color_fn(&s)))
+}
+fn foreground_color(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = try_get_value!("foreground_color", "value", String, value);
+    Ok(Value::String(foreground_color_fn(&s)))
+}
+
+fn calculate_hash(name: &str) -> u64 {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    let mut hasher = DefaultHasher::new();
+    name.hash(&mut hasher);
+    hasher.finish() & 0xFFFFFF
+}
+fn background_color_fn(name: &str) -> String {
+    let hash = calculate_hash(name);
+    format!("#{:06x}", hash)
+}
+fn foreground_color_fn(name: &str) -> String {
+    let bg = calculate_hash(name);
+    let r = (bg >> 16) & 0xFF;
+    let g = (bg >> 8) & 0xFF;
+    let b = bg & 0xFF;
+    let sum = r + g + b;
+    if (sum / 3) > 128 {
+        "#000000".to_string()
+    } else {
+        "#FFFFFF".to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_color_filters() {
+        let store_path =
+            "/nix/store/4v0ykqdvvpgpw83ljfk32bzjl2bcblmk-nixos-system-hosts-p01-25.05pre-git";
+        let background_color = background_color_fn(store_path);
+        let correct_color = "#e57cee".to_string();
+        assert_eq!(background_color, correct_color);
+
+        let text_color = foreground_color_fn(store_path);
+        let correct_color = "#000000".to_string();
+        assert_eq!(text_color, correct_color);
+    }
+    #[test]
+    fn test_nix_name_filter() {
+        let store_path =
+            "/nix/store/4v0ykqdvvpgpw83ljfk32bzjl2bcblmk-nixos-system-hosts-p01-25.05pre-git";
+        let shortened_store_path = nix_name_fn(store_path);
+        let correct = "4v0ykqdvvp-hosts-p01-25.05".to_string();
+        assert_eq!(shortened_store_path.unwrap(), correct);
+
+        let store_path =
+            "/nix/store/z79zirq3imbn761fv32q1pnb2xkpp8ma-nixos-system-ceph-mon-p101-25.05pre-git";
+        let shortened_store_path = nix_name_fn(store_path);
+        let correct = "z79zirq3im-ceph-mon-p101-25.05".to_string();
+        assert_eq!(shortened_store_path.unwrap(), correct);
+    }
 }

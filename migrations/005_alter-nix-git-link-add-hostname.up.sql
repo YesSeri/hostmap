@@ -1,0 +1,1 @@
+ALTER TABLE nix_git_link ADD COLUMN hostname TEXT;

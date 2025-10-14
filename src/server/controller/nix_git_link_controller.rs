@@ -18,9 +18,7 @@ pub(crate) async fn create_links(
 #[axum::debug_handler]
 pub(crate) async fn create_link(
     State(ServerState {
-        tera,
         nix_git_link_service,
-        activation_log_service,
         ..
     }): State<ServerState>,
     Json(nix_git_link): Json<NixGitLinkDto>,

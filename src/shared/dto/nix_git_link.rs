@@ -4,10 +4,11 @@ use crate::shared::{dto::revision::RevisionDto, model::nix_git_link::NixGitLinkM
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
 pub struct NixGitLinkDto {
+    #[serde(rename = "store_path")]
     pub nix_store_path: String,
-    // pub commit_hash: String,
-    // pub branch: String,
+    #[serde(flatten)]
     pub revision: RevisionDto,
+    #[serde(rename = "created_at")]
     pub deployed_at: chrono::DateTime<chrono::Utc>,
 }
 impl From<NixGitLinkModel> for NixGitLinkDto {
