@@ -3,7 +3,9 @@
   <td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
   <td>{{ host.logs.store_path | default(value="no path available") | nix_name }}</td>
   <td>{{ host.logs.activated_at | default(value="no timestamp available")}}</td>
-  <td style="background-color: {{ host.logs.revision.commit_hash | default(value="unknown") | background_color }} ; color: {{ host.logs.revision.commit_hash | default(value="unknown") | foreground_color }};">{{ host.logs.revision.commit_hash | default(value="unknown") }}</td>
+  <td  style="text-align:right; background-color: {{ host.logs.revision.commit_hash | default(value='unknown') | background_color }};">
+    <span>{{ host.logs.revision.commit_hash | default(value="unknown") }}</span>
+  </td>
   <td>{{ host.logs.revision.branch | default(value="unknown") }}</td>
 
   {% for col in columns %}

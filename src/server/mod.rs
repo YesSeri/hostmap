@@ -179,7 +179,6 @@ fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     if let Ok(t) = tera.as_mut() {
         t.register_filter("nix_name", nix_name);
         t.register_filter("background_color", background_color);
-        t.register_filter("foreground_color", foreground_color);
     }
     tera
 }
@@ -196,38 +195,24 @@ fn nix_name_fn(s: &str) -> Option<String> {
     let (_, suffix) = rest.split_once("-nixos-system-")?;
     Some(format!("{}-{}", prefix.to_string(), suffix))
 }
+const BACKGROUND_COLORS: [&str; 22] = [
+    "#DDDDDD", "#FFFF00", "#FFCC00", "#FF9900", "#CCFF00", "#CCCC00", "#9999FF", "#FF55FF",
+    "#FF5555", "#53FFFF", "#CCFFFF", "#FFE680", "#FFD1DC", "#FFB3E6", "#E6B3FF", "#B3E6FF",
+    "#B3FFE6", "#D1FFB3", "#FFFFB3", "#FFCCFF", "#FFB3B3", "#FFF0B3",
+];
+
+fn background_color_fn(name: &str) -> String {
+    if (name == "unknown") {
+        "#FFFFFF".to_string()
+    } else {
+        let val = name.as_bytes().get(1).unwrap_or(&0);
+        BACKGROUND_COLORS[*val as usize % BACKGROUND_COLORS.len()].into()
+    }
+}
+
 fn background_color(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
     let s = try_get_value!("background_color", "value", String, value);
     Ok(Value::String(background_color_fn(&s)))
-}
-fn foreground_color(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
-    let s = try_get_value!("foreground_color", "value", String, value);
-    Ok(Value::String(foreground_color_fn(&s)))
-}
-
-fn calculate_hash(name: &str) -> u64 {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-
-    let mut hasher = DefaultHasher::new();
-    name.hash(&mut hasher);
-    hasher.finish() & 0xFFFFFF
-}
-fn background_color_fn(name: &str) -> String {
-    let hash = calculate_hash(name);
-    format!("#{:06x}", hash)
-}
-fn foreground_color_fn(name: &str) -> String {
-    let bg = calculate_hash(name);
-    let r = (bg >> 16) & 0xFF;
-    let g = (bg >> 8) & 0xFF;
-    let b = bg & 0xFF;
-    let sum = r + g + b;
-    if (sum / 3) > 128 {
-        "#000000".to_string()
-    } else {
-        "#FFFFFF".to_string()
-    }
 }
 
 #[cfg(test)]
@@ -240,10 +225,6 @@ mod tests {
         let background_color = background_color_fn(store_path);
         let correct_color = "#e57cee".to_string();
         assert_eq!(background_color, correct_color);
-
-        let text_color = foreground_color_fn(store_path);
-        let correct_color = "#000000".to_string();
-        assert_eq!(text_color, correct_color);
     }
     #[test]
     fn test_nix_name_filter() {
