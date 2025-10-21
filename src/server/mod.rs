@@ -223,7 +223,7 @@ mod tests {
         let store_path =
             "/nix/store/4v0ykqdvvpgpw83ljfk32bzjl2bcblmk-nixos-system-hosts-p01-25.05pre-git";
         let background_color = background_color_fn(store_path);
-        let correct_color = "#e57cee".to_string();
+        let correct_color = BACKGROUND_COLORS[0];
         assert_eq!(background_color, correct_color);
     }
     #[test]

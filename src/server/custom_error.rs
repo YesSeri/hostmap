@@ -29,3 +29,22 @@ pub(super) async fn fallback() -> impl IntoResponse {
         "Could not find the thing you were looking for.",
     )
 }
+
+// test
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_ret_error_db() {
+        let db_err = RetError::DbError(sqlx::Error::RowNotFound);
+        let response = db_err.into_response();
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    #[test]
+    fn test_ret_error_not_found() {
+        let not_found_err = RetError::NotFound;
+        let response = not_found_err.into_response();
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+}
