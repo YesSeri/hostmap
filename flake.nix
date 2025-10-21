@@ -153,7 +153,7 @@
                                             initdb -D $PGDATA &&
                                             echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf && pg_start && createdb
                                           }
-              			    pg_ctl -D .dev_postgres/data/ status && echo "Server already running" || pg_start
+              			    pg_ctl -D .dev_postgres/data/ status &> /dev/null && echo "Server already running" || pg_ctl -D $PGDATA -l $PG/postgres.log start
             '';
           };
       };
