@@ -36,6 +36,12 @@
     th {
       text-align: left;
     }
+    p {
+      max-width: 700px;
+    }
+    main, header {
+      margin: 0 8px;
+    }
   </style>
 </head>
 

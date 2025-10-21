@@ -11,7 +11,7 @@
   <h2>All hosts ungrouped</h2>
   <table cellpadding="5">
     <thead>
-			{% include "table_header.html.tera" %}
+      {% include "table_header.html.tera" %}
     </thead>
     <tbody>
       {% for host in frontpage_ctx.hosts %} 

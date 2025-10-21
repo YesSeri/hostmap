@@ -11,7 +11,8 @@
   <table cellpadding="0">
     {% for group_name, hosts in grouped_frontpage_ctx.groups %}
     <tr>
-      <td style="border: none">
+      <td style="border: none; padding: 0;" colspan="100">
+        <hr>
         <h2 style="margin-top: 0.2em; margin-bottom: 0.1em">
           {{ group_name }}
         </h2>
