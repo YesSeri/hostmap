@@ -55,9 +55,7 @@
   <footer style="padding-top: 1em">
     <hr>
     <ul>
-      <li>footer item 1</li>
-      <li>footer item 2</li>
-      <li>footer item 3</li>
+      <li><a href="https://github.com/YesSeri/hostmap">hostmap repo</a></li>
     </ul>
   </footer>
 </body>
