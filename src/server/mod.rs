@@ -99,11 +99,11 @@ fn create_protected_router(api_key: String) -> Router<ServerState> {
         )
         .route(
             endpoint::nix_git_link(),
-            get(controller::nix_git_link_controller::create_link),
+            post(controller::nix_git_link_controller::create_link),
         )
         .route(
             endpoint::nix_git_link_bulk(),
-            get(controller::nix_git_link_controller::create_links),
+            post(controller::nix_git_link_controller::create_links),
         )
         .layer(SetSensitiveRequestHeadersLayer::new(sensitive_headers))
         .layer(from_fn_with_state(api_key, api_authentication));
