@@ -22,7 +22,8 @@ impl NixGitLinkRepository {
                     .push_bind(&rec.revision.branch)
                     .push_bind(rec.linked_at);
             });
-            query_builder.push(" ON CONFLICT (store_path, commit_hash, branch) DO NOTHING");
+            query_builder
+                .push(" ON CONFLICT (store_path, commit_hash, branch, linked_at) DO NOTHING");
             let query = query_builder.build();
             let res = query.execute(&mut **tx).await?;
             i += res.rows_affected();
