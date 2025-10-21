@@ -143,7 +143,7 @@ async fn scrape_host(
     client: &Client,
 ) -> Result<Vec<NewActivation>, reqwest::Error> {
     let url_text = format!(
-        "http://{}/activationlog.csv",
+        "http://{}/hostmap/hostmap-activation-logs.csv",
         host.host_url.trim_end_matches('/')
     )
     .to_owned();
