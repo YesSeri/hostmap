@@ -7,8 +7,6 @@ use axum::{Json, extract::State};
 #[axum::debug_handler]
 pub(crate) async fn create_activation(
     State(ServerState {
-        tera,
-        host_service,
         activation_log_service,
         ..
     }): State<ServerState>,

@@ -78,7 +78,7 @@ async fn build_pool(database_url: String) -> Result<Pool<Postgres>, sqlx::Error>
 }
 
 fn create_public_router() -> Router<ServerState> {
-    let public_routes = Router::new()
+    Router::new()
         .route(
             endpoint::frontpage(),
             get(controller::frontpage::render_frontpage),
@@ -86,12 +86,12 @@ fn create_public_router() -> Router<ServerState> {
         .route(
             endpoint::history(),
             get(controller::history::render_history_page),
-        );
-    public_routes
+        )
 }
 fn create_protected_router(api_key: String) -> Router<ServerState> {
     let sensitive_headers: Vec<header::HeaderName> = vec![header::AUTHORIZATION];
-    let protected_routes = Router::new()
+
+    Router::new()
         .route(endpoint::hosts_bulk(), post(host_controller::create_hosts))
         .route(
             endpoint::activations_bulk(),
@@ -106,8 +106,7 @@ fn create_protected_router(api_key: String) -> Router<ServerState> {
             post(controller::nix_git_link_controller::create_links),
         )
         .layer(SetSensitiveRequestHeadersLayer::new(sensitive_headers))
-        .layer(from_fn_with_state(api_key, api_authentication));
-    protected_routes
+        .layer(from_fn_with_state(api_key, api_authentication))
 }
 
 pub async fn run(
@@ -193,7 +192,7 @@ fn nix_name_fn(s: &str) -> Option<String> {
     let s = s.strip_prefix("/nix/store/")?.strip_suffix("pre-git")?;
     let (prefix, rest) = s.split_at(10);
     let (_, suffix) = rest.split_once("-nixos-system-")?;
-    Some(format!("{}-{}", prefix.to_string(), suffix))
+    Some(format!("{}-{}", prefix, suffix))
 }
 const BACKGROUND_COLORS: [&str; 22] = [
     "#DDDDDD", "#FFFF00", "#FFCC00", "#FF9900", "#CCFF00", "#CCCC00", "#9999FF", "#FF55FF",
@@ -202,7 +201,7 @@ const BACKGROUND_COLORS: [&str; 22] = [
 ];
 
 fn background_color_fn(name: &str) -> String {
-    if (name == "unknown") {
+    if name == "unknown" {
         "#FFFFFF".to_string()
     } else {
         let val = name.as_bytes().get(1).unwrap_or(&0);

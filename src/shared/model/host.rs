@@ -16,7 +16,7 @@ impl From<CurrentHostDto> for HostModel {
             hostname,
             host_url,
             metadata,
-            logs,
+            ..
         }: CurrentHostDto,
     ) -> Self {
         Self {

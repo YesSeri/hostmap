@@ -1,10 +1,3 @@
-// allow most linter things for now in development
-// dont care about clippy
-#![allow(unused_variables)]
-#![allow(unused_mut)]
-#![allow(unused_parens)]
-#![allow(unused_must_use)]
-
 mod cli;
 pub(crate) mod scraper;
 pub(crate) mod server;
@@ -26,9 +19,7 @@ fn setup_logging() {
 }
 fn read_api_key(path: PathBuf) -> String {
     std::fs::read_to_string(&path)
-        .expect(&format!(
-            "Could not read api_key from api_key_file {path:?}"
-        ))
+        .unwrap_or_else(|_| panic!("Could not read api_key from api_key_file {path:?}"))
         .trim()
         .to_owned()
 }
