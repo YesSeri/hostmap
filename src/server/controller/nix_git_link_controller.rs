@@ -16,7 +16,6 @@ pub(crate) async fn create_links(
     );
     let i = nix_git_link_service.create_many(nix_git_link).await?;
     tracing::info!("inserted {i} relationships between nix and git");
-    tracing::debug!("bulk inserted {i} nix git links");
     Ok((StatusCode::CREATED, format!("{i} links created")))
 }
 

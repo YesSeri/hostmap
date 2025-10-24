@@ -15,7 +15,6 @@
       padding: 0.5em;
     }
     td {
-      border: 1px solid black;
     }
     @media (prefers-color-scheme: dark) {
       html {
@@ -30,7 +29,7 @@
 
     th,
     td {
-      padding: 8px;
+      padding: 5px;
     }
 
     th {

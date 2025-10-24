@@ -22,7 +22,7 @@
     {% include "table_header.html.tera" %} {% for host in hosts %} {% include
     "host.html.tera" %} {% endfor %} {% endfor %}
   </table>
-  <h4>Total groups: {{ grouped_frontpage_ctx.total_groups }}</h4>
-  <h4>Total hosts: {{ grouped_frontpage_ctx.total_hosts }}</h4>
+  <h3>Total hosts: {{ grouped_frontpage_ctx.total_hosts }}</h3>
+  <h3>Total groups: {{ grouped_frontpage_ctx.total_groups }}</h3>
 </main>
 {% endblock %}
