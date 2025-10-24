@@ -6,6 +6,6 @@
   {% endfor %}
   <th>store path</th>
   <th>time</th>
-  <th>git commit hash</th>
+  <th>revision</th>
   <th>branch</th>
 </tr>
