@@ -1,15 +1,14 @@
 <tr>
   <td><a href="/{{ host.hostname }}">{{ host.hostname }}</a></td>
-  <td><a href="http://{{ host.host_url }}">{{ host.host_url }}</a></td>
   {% for col in columns %}
-    <td>{{host.metadata[col] | default(value="unknown") }}</td>
+    <td>{{host.metadata[col] | default(value="N/A") }}</td>
   {% endfor %}
-  <td>{{ host.logs.store_path | default(value="no path available") | nix_name }}</td>
+  <td>{{ host.logs.store_path | default(value="N/A") | nix_name }}</td>
   <td>{{ host.logs.activated_at | default(value="no timestamp available")}}</td>
-  {% set bg_color = (host.logs.revision.commit_hash | default(value="unknown") | background_color) %}
+  {% set commit_hash = (host.logs.revision.commit_hash | default(value="N/A")) %}
+  {% set bg_color =  color_map[commit_hash] | default(value="#FFFFFF") %}
   <td style="background-color: {{ bg_color }}; text-align: right;">
-    <span>{{ host.logs.revision.commit_hash | default(value="N/A") }}</span>
+    <a style="color: black;" href="https://gitlab.dbc.dk/platform/deployments/commit/{{ commit_hash }}">{{ commit_hash }}</a>
   </td>
-  <td>{{ host.logs.revision.branch | default(value="unknown") }}</td>
-
+  <td>{{ host.logs.revision.branch | default(value="N/A") }}</td>
 </tr>

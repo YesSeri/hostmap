@@ -13,7 +13,7 @@
     <tr>
       <td style="border: none; padding: 0;" colspan="100">
         <hr>
-        <h2 style="margin-top: 0.2em; margin-bottom: 0.1em">
+        <h2 style="margin-top: 0.2em; margin-bottom: 0.1em; text-align:center;">
           {{ group_name }}
         </h2>
       </td>

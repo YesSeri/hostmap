@@ -17,8 +17,8 @@ impl From<ActivationWithRevision> for RevisionModel {
             ..
         }: ActivationWithRevision,
     ) -> Self {
-        let commit_hash = commit_hash.unwrap_or("Commit id unknown".to_owned());
-        let branch = branch.unwrap_or("Unknown branch".to_owned());
+        let commit_hash = commit_hash.unwrap_or("N/A".to_owned());
+        let branch = branch.unwrap_or("N/A".to_owned());
         Self {
             commit_hash,
             branch,

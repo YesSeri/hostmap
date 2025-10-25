@@ -44,7 +44,7 @@
   </style>
 </head>
 
-<body style="margin: auto;">
+<body style="width: fit-content;margin: auto;">
   <header>
     <h1><a href="/">hostmap</a> | {{ title }}</h1>
   </header>

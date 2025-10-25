@@ -1,6 +1,5 @@
 <tr>
   <th>host</th>
-  <th>url</th>
   {% for col in columns %}
   <th>{{ col }}</th>
   {% endfor %}

@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 
+use std::collections::HashMap;
+
 use crate::{
     server::{ServerState, custom_error::RetError},
     shared::dto::host::CurrentHostDto,
@@ -62,11 +64,24 @@ async fn render_frontpage_all_hosts(
         .into_iter()
         .map(|hwl| CurrentHostDto::from((hwl.host, hwl.logs)))
         .collect::<Vec<CurrentHostDto>>();
+
+    let commit_hashes: Vec<String> = hosts
+        .iter()
+        .filter_map(|h| {
+            h.logs
+                .as_ref()
+                .and_then(|l| l.revision.as_ref())
+                .map(|r| r.commit_hash.clone())
+        })
+        .collect();
+
+    let color_map = build_color_map_for_hashes(commit_hashes);
     let fp_ctx = FrontPageContext::new(hosts);
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
     ctx.insert("columns", &server_config.columns);
+    ctx.insert("color_map", &color_map);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
     Ok(Html(output))
@@ -121,14 +136,46 @@ async fn render_frontpage_by_group(
             .or_default()
             .push(current_host_dto);
     }
+    let commit_hashes: Vec<String> = grouped_hosts
+        .values()
+        .flatten()
+        .filter_map(|h| {
+            h.logs
+                .as_ref()
+                .and_then(|l| l.revision.as_ref())
+                .map(|r| r.commit_hash.clone())
+        })
+        .collect();
+
+    let color_map = build_color_map_for_hashes(commit_hashes);
 
     let fp_ctx = FrontpageGroupedContext::new(grouped_hosts);
     let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("grouped_frontpage_ctx", &fp_ctx);
     ctx.insert("columns", &server_config.columns);
+    ctx.insert("color_map", &color_map);
 
     Ok(Html(
         tera.render("grouped_frontpage.html.tera", &ctx).unwrap(),
     ))
+}
+
+const BACKGROUND_COLORS: [&str; 11] = [
+    "#C0C0C0", "#FFFF00", "#FFCC00", "#FF9900", "#CCFF00", "#CCCC00", "#CC99FF", "#FF00FF",
+    "#FF0000", "#33FFFF", "#CCFFFF",
+];
+fn build_color_map_for_hashes(hashes: Vec<String>) -> HashMap<String, String> {
+    let mut color_map: HashMap<String, String> = HashMap::new();
+    let mut next_idx = 0usize;
+    let colors_len = BACKGROUND_COLORS.len();
+
+    for h in hashes {
+        if !color_map.contains_key(&h) {
+            let color = BACKGROUND_COLORS[next_idx % colors_len].to_string();
+            color_map.insert(h.to_owned(), color);
+            next_idx += 1;
+        }
+    }
+    color_map
 }

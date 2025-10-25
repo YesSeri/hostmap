@@ -177,16 +177,13 @@ fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     let mut tera = Tera::new(&tera_pattern);
     if let Ok(t) = tera.as_mut() {
         t.register_filter("nix_name", nix_name);
-        t.register_filter("background_color", background_color);
     }
     tera
 }
 
 fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
     let s = try_get_value!("nix_name", "value", String, value);
-    Ok(Value::String(
-        nix_name_fn(&s).unwrap_or("unknown_path".into()),
-    ))
+    Ok(Value::String(nix_name_fn(&s).unwrap_or("N/A".into())))
 }
 fn nix_name_fn(s: &str) -> Option<String> {
     let s = s.strip_prefix("/nix/store/")?.strip_suffix("pre-git")?;
@@ -194,37 +191,10 @@ fn nix_name_fn(s: &str) -> Option<String> {
     let (_, suffix) = rest.split_once("-nixos-system-")?;
     Some(format!("{}-{}", prefix, suffix))
 }
-const BACKGROUND_COLORS: [&str; 22] = [
-    "#DDDDDD", "#FFFF00", "#FFCC00", "#FF9900", "#CCFF00", "#CCCC00", "#9999FF", "#FF55FF",
-    "#FF5555", "#53FFFF", "#CCFFFF", "#FFE680", "#FFD1DC", "#FFB3E6", "#E6B3FF", "#B3E6FF",
-    "#B3FFE6", "#D1FFB3", "#FFFFB3", "#FFCCFF", "#FFB3B3", "#FFF0B3",
-];
-
-fn background_color_fn(name: &str) -> String {
-    if name == "unknown" {
-        "#FFFFFF".to_string()
-    } else {
-        let val = name.as_bytes().get(1).unwrap_or(&0);
-        BACKGROUND_COLORS[*val as usize % BACKGROUND_COLORS.len()].into()
-    }
-}
-
-fn background_color(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
-    let s = try_get_value!("background_color", "value", String, value);
-    Ok(Value::String(background_color_fn(&s)))
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn test_color_filters() {
-        let store_path =
-            "/nix/store/4v0ykqdvvpgpw83ljfk32bzjl2bcblmk-nixos-system-hosts-p01-25.05pre-git";
-        let background_color = background_color_fn(store_path);
-        let correct_color = "#DDDDDD";
-        assert_eq!(background_color, correct_color);
-    }
     #[test]
     fn test_nix_name_filter() {
         let store_path =
