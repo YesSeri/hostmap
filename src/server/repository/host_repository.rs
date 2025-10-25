@@ -47,7 +47,6 @@ impl HostRepository {
         pool: &Pool<Postgres>,
         hostname: String,
     ) -> Result<Option<HostModel>, RetError> {
-        dbg!("fetching host from db with name: {:?}", &hostname);
         let result = sqlx::query!(
             r#"
             SELECT hostname, host_url, metadata FROM host
@@ -66,7 +65,6 @@ impl HostRepository {
         })
         .fetch_optional(pool)
         .await?;
-        dbg!(&result);
 
         Ok(result)
     }
