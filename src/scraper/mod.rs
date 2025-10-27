@@ -1,4 +1,5 @@
-use std::{error, path::PathBuf};
+use futures::future::join_all;
+use std::{error, path::PathBuf, time::Duration};
 
 use crate::{
     server::endpoint,
@@ -12,14 +13,67 @@ use crate::{
 };
 use reqwest::{Client, Url, header};
 
+pub async fn scrape_hosts_batched(
+    hosts: &[CurrentHostDto],
+    client: &Client,
+    base_url: &str,
+    concurrent_requests: usize,
+    scrape_interval: u64,
+) -> Result<(), reqwest::Error> {
+    let interval = Duration::from_secs(scrape_interval);
+    let mut ticker = tokio::time::interval(interval);
+    ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Burst);
+    ticker.tick().await;
+
+    tracing::debug!("running scraper from start");
+    for (batch_idx, batch) in hosts.chunks(concurrent_requests).enumerate() {
+        ticker.tick().await;
+
+        let futs = batch.iter().map(|host| {
+            let client = client.clone();
+            let base_url = base_url.to_string();
+            let hostname = host.hostname.clone();
+            async move {
+                let res = async {
+                    let new_activations = scrape_host(host, &client).await?;
+                    let res_text =
+                        insert_activations(host, new_activations, &client, &base_url).await?;
+                    tracing::debug!(response_text=%res_text, request_host=%host.hostname);
+                    Ok::<(), reqwest::Error>(())
+                }
+                .await;
+                (hostname, res)
+            }
+        });
+
+        let results = join_all(futs).await;
+        let mut ok = 0;
+        let mut fail = 0;
+
+        for (host_id, res) in results {
+            match res {
+                Ok(()) => ok += 1,
+                Err(e) => {
+                    fail += 1;
+                    tracing::warn!(host=%host_id, "scrape/post failed: {e}");
+                }
+            }
+        }
+        tracing::info!("batch {} complete: ok={}, fail={}", batch_idx, ok, fail);
+    }
+
+    Ok(())
+}
+
 pub async fn run(
     hosts_file: PathBuf,
     scrape_interval: u64,
     url: &str,
     api_key: String,
+    concurrent_requests: usize,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     tracing::info!(
-        "Starting scraper with file: {:?} and interval: {}",
+        "Starting scraper with file: {:?} and interval: {} and concurrent requests {concurrent_requests}",
         hosts_file,
         scrape_interval
     );
@@ -35,13 +89,19 @@ pub async fn run(
         .build()?;
     insert_hosts(&create_host_dtos, &client, url).await?;
     loop {
-        tracing::info!("running background scraper");
+        tracing::info!(
+            "running background scraper for {} hosts",
+            create_host_dtos.len()
+        );
         let create_host_dtos = create_host_dtos.clone();
-        scrape_hosts(&create_host_dtos, scrape_interval, &client, url)
-            .await
-            .unwrap_or_else(|err| {
-                tracing::info!("scraping failed due to {err:?}");
-            });
+        scrape_hosts_batched(
+            &create_host_dtos,
+            &client,
+            url,
+            concurrent_requests,
+            scrape_interval,
+        )
+        .await?;
     }
 }
 
@@ -99,43 +159,28 @@ pub(crate) async fn insert_hosts(
     Ok(())
 }
 
-pub async fn scrape_hosts(
-    hosts: &[CurrentHostDto],
-    timeout: u64,
+async fn insert_activations(
+    host: &CurrentHostDto,
+    activation_models: Vec<NewActivation>,
     client: &Client,
     url: &str,
-) -> Result<(), reqwest::Error> {
-    tracing::debug!("running scraper from start");
-    for host in hosts.iter() {
-        if let Err(e) = async {
-            let new_activations = scrape_host(host, client).await?;
-            let dtos: Vec<ActivationDto> = new_activations
-                .into_iter()
-                .map(ActivationDto::from)
-                .collect();
+) -> Result<String, reqwest::Error> {
+    let activation_dtos: Vec<ActivationDto> = activation_models
+        .into_iter()
+        .map(ActivationDto::from)
+        .collect();
+    let body = HostWithLogsDto {
+        hostname: host.hostname.clone(),
+        host_url: host.host_url.clone(),
+        logs: activation_dtos,
+        metadata: host.metadata.clone(),
+    };
 
-            let body = HostWithLogsDto {
-                hostname: host.hostname.clone(),
-                host_url: host.host_url.clone(),
-                logs: dtos,
-                metadata: host.metadata.clone(),
-            };
-
-            let url = format!("{}{}", url, endpoint::activations_bulk());
-            let res = client.post(url).json(&body).send().await?;
-            res.error_for_status_ref()?;
-            let res_text = res.text().await?;
-
-            tracing::debug!(response_text=%res_text, request_host=%host.hostname);
-            Ok::<(), reqwest::Error>(())
-        }
-        .await
-        {
-            tracing::warn!("scrape/post failed: {} when scraping host: {:?}", e, host);
-        }
-        tokio::time::sleep(std::time::Duration::from_secs(timeout)).await;
-    }
-    Ok(())
+    let url = format!("{}{}", url, endpoint::activations_bulk());
+    let res = client.post(url).json(&body).send().await?;
+    res.error_for_status_ref()?;
+    let res_text = res.text().await?;
+    Ok(res_text)
 }
 
 async fn scrape_host(

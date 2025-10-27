@@ -22,6 +22,7 @@ thiserror = "2.0.16"
 clap = { version = "4.5.48", default-features = false, features = [ "derive", "help", "usage", "suggestions", "error-context", "std" ] }
 tower = "0.5.2"
 subtle = "2.6.1"
+futures = "0.3.31"
 
 # [profile.release] # When compiling in release mode
 # # https://ospfranco.com/rust-reduce-binary-size/

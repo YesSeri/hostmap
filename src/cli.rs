@@ -35,8 +35,14 @@ pub(crate) enum Commands {
     Scraper {
         #[arg(long)]
         hosts_file: PathBuf,
-        #[arg(long)]
+        #[arg(long, help = "wait time in between requests")]
         scrape_interval: u64,
+        #[arg(
+            long,
+            default_value_t = 4,
+            help = "number of requests being sent each <scrape_interval> + latency from slowest"
+        )]
+        concurrent_requests: usize,
         #[arg(
             long,
             help = "File with api key used for communication between scraper and CI server with mappings to server"
