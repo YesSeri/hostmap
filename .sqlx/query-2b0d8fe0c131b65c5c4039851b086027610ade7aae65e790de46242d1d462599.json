@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            WITH best_nix_git_link AS (\n              SELECT DISTINCT ON (n.store_path)\n                     n.store_path,\n                     n.commit_hash,\n                     n.branch\n              FROM nix_git_link n\n              ORDER BY n.store_path, (n.branch = 'master') DESC, n.linked_at ASC NULLS LAST\n            )\n            SELECT a.activation_id, a.activated_at, a.username, a.hostname, a.store_path, a.activation_type, b.commit_hash AS \"commit_hash?\", b.branch AS \"branch?\"\n            FROM activation a\n            LEFT JOIN best_nix_git_link b\n              ON b.store_path = a.store_path\n            WHERE a.hostname = $1\n            ORDER BY a.activated_at DESC\n            ",
+  "query": "\nWITH wanted AS (\n  SELECT DISTINCT a.store_path\n  FROM activation a\n  WHERE a.hostname = $1\n),\nbest AS (\n  SELECT DISTINCT ON (n.store_path)\n         n.store_path, n.commit_hash, n.branch\n  FROM nix_git_link n\n  JOIN wanted w ON w.store_path = n.store_path\n  ORDER BY n.store_path, (n.branch='master') DESC, n.linked_at ASC NULLS LAST\n)\nSELECT a.activation_id, a.activated_at, a.username, a.hostname, a.store_path,\n       a.activation_type, b.commit_hash AS \"commit_hash?\", b.branch AS \"branch?\"\nFROM activation a\nLEFT JOIN best b ON b.store_path = a.store_path\nWHERE a.hostname = $1\nORDER BY a.activated_at DESC;\n            ",
   "describe": {
     "columns": [
       {
@@ -60,5 +60,5 @@
       false
     ]
   },
-  "hash": "08adaac23013998827038d3aaa5a1696c555ef107012386a8d25890c9999250e"
+  "hash": "2b0d8fe0c131b65c5c4039851b086027610ade7aae65e790de46242d1d462599"
 }

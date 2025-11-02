@@ -40,20 +40,24 @@ impl ActivationRepository {
         let rows = sqlx::query_as!(
             ActivationWithRevision,
             r#"
-            WITH best_nix_git_link AS (
-              SELECT DISTINCT ON (n.store_path)
-                     n.store_path,
-                     n.commit_hash,
-                     n.branch
-              FROM nix_git_link n
-              ORDER BY n.store_path, (n.branch = 'master') DESC, n.linked_at ASC NULLS LAST
-            )
-            SELECT a.activation_id, a.activated_at, a.username, a.hostname, a.store_path, a.activation_type, b.commit_hash AS "commit_hash?", b.branch AS "branch?"
-            FROM activation a
-            LEFT JOIN best_nix_git_link b
-              ON b.store_path = a.store_path
-            WHERE a.hostname = $1
-            ORDER BY a.activated_at DESC
+WITH wanted AS (
+  SELECT DISTINCT a.store_path
+  FROM activation a
+  WHERE a.hostname = $1
+),
+best AS (
+  SELECT DISTINCT ON (n.store_path)
+         n.store_path, n.commit_hash, n.branch
+  FROM nix_git_link n
+  JOIN wanted w ON w.store_path = n.store_path
+  ORDER BY n.store_path, (n.branch='master') DESC, n.linked_at ASC NULLS LAST
+)
+SELECT a.activation_id, a.activated_at, a.username, a.hostname, a.store_path,
+       a.activation_type, b.commit_hash AS "commit_hash?", b.branch AS "branch?"
+FROM activation a
+LEFT JOIN best b ON b.store_path = a.store_path
+WHERE a.hostname = $1
+ORDER BY a.activated_at DESC;
             "#,
             hostname
         )

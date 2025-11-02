@@ -135,7 +135,7 @@
                                           ${preCommitHook} 
                             	      
                                           export HOSTMAP_TEMPLATES_DIR='./templates'
-                            	      export RUST_LOG='info,hostmap=debug'
+                            	          export RUST_LOG='info,hostmap=debug'
 
                                           export PG=$PWD/.dev_postgres
                                           export PGDATA=$PG/data
@@ -143,7 +143,8 @@
                                           export PGHOST=localhost
                                           export PGUSER=$USER
                                           export PGPASSWORD=postgres
-                                          export PGDATABASE=hostmap-dev
+                                          #export PGDATABASE=hostmap-dev
+                                          export PGDATABASE=hostmap_restore
                                           export DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
                                           alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
                                           alias pg_stop="pg_ctl -D $PGDATA stop"

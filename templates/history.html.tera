@@ -31,7 +31,7 @@
     <th>branch </th>
   </tr>
   {% for entry in logs %}
-  <tr style="font-family: monospace">
+  <tr>
     <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
     <td>{{ entry.username }}</td>
     <td>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
