@@ -39,7 +39,7 @@ pub(crate) enum Commands {
         scrape_interval: u64,
         #[arg(
             long,
-            default_value_t = 4,
+            default_value_t = 8,
             help = "number of requests being sent each <scrape_interval> + latency from slowest"
         )]
         concurrent_requests: usize,
