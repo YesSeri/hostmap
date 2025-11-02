@@ -110,6 +110,7 @@
             packages = [
               pkg-config
               openssl
+              just
             ];
             buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
             inputsFrom = [ self.defaultPackage.${system} ];
