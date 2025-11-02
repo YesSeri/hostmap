@@ -1,24 +1,35 @@
 {% extends "base.html.tera" %} {% block content %}
-<h2>metadata</h2>
-<dl>
-  <dt style="font-weight: bold">key</dt>
-  <dd style="font-weight: bold">value</dd>
+<aside>
+<table>
+ <caption>
+    <h3>
+    metadata
+    </h3>
+  </caption>
+  <tr style="border-top: solid 1px #888;">
+  <th style='border-right: solid 1px #888'>key</th>
+  <th style="">value</th>
+  </tr>
   {% for k,v in history_ctx.host.metadata %}
-  <dt>{{ k }}</dt>
+  <tr>
+  <td style='border-right: solid 1px #888'>{{ k }}</td>
   {% if v is string or v is number %}
-  <dd>{{ v }}</dd>
+  <td>{{ v }}</td>
   {% else %}
-  <dd>{{ v | json_encode(pretty=true) }}</dd>
+  <td>{{ v | json_encode(pretty=true) }}</td>
   {% endif %}
+  </tr>
   {% endfor %}
-</dl>
+</table>
+</aside>
 
 <h2>activation logs</h2>
 <table>
   {% for tuple in history_ctx.activations_by_date | reverse %} {% set date = tuple.0 %} {% set logs = tuple.1 %}
 
   <tr>
-    <th colspan="5">
+    <th colspan="6">
+      <hr>
       <h3>{{ date }}</h3>
     </th>
   </tr>
@@ -28,7 +39,7 @@
     <th>system</th>
     <th>action</th>
     <th>commit hash</th>
-    <th>branch </th>
+    <th>branch</th>
   </tr>
   {% for entry in logs %}
   <tr>
