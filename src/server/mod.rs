@@ -183,7 +183,7 @@ fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
 
 fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
     let s = try_get_value!("nix_name", "value", String, value);
-    Ok(Value::String(nix_name_fn(&s).unwrap_or("N/A".into())))
+    Ok(Value::String(nix_name_fn(&s).unwrap_or(s)))
 }
 fn nix_name_fn(s: &str) -> Option<String> {
     let s = s.strip_prefix("/nix/store/")?.strip_suffix("pre-git")?;

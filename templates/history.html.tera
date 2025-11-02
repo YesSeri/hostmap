@@ -23,19 +23,24 @@
     </th>
   </tr>
   <tr>
-    <th>Time</th>
-    <th>User</th>
-    <th>System</th>
-    <th>Action</th>
-    <th>Git Ref</th>
+    <th>time</th>
+    <th>user</th>
+    <th>system</th>
+    <th>action</th>
+    <th>commit hash</th>
+    <th>branch </th>
   </tr>
   {% for entry in logs %}
   <tr style="font-family: monospace">
     <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
     <td>{{ entry.username }}</td>
-    <td>{{ entry.store_path | nix_name }}</td>
+    <td>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
     <td>{{ entry.activation_type }}</td>
-    <td>{{ entry.rev_id | default(value="unknown") }}</td>
+    <td>
+      {% set commit_hash = (entry.revision.commit_hash | default(value="unknown")) %}
+      <a href="https://gitlab.dbc.dk/platform/deployments/commit/{{ commit_hash }}">{{ commit_hash }}</a>
+    </td>
+    <td>{{ entry.revision.branch | default(value="unknown") }}</td>
   </tr>
   {% endfor %} {% endfor %}
 </table>

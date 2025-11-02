@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        select activation_id, activated_at, username, hostname,\n            store_path, activation_type, (SELECT NULL) as commit_hash, (SELECT NULL) as branch\n        from activation where hostname = $1\n        order by activated_at desc\n        ",
+  "query": "\n            WITH best_nix_git_link AS (\n              SELECT DISTINCT ON (n.store_path)\n                     n.store_path,\n                     n.commit_hash,\n                     n.branch\n              FROM nix_git_link n\n              ORDER BY n.store_path, (n.branch = 'master') DESC, n.linked_at ASC NULLS LAST\n            )\n            SELECT a.activation_id, a.activated_at, a.username, a.hostname, a.store_path, a.activation_type, b.commit_hash AS \"commit_hash?\", b.branch AS \"branch?\"\n            FROM activation a\n            LEFT JOIN best_nix_git_link b\n              ON b.store_path = a.store_path\n            WHERE a.hostname = $1\n            ORDER BY a.activated_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -35,12 +35,12 @@
       },
       {
         "ordinal": 6,
-        "name": "commit_hash",
+        "name": "commit_hash?",
         "type_info": "Text"
       },
       {
         "ordinal": 7,
-        "name": "branch",
+        "name": "branch?",
         "type_info": "Text"
       }
     ],
@@ -56,9 +56,9 @@
       false,
       false,
       false,
-      null,
-      null
+      false,
+      false
     ]
   },
-  "hash": "6e8aba7e2c97d4952eda5053e14b11fe92b0349c739a110556f5a7e15f13fd5f"
+  "hash": "08adaac23013998827038d3aaa5a1696c555ef107012386a8d25890c9999250e"
 }

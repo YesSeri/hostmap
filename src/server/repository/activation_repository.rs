@@ -33,25 +33,33 @@ impl ActivationRepository {
         }
         Ok(i)
     }
-
     pub async fn get_logs_by_hostname(
         pool: &Pool<Postgres>,
         hostname: &str,
     ) -> sqlx::Result<Vec<ActivationWithRevision>> {
-        let log_with_revision = sqlx::query_as!(
+        let rows = sqlx::query_as!(
             ActivationWithRevision,
             r#"
-        select activation_id, activated_at, username, hostname,
-            store_path, activation_type, (SELECT NULL) as commit_hash, (SELECT NULL) as branch
-        from activation where hostname = $1
-        order by activated_at desc
-        "#,
+            WITH best_nix_git_link AS (
+              SELECT DISTINCT ON (n.store_path)
+                     n.store_path,
+                     n.commit_hash,
+                     n.branch
+              FROM nix_git_link n
+              ORDER BY n.store_path, (n.branch = 'master') DESC, n.linked_at ASC NULLS LAST
+            )
+            SELECT a.activation_id, a.activated_at, a.username, a.hostname, a.store_path, a.activation_type, b.commit_hash AS "commit_hash?", b.branch AS "branch?"
+            FROM activation a
+            LEFT JOIN best_nix_git_link b
+              ON b.store_path = a.store_path
+            WHERE a.hostname = $1
+            ORDER BY a.activated_at DESC
+            "#,
             hostname
         )
         .fetch_all(pool)
         .await?;
-        let log_models = log_with_revision.into_iter().collect();
 
-        Ok(log_models)
+        Ok(rows)
     }
 }
