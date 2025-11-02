@@ -19,6 +19,7 @@ pub async fn scrape_hosts_batched(
     base_url: &str,
     concurrent_requests: usize,
     scrape_interval: u64,
+    activation_logger_port: usize,
 ) -> Result<(), reqwest::Error> {
     let interval = Duration::from_secs(scrape_interval);
     let mut ticker = tokio::time::interval(interval);
@@ -35,7 +36,8 @@ pub async fn scrape_hosts_batched(
             let hostname = host.hostname.clone();
             async move {
                 let res = async {
-                    let new_activations = scrape_host(host, &client).await?;
+                    let new_activations =
+                        scrape_host(host, &client, activation_logger_port).await?;
                     let res_text =
                         insert_activations(host, new_activations, &client, &base_url).await?;
                     tracing::debug!(response_text=%res_text, request_host=%host.hostname);
@@ -71,6 +73,7 @@ pub async fn run(
     url: &str,
     api_key: String,
     concurrent_requests: usize,
+    activation_logger_port: usize,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     tracing::info!(
         "Starting scraper with file: {:?} and interval: {} and concurrent requests {concurrent_requests}",
@@ -100,6 +103,7 @@ pub async fn run(
             url,
             concurrent_requests,
             scrape_interval,
+            activation_logger_port,
         )
         .await?;
     }
@@ -186,12 +190,16 @@ async fn insert_activations(
 async fn scrape_host(
     host: &CurrentHostDto,
     client: &Client,
+    activation_logger_port: usize,
 ) -> Result<Vec<NewActivation>, reqwest::Error> {
     let url_text = format!(
-        "http://{}/hostmap/hostmap-activation-logs.csv",
-        host.host_url.trim_end_matches('/')
+        "http://{}:{}/hostmap/hostmap-activation-logs.csv",
+        host.host_url.trim_end_matches('/'),
+        activation_logger_port,
     )
     .to_owned();
+
+    tracing::debug!("scraping url: {}", url_text);
     let url = Url::parse(&url_text).expect("could not parse url");
     let recs = fetch_activationlog(&url, client).await?;
     // let host_model: HostModel = host.clone().into();

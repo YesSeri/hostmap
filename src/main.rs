@@ -54,6 +54,7 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
             url,
             api_key_file,
             concurrent_requests,
+            activation_logger_port,
         } => {
             let api_key = read_api_key(api_key_file);
             scraper::run(
@@ -62,6 +63,7 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
                 &url,
                 api_key,
                 concurrent_requests,
+                activation_logger_port,
             )
             .await?;
         }

@@ -43,6 +43,8 @@ pub(crate) enum Commands {
             help = "number of requests being sent each <scrape_interval> + latency from slowest"
         )]
         concurrent_requests: usize,
+        #[arg(long, help = "port that activation logger nginx proxy runs on")]
+        activation_logger_port: usize,
         #[arg(
             long,
             help = "File with api key used for communication between scraper and CI server with mappings to server"
