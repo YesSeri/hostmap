@@ -1,3 +1,4 @@
+pub(crate) mod activation_logger;
 mod cli;
 pub(crate) mod scraper;
 pub(crate) mod server;
@@ -29,6 +30,12 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
     setup_logging();
     let cli = Cli::parse();
     match cli.command {
+        Commands::ActivationLogger {
+            url_path,
+            log_file_path,
+            server_ip,
+            server_port,
+        } => activation_logger::run(&url_path, log_file_path, &server_ip, server_port).await,
         Commands::Server {
             database_url,
             default_grouping_key,

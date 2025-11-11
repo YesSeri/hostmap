@@ -149,7 +149,6 @@ pub async fn run(
         .with_state(server_state);
 
     let bind_addr = format!("{}:{}", url, port);
-    tracing::info!("Starting server at {}", &bind_addr);
     let listener = tokio::net::TcpListener::bind(&bind_addr)
         .await
         .unwrap_or_else(|_| {
@@ -159,7 +158,7 @@ pub async fn run(
             )
         });
 
-    tracing::info!("Creating server at http://{}", &bind_addr);
+    tracing::info!("Starting server at http://{}", &bind_addr);
 
     axum::serve(listener, router.into_make_service())
         .with_graceful_shutdown(async {

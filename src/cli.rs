@@ -12,6 +12,24 @@ pub(crate) struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub(crate) enum Commands {
+    ActivationLogger {
+        #[arg(long, help = "Path to the log file where activations will be stored")]
+        log_file_path: PathBuf,
+
+        #[arg(long, help = "URL path to the endpoint that receives activation logs")]
+        url_path: String,
+
+        #[arg(
+            long,
+            default_value = "0.0.0.0",
+            help = "IP address of the server to bind to (default: 0.0.0.0)"
+        )]
+        server_ip: String,
+
+        #[arg(long, help = "Port of the server to bind to")]
+        server_port: usize,
+    },
+
     Server {
         #[arg(long, help = "The database URL to connect to")]
         database_url: String,
