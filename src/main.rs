@@ -11,12 +11,14 @@ use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberI
 
 use crate::cli::{Cli, Commands};
 
-fn setup_logging() {
+fn setup_logging() -> EnvFilter {
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+
     tracing_subscriber::registry()
-        .with(filter)
+        .with(filter.clone())
         .with(fmt::layer())
         .init();
+    filter
 }
 fn read_api_key(path: PathBuf) -> String {
     std::fs::read_to_string(&path)
@@ -27,15 +29,16 @@ fn read_api_key(path: PathBuf) -> String {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
-    setup_logging();
+    let filter = setup_logging();
+    tracing::info!("Log level set to: {}", filter);
     let cli = Cli::parse();
     match cli.command {
         Commands::ActivationLogger {
             url_path,
-            log_file_path,
+            activation_log_file,
             server_ip,
             server_port,
-        } => activation_logger::run(&url_path, log_file_path, &server_ip, server_port).await,
+        } => activation_logger::run(&url_path, activation_log_file, &server_ip, server_port).await,
         Commands::Server {
             database_url,
             default_grouping_key,

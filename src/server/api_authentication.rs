@@ -19,7 +19,11 @@ pub async fn api_authentication(
             Ok(response)
         }
         _ => {
-            tracing::warn!("unauthorized request, missing or invalid api key");
+            let uri = request.uri().clone();
+            tracing::info!(
+                uri = %uri,
+                "unauthorized request, missing or invalid api key"
+            );
             Err(StatusCode::UNAUTHORIZED)
         }
     }

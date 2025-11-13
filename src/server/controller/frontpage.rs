@@ -40,10 +40,8 @@ pub async fn render_frontpage(
         .cloned();
 
     if let Some(grouping_key) = grouping_key {
-        tracing::info!("rendering frontpage with {grouping_key}");
         render_frontpage_by_group(&grouping_key, server_state).await
     } else {
-        tracing::info!("rendering frontpage");
         render_frontpage_all_hosts(server_state).await
     }
 }

@@ -17,10 +17,12 @@ pub(crate) async fn create_activation(
         .iter()
         .map(|dto| NewActivation::from((&host_with_logs_dto, dto.clone())))
         .collect();
-    tracing::info!("recieved {} activations", models.len());
+    tracing::debug!(count = models.len(), "recieved activations");
     let i = activation_log_service
         .bulk_insert_log_records(models.as_ref())
         .await?;
-    tracing::info!("inserted {i} activations");
+    if i > 0 {
+        tracing::info!(count = i, "inserted activations");
+    }
     Ok(format!("{i} log entries created"))
 }

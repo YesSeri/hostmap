@@ -122,6 +122,7 @@ pub async fn run(
         .run(&pool)
         .await
         .expect("failed to run database migrations");
+    tracing::info!("database migrations applied");
 
     let templates_dir = std::env::var("HOSTMAP_TEMPLATES_DIR").expect("user must specificy the env variable HOSTMAP_TEMPLATES_DIR. This should not be something end user needs to specify, since the flake will wrap this.");
     tracing::info!("Using templates directory: {}", &templates_dir);

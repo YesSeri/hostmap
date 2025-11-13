@@ -14,7 +14,7 @@ pub(crate) struct Cli {
 pub(crate) enum Commands {
     ActivationLogger {
         #[arg(long, help = "Path to the log file where activations will be stored")]
-        log_file_path: PathBuf,
+        activation_log_file: PathBuf,
 
         #[arg(long, help = "URL path to the endpoint that receives activation logs")]
         url_path: String,

@@ -10,12 +10,10 @@ pub(crate) async fn create_links(
     }): State<ServerState>,
     Json(nix_git_link): Json<Vec<NixGitLinkDto>>,
 ) -> axum::response::Result<impl IntoResponse> {
-    tracing::info!(
-        "recieved {} relationships between nix and git",
-        nix_git_link.len()
-    );
+    tracing::info!(count = nix_git_link.len(), "received nix/git relationships");
+
     let i = nix_git_link_service.create_many(nix_git_link).await?;
-    tracing::info!("inserted {i} relationships between nix and git");
+    tracing::info!(inserted = i, "inserted nix/git relationships");
     Ok((StatusCode::CREATED, format!("{i} links created")))
 }
 
@@ -27,7 +25,6 @@ pub(crate) async fn create_link(
     }): State<ServerState>,
     Json(nix_git_link): Json<NixGitLinkDto>,
 ) -> axum::response::Result<impl IntoResponse> {
-    tracing::info!("recieved one nix git relationship");
     nix_git_link_service.create(nix_git_link).await?;
     Ok(StatusCode::CREATED)
 }

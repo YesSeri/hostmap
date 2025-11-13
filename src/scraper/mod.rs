@@ -26,7 +26,10 @@ pub async fn scrape_hosts_batched(
     ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Burst);
     ticker.tick().await;
 
-    tracing::debug!("running scraper from start");
+    tracing::debug!(
+        "running scraper from start of list with {} hosts",
+        hosts.len()
+    );
     for (batch_idx, batch) in hosts.chunks(concurrent_requests).enumerate() {
         ticker.tick().await;
 
@@ -54,14 +57,28 @@ pub async fn scrape_hosts_batched(
 
         for (host_id, res) in results {
             match res {
-                Ok(()) => ok += 1,
+                Ok(_) => ok += 1,
                 Err(e) => {
                     fail += 1;
-                    tracing::warn!(host=%host_id, "scrape/post failed: {e}");
+                    tracing::debug!(host = %host_id, error = %e, "scrape attempt failed, skipping host");
                 }
             }
         }
-        tracing::info!("batch {} complete: ok={}, fail={}", batch_idx, ok, fail);
+        if fail > 0 {
+            tracing::info!(
+                batch_idx = batch_idx,
+                ok = ok,
+                fail = fail,
+                "completed scraping batch"
+            );
+        } else {
+            tracing::debug!(
+                batch_idx = batch_idx,
+                ok = ok,
+                fail = fail,
+                "completed scraping batch"
+            );
+        }
     }
 
     Ok(())
@@ -91,12 +108,17 @@ pub async fn run(
         .default_headers(headers)
         .build()?;
     insert_hosts(&create_host_dtos, &client, url).await?;
+    let total_hosts = create_host_dtos.len();
+    let batches = (total_hosts + concurrent_requests - 1) / concurrent_requests;
+
+    tracing::info!(
+        total_hosts = total_hosts,
+        concurrent_requests = concurrent_requests,
+        batches = batches,
+        "configured scraper batching"
+    );
+
     loop {
-        tracing::info!(
-            "running background scraper for {} hosts",
-            create_host_dtos.len()
-        );
-        let create_host_dtos = create_host_dtos.clone();
         scrape_hosts_batched(
             &create_host_dtos,
             &client,
@@ -135,11 +157,20 @@ async fn fetch_activationlog(
         .from_reader(body.as_bytes());
 
     let mut log_records = Vec::new();
-    for line in rdr.deserialize() {
+    let mut parse_errors = 0;
+    for (i, line) in rdr.deserialize().enumerate() {
         let line: ActivationDto = match line {
             Ok(line) => line,
             Err(err) => {
-                tracing::warn!("could not parse line in csv from url: {url} because of {err}");
+                parse_errors += 1;
+                if parse_errors <= 5 {
+                    tracing::debug!(
+                        url = %url,
+                        line_idx = i,
+                        error = %err,
+                        "failed to parse csv line; skipping"
+                    );
+                }
                 continue;
             }
         };

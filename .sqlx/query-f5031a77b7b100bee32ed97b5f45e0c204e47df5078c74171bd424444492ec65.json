@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n\nWITH latest AS (\nSELECT \nDISTINCT ON (ac.hostname)\nac.activation_id, ac.activated_at, ac.username, ac.store_path, ac.activation_type, ac.hostname\nFROM activation ac \n     ORDER BY ac.hostname, ac.activated_at DESC \n)\nSELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username, \n    l.store_path, l.activation_type, l.hostname, ngl.commit_hash AS \"commit_hash?\", ngl.branch AS \"branch?\"\n    FROM latest l\n    LEFT JOIN nix_git_link ngl ON ngl.store_path = l.store_path\n    ORDER BY l.hostname, ngl.branch = 'master' desc, ngl.linked_at asc\n;\n            ",
+  "query": "\n\nWITH latest AS (\nSELECT\nDISTINCT ON (ac.hostname)\nac.activation_id, ac.activated_at, ac.username, ac.store_path, ac.activation_type, ac.hostname\nFROM activation ac\n     ORDER BY ac.hostname, ac.activated_at DESC\n)\nSELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,\n    l.store_path, l.activation_type, l.hostname, ngl.commit_hash AS \"commit_hash?\", ngl.branch AS \"branch?\"\n    FROM latest l\n    LEFT JOIN nix_git_link ngl ON ngl.store_path = l.store_path\n    ORDER BY l.hostname, ngl.branch = 'master' desc, ngl.linked_at asc\n;\n            ",
   "describe": {
     "columns": [
       {
@@ -58,5 +58,5 @@
       false
     ]
   },
-  "hash": "9d16899b65e4af68053bd2cbf5e91e6b1b28090c87d75bffa5538ed7e527f332"
+  "hash": "f5031a77b7b100bee32ed97b5f45e0c204e47df5078c74171bd424444492ec65"
 }

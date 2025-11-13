@@ -12,17 +12,22 @@ use std::path::PathBuf;
 
 use tower_http::services::ServeFile;
 
-pub(crate) async fn run(url_path: &str, log_file_path: PathBuf, server_ip: &str, port: usize) {
+pub(crate) async fn run(
+    url_path: &str,
+    activation_log_file: PathBuf,
+    server_ip: &str,
+    port: usize,
+) {
     let bind_addr = format!("{}:{}", server_ip, port);
     tracing::info!("Starting server at http://{}", &bind_addr);
     tracing::info!(
         "Serving csv log file, {:?}, at http://{}{}",
-        &log_file_path.clone(),
+        &activation_log_file.clone(),
         &bind_addr,
         &url_path
     );
-    let router =
-        serve_activation_logger_file(url_path, log_file_path).layer(from_fn(set_no_cache_headers));
+    let router = serve_activation_log_file(url_path, activation_log_file)
+        .layer(from_fn(set_no_cache_headers));
 
     let listener = tokio::net::TcpListener::bind(&bind_addr)
         .await
@@ -44,8 +49,8 @@ pub(crate) async fn run(url_path: &str, log_file_path: PathBuf, server_ip: &str,
         .unwrap();
 }
 
-fn serve_activation_logger_file(url_path: &str, log_file_path: PathBuf) -> Router {
-    Router::new().route_service(url_path, ServeFile::new(log_file_path))
+fn serve_activation_log_file(url_path: &str, activation_log_file: PathBuf) -> Router {
+    Router::new().route_service(url_path, ServeFile::new(activation_log_file))
 }
 async fn set_no_cache_headers(req: Request, next: Next) -> Response {
     let mut res = next.run(req).await;

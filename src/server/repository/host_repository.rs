@@ -17,7 +17,7 @@ impl HostRepository {
         hosts: &[HostModel],
     ) -> Result<u64, sqlx::Error> {
         const CHUNK_SIZE: usize = 500; // rows (hosts) per INSERT
-        tracing::info!("Inserting {} hosts", hosts.len());
+        tracing::debug!(count = hosts.len(), "inserting hosts");
         let tuple_vec: Vec<(&str, &str, HashMap<String, String>)> = hosts
             .iter()
             .map(|h| (h.hostname.as_str(), h.host_url.as_str(), h.metadata.clone()))
@@ -25,7 +25,7 @@ impl HostRepository {
         let mut rows_inserted = 0;
 
         for chunk in tuple_vec.chunks(CHUNK_SIZE) {
-            tracing::info!("Inserting chunk of {} hosts", chunk.len());
+            tracing::debug!(chunk_len = chunk.len(), "inserting chunk of hosts");
             let mut query_builder =
                 QueryBuilder::new("INSERT INTO host(hostname, host_url, metadata) ");
             query_builder.push_values(chunk.iter(), |mut b, row| {
@@ -77,13 +77,13 @@ impl HostRepository {
             r#"
 
 WITH latest AS (
-SELECT 
+SELECT
 DISTINCT ON (ac.hostname)
 ac.activation_id, ac.activated_at, ac.username, ac.store_path, ac.activation_type, ac.hostname
-FROM activation ac 
-     ORDER BY ac.hostname, ac.activated_at DESC 
+FROM activation ac
+     ORDER BY ac.hostname, ac.activated_at DESC
 )
-SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username, 
+SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,
     l.store_path, l.activation_type, l.hostname, ngl.commit_hash AS "commit_hash?", ngl.branch AS "branch?"
     FROM latest l
     LEFT JOIN nix_git_link ngl ON ngl.store_path = l.store_path

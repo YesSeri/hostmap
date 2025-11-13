@@ -41,7 +41,6 @@ pub async fn render_history_page(
     }): State<ServerState>,
     Path(hostname): Path<String>,
 ) -> axum::response::Result<impl IntoResponse> {
-    tracing::info!("request for {hostname} history");
     let host = host_service
         .get_host_from_hostname(hostname)
         .await?
