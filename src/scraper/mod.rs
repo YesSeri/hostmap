@@ -64,14 +64,14 @@ pub async fn scrape_hosts_batched(
                 }
             }
         }
-        if fail > 0 {
-            tracing::info!(
-                batch_idx = batch_idx,
-                ok = ok,
-                fail = fail,
-                "completed scraping batch"
-            );
-        } else {
+        // if fail > 0 {
+        tracing::info!(
+            batch_idx = batch_idx,
+            ok = ok,
+            fail = fail,
+            "completed scraping batch"
+        );
+        /* } else {
             tracing::debug!(
                 batch_idx = batch_idx,
                 ok = ok,
@@ -79,6 +79,7 @@ pub async fn scrape_hosts_batched(
                 "completed scraping batch"
             );
         }
+        */
     }
 
     Ok(())
