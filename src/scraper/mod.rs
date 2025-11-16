@@ -2,6 +2,8 @@ use futures::future::join_all;
 use std::{error, path::PathBuf, time::Duration};
 
 use crate::{
+    cli::ScraperArgs,
+    read_api_key,
     server::endpoint,
     shared::{
         dto::{
@@ -16,12 +18,9 @@ use reqwest::{Client, Url, header};
 pub async fn scrape_hosts_batched(
     hosts: &[CurrentHostDto],
     client: &Client,
-    base_url: &str,
-    concurrent_requests: usize,
-    scrape_interval: u64,
-    activation_logger_port: usize,
+    scraper_args: &ScraperArgs,
 ) -> Result<(), reqwest::Error> {
-    let interval = Duration::from_secs(scrape_interval);
+    let interval = Duration::from_secs(scraper_args.scrape_interval);
     let mut ticker = tokio::time::interval(interval);
     ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Burst);
     ticker.tick().await;
@@ -30,17 +29,17 @@ pub async fn scrape_hosts_batched(
         "running scraper from start of list with {} hosts",
         hosts.len()
     );
-    for (batch_idx, batch) in hosts.chunks(concurrent_requests).enumerate() {
+    for (batch_idx, batch) in hosts.chunks(scraper_args.concurrent_requests).enumerate() {
         ticker.tick().await;
 
         let futs = batch.iter().map(|host| {
             let client = client.clone();
-            let base_url = base_url.to_string();
+            let base_url = scraper_args.url.to_string();
             let hostname = host.hostname.clone();
             async move {
                 let res = async {
                     let new_activations =
-                        scrape_host(host, &client, activation_logger_port).await?;
+                        scrape_host(host, &client, scraper_args.activation_logger_port).await?;
                     let res_text =
                         insert_activations(host, new_activations, &client, &base_url).await?;
                     tracing::debug!(response_text=%res_text, request_host=%host.hostname);
@@ -86,19 +85,17 @@ pub async fn scrape_hosts_batched(
 }
 
 pub async fn run(
-    hosts_file: PathBuf,
-    scrape_interval: u64,
-    url: &str,
-    api_key: String,
-    concurrent_requests: usize,
-    activation_logger_port: usize,
+    scraper_args: ScraperArgs,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
+    // let ScraperArgs{ hosts_file, scrape_interval, concurrent_requests, activation_logger_port, api_key_file, url } = scraper_args;
+    let api_key = read_api_key(&scraper_args.api_key_file);
     tracing::info!(
-        "Starting scraper with file: {:?} and interval: {} and concurrent requests {concurrent_requests}",
-        hosts_file,
-        scrape_interval
+        "Starting scraper with file: {:?} and interval: {} and concurrent requests {}",
+        scraper_args.hosts_file,
+        scraper_args.scrape_interval,
+        scraper_args.concurrent_requests,
     );
-    let create_host_dtos = parse_hosts(&hosts_file);
+    let create_host_dtos = parse_hosts(&scraper_args.hosts_file);
     let mut headers = header::HeaderMap::new();
     headers.insert(
         header::AUTHORIZATION,
@@ -108,27 +105,20 @@ pub async fn run(
         .connect_timeout(std::time::Duration::from_secs(10))
         .default_headers(headers)
         .build()?;
-    insert_hosts(&create_host_dtos, &client, url).await?;
+    insert_hosts(&create_host_dtos, &client, &scraper_args.url).await?;
     let total_hosts = create_host_dtos.len();
-    let batches = (total_hosts + concurrent_requests - 1) / concurrent_requests;
+    let batches =
+        (total_hosts + scraper_args.concurrent_requests - 1) / scraper_args.concurrent_requests;
 
     tracing::info!(
         total_hosts = total_hosts,
-        concurrent_requests = concurrent_requests,
+        concurrent_requests = scraper_args.concurrent_requests,
         batches = batches,
         "configured scraper batching"
     );
 
     loop {
-        scrape_hosts_batched(
-            &create_host_dtos,
-            &client,
-            url,
-            concurrent_requests,
-            scrape_interval,
-            activation_logger_port,
-        )
-        .await?;
+        scrape_hosts_batched(&create_host_dtos, &client, &scraper_args).await?;
     }
 }
 

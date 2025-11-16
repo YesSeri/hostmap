@@ -12,21 +12,18 @@ use std::path::PathBuf;
 
 use tower_http::services::ServeFile;
 
-pub(crate) async fn run(
-    url_path: &str,
-    activation_log_file: PathBuf,
-    server_ip: &str,
-    port: usize,
-) {
-    let bind_addr = format!("{}:{}", server_ip, port);
+use crate::cli::ActivationLoggerArgs;
+
+pub(crate) async fn run(args: ActivationLoggerArgs) {
+    let bind_addr = format!("{}:{}", args.server_ip, args.port);
     tracing::info!("Starting server at http://{}", &bind_addr);
     tracing::info!(
         "Serving csv log file, {:?}, at http://{}{}",
-        &activation_log_file.clone(),
+        &args.activation_log_file.clone(),
         &bind_addr,
-        &url_path
+        &args.url_path
     );
-    let router = serve_activation_log_file(url_path, activation_log_file)
+    let router = serve_activation_log_file(&args.url_path, args.activation_log_file)
         .layer(from_fn(set_no_cache_headers));
 
     let listener = tokio::net::TcpListener::bind(&bind_addr)
