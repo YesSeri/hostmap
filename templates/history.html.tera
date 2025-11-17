@@ -1,59 +1,217 @@
 {% extends "base.html.tera" %} {% block content %}
-<aside>
-<table>
- <caption>
-    <h3>
-    metadata
-    </h3>
-  </caption>
-  <tr style="border-top: solid 1px #888;">
-  <th style='border-right: solid 1px #888'>key</th>
-  <th style="">value</th>
-  </tr>
+<style>
+  dl {
+    display: grid;
+    grid-template-columns: max-content auto;
+    row-gap: 2px;
+    column-gap: 10px;
+  }
+  
+  dt {
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  dd {
+    margin: 0;
+  }
+
+  .nix-diff {
+    text-align: center;
+  }
+
+  #nix-diff-panel {
+    top: 0px;
+    background-color: white;
+  }
+
+  #nix-diff-command {
+    width: 100%;
+    font-family: monospace;
+  }
+
+  #host-info {
+    display: none;
+  }
+</style>
+
+<div>
+  <div id="host-info" data-hostname=""></div>
+
+  <dl>
+    <dt>hostname</dt>
+    <dd>{{ history_ctx.host.hostname }}</dd>
   {% for k,v in history_ctx.host.metadata %}
-  <tr>
-  <td style='border-right: solid 1px #888'>{{ k }}</td>
-  {% if v is string or v is number %}
-  <td>{{ v }}</td>
-  {% else %}
-  <td>{{ v | json_encode(pretty=true) }}</td>
-  {% endif %}
-  </tr>
+    <dt>{{ k }}</dt>
+    {% if v is string or v is number %}
+    <dd>{{ v }}</dd>
+    {% endif %}
   {% endfor %}
-</table>
-</aside>
+  </dl>
+  <div id="nix-diff-panel">
+    <h3 id="nix-diff-command-title">nix-diff command</h3>
+    <p id="nix-diff-status">
+      Select exactly two rows to generate a nix-diff command.
+    </p>
+    <textarea id="nix-diff-command" rows="8" readonly disabled></textarea>
+    <button id="copy-nix-diff" disabled>Copy nix-diff command</button>
+  </div>
 
-<h2>activation logs</h2>
-<table>
-  {% for tuple in history_ctx.activations_by_date | reverse %} {% set date = tuple.0 %} {% set logs = tuple.1 %}
+  <h2>activation logs</h2>
+  <table>
+    {% for tuple in history_ctx.activations_by_date | reverse %} {% set date =
+    tuple.0 %} {% set logs = tuple.1 %}
 
-  <tr>
-    <th colspan="6">
-      <hr>
-      <h3>{{ date }}</h3>
-    </th>
-  </tr>
-  <tr>
-    <th>time</th>
-    <th>user</th>
-    <th>system</th>
-    <th>action</th>
-    <th>commit hash</th>
-    <th>branch</th>
-  </tr>
-  {% for entry in logs %}
-  <tr>
-    <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
-    <td>{{ entry.username }}</td>
-    <td>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
-    <td>{{ entry.activation_type }}</td>
-    <td>
-      {% set commit_hash = (entry.revision.commit_hash | default(value="unknown")) %}
-      <a href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
-    </td>
-    <td>{{ entry.revision.branch | default(value="unknown") }}</td>
-  </tr>
-  {% endfor %} {% endfor %}
-</table>
+    <tr>
+      <th colspan="7">
+        <hr />
+        <h3>{{ date }}</h3>
+      </th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th>user</th>
+      <th>system</th>
+      <th>action</th>
+      <th>commit hash</th>
+      <th>branch</th>
+      <th>nix-diff</th>
+    </tr>
+    {% for entry in logs %}
+    <tr>
+      <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
+      <td>{{ entry.username }}</td>
+      <td>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
+      <td>{{ entry.activation_type }}</td>
+      <td>
+        {% set commit_hash = (entry.revision.commit_hash |
+        default(value="unknown")) %}
+        <a href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
+      </td>
+      <td>{{ entry.revision.branch | default(value="unknown") }}</td>
+      <td class="nix-diff">
+      <label>
+        <input
+          type="checkbox"
+          class="nix-diff-checkbox"
+          data-commit="{{ commit_hash }}"
+          data-store-path="{{ entry.store_path }}"
+        />∆
+        </label>
+      </td>
+    </tr>
+    {% endfor %} {% endfor %}
+  </table>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hostname = "{{ history_ctx.host.hostname }}";
+    const checkboxes = Array.from(
+      document.querySelectorAll(".nix-diff-checkbox")
+    );
+    const cmdArea = document.getElementById("nix-diff-command");
+    const statusEl = document.getElementById("nix-diff-status");
+    const copyBtn = document.getElementById("copy-nix-diff");
+    const nixDiffTitle = document.getElementById("nix-diff-command-title");
+    const nixDiffPanel = document.getElementById("nix-diff-panel");
+    const controls = [cmdArea, copyBtn, nixDiffTitle];
 
+    cmdArea.style.display = "none";
+    copyBtn.style.display = "none";
+    nixDiffTitle.style.display = "none";
+    nixDiffPanel.style.position = "relative";
+
+    function hideControls(){
+      controls.forEach(c => {
+        c.style.display = 'none';
+      })
+      cmdArea.disabled = true;
+      cmdArea.value = "";
+      copyBtn.disabled = true;
+    }
+
+    function showControls(){
+      controls.forEach(c => {
+        c.style.display = 'block';
+      })
+      nixDiffPanel.style.position = 'sticky'
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function buildCommand(a, b) {
+      const commitA = a.dataset.commit;
+      const commitB = b.dataset.commit;
+      if (!commitA || !commitB || commitA === "unknown" || commitB === "unknown") {
+        return "# nix-diff command cannot be generated for unknown commit hashes";
+      }
+      return `# Host: ${hostname}
+DRV_A=$(nix eval --raw "git+file://$PWD?rev=${commitA}#nixosConfigurations.${hostname}.config.system.build.toplevel.drvPath")
+
+DRV_B=$(nix eval --raw "git+file://$PWD?rev=${commitB}#nixosConfigurations.${hostname}.config.system.build.toplevel.drvPath")
+nix run nixpkgs#nix-diff -- "$DRV_B" "$DRV_A"`;
+    }
+
+    function updateSelection(changedCheckbox) {
+      const selected = checkboxes.filter((checkbox) => checkbox.checked);
+
+      if (selected.length > 2) {
+        if (changedCheckbox) {
+          changedCheckbox.checked = false;
+        } else {
+          selected[selected.length - 1].checked = false;
+        }
+        setStatus("You can only select two rows for diff.");
+        return;
+      }
+
+      if (changedCheckbox.dataset.commit === "unknown") {
+        setStatus("nix-diff command for unknown commit hashes");
+        changedCheckbox.checked = false;
+        return;
+      }
+
+      if (selected.length === 2) {
+        const [a, b] = selected;
+        const cmd = buildCommand(a, b);
+        showControls();
+        cmdArea.disabled = false;
+        cmdArea.value = cmd;
+        copyBtn.disabled = false;
+        setStatus("nix-diff command complete. copy to use it.");
+      } else if (selected.length === 1) {
+        showControls();
+        cmdArea.disabled = true;
+        cmdArea.value = "";
+        copyBtn.disabled = true;
+        setStatus("one out of two rows selected to generate a nix-diff command.");
+      } else {
+        hideControls();
+        setStatus("select exactly two rows to generate a nix-diff command.");
+      }
+    }
+
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", function () {
+        updateSelection(checkbox);
+      });
+    });
+    checkboxes.forEach((c) => (c.checked = false));
+    hideControls();
+
+    copyBtn.addEventListener("click", function () {
+      const text = cmdArea.value;
+      if (!text) return;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => setStatus("nix-diff command copied to clipboard."))
+          .catch(() => setStatus("copy failed. copy the command manually."));
+      }
+    });
+  });
+</script>
 {% endblock %}
