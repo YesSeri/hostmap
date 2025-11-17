@@ -33,12 +33,14 @@ use crate::server::{
 struct ServerConfig {
     default_grouping_key: Option<String>,
     columns: Vec<String>,
+    repo_url: String,
 }
 impl ServerConfig {
-    fn new(default_grouping_key: Option<String>, columns: Vec<String>) -> Self {
+    fn new(default_grouping_key: Option<String>, columns: Vec<String>, repo_url: String) -> Self {
         Self {
             default_grouping_key,
             columns,
+            repo_url,
         }
     }
 }
@@ -135,6 +137,7 @@ pub async fn run(
     let server_config = ServerConfig::new(
         server_args.default_grouping_key,
         server_args.columns.unwrap_or_default(),
+        server_args.repo_url,
     );
     let server_state = ServerState::new(
         tera,

@@ -49,7 +49,7 @@
     <td>{{ entry.activation_type }}</td>
     <td>
       {% set commit_hash = (entry.revision.commit_hash | default(value="unknown")) %}
-      <a href="https://gitlab.dbc.dk/platform/deployments/commit/{{ commit_hash }}">{{ commit_hash }}</a>
+      <a href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
     </td>
     <td>{{ entry.revision.branch | default(value="unknown") }}</td>
   </tr>

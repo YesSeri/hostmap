@@ -34,9 +34,10 @@ impl HistoryPageContext {
 #[axum::debug_handler]
 pub async fn render_history_page(
     State(ServerState {
+        tera,
+        server_config,
         host_service,
         activation_log_service,
-        tera,
         ..
     }): State<ServerState>,
     Path(hostname): Path<String>,
@@ -65,6 +66,7 @@ pub async fn render_history_page(
     let history_ctx = HistoryPageContext::new(host_dto, date_dto_vec);
 
     ctx.insert("title", format!("History for {}", host.hostname).as_str());
+    ctx.insert("repo_url", &server_config.repo_url);
     ctx.insert("history_ctx", &history_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Ok(Html(output))

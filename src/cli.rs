@@ -50,9 +50,9 @@ pub struct ServerArgs {
     pub columns: Option<Vec<String>>,
     #[arg(
         long,
-        help = "link to git repo(github, gitlab, etc), commit hash will be appended, https://github.com/foo-user/repo-name/commit/"
+        help = "link to git repo(github, gitlab, etc), commit hash will be appended, https://github.com/foo-user/repo-name/commit"
     )]
-    pub repo_link: String,
+    pub repo_url: String,
 }
 
 #[derive(Args, Debug)]

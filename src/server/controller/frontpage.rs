@@ -39,20 +39,22 @@ pub async fn render_frontpage(
         .or(server_state.server_config.default_grouping_key.as_ref())
         .cloned();
 
+    let mut ctx = Context::new();
+    ctx.insert("columns", &server_state.server_config.columns);
+    ctx.insert("repo_url", &server_state.server_config.repo_url);
+
     if let Some(grouping_key) = grouping_key {
-        render_frontpage_by_group(&grouping_key, server_state).await
+        render_frontpage_by_group(&grouping_key, server_state, ctx).await
     } else {
-        render_frontpage_all_hosts(server_state).await
+        render_frontpage_all_hosts(server_state, ctx).await
     }
 }
 
 async fn render_frontpage_all_hosts(
     ServerState {
-        tera,
-        host_service,
-        server_config,
-        ..
+        tera, host_service, ..
     }: ServerState,
+    mut ctx: Context,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_models = host_service
         .get_all_with_latest_log()
@@ -75,10 +77,8 @@ async fn render_frontpage_all_hosts(
 
     let color_map = build_color_map_for_hashes(commit_hashes);
     let fp_ctx = FrontPageContext::new(hosts);
-    let mut ctx = Context::new();
     ctx.insert("title", "frontpage");
     ctx.insert("frontpage_ctx", &fp_ctx);
-    ctx.insert("columns", &server_config.columns);
     ctx.insert("color_map", &color_map);
 
     let output = tera.render("frontpage.html.tera", &ctx).unwrap();
@@ -109,11 +109,9 @@ impl FrontpageGroupedContext {
 async fn render_frontpage_by_group(
     grouping_key: &str,
     ServerState {
-        tera,
-        host_service,
-        server_config,
-        ..
+        tera, host_service, ..
     }: ServerState,
+    mut ctx: Context,
 ) -> axum::response::Result<Html<String>, RetError> {
     let host_with_logs = host_service.get_all_with_latest_log().await.unwrap();
 
@@ -148,10 +146,8 @@ async fn render_frontpage_by_group(
     let color_map = build_color_map_for_hashes(commit_hashes);
 
     let fp_ctx = FrontpageGroupedContext::new(grouped_hosts);
-    let mut ctx = Context::new();
-    ctx.insert("title", "frontpage");
+    ctx.insert("title", &format!("frontpage by group: {}", grouping_key));
     ctx.insert("grouped_frontpage_ctx", &fp_ctx);
-    ctx.insert("columns", &server_config.columns);
     ctx.insert("color_map", &color_map);
 
     Ok(Html(
