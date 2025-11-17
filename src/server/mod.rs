@@ -6,8 +6,8 @@ mod repository;
 mod service;
 
 use crate::cli::ServerArgs;
-use crate::read_api_key;
 use crate::server::api_authentication::api_authentication;
+use crate::shared::helper::read_api_key;
 use std::{collections::HashMap, error, sync::Arc};
 
 use axum::http::header;
@@ -49,7 +49,6 @@ struct ServerState {
     host_service: HostService,
     activation_log_service: ActivationLogService,
     nix_git_link_service: NixGitLinkService,
-    //api_key: String,
 }
 
 impl ServerState {

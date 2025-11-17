@@ -5,7 +5,7 @@ pub(crate) mod server;
 pub(crate) mod shared;
 
 use clap::Parser;
-use std::{error, path::PathBuf};
+use std::error;
 
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -20,12 +20,6 @@ fn setup_logging() -> EnvFilter {
         .init();
     filter
 }
-fn read_api_key(path: &PathBuf) -> String {
-    std::fs::read_to_string(&path)
-        .unwrap_or_else(|_| panic!("Could not read api_key from api_key_file {path:?}"))
-        .trim()
-        .to_owned()
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
@@ -38,54 +32,10 @@ async fn main() -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
         }
         Commands::Server(server_args) => {
             server::run(server_args).await?;
-            todo!()
         }
         Commands::Scraper(scraper_args) => {
             scraper::run(scraper_args).await?;
         }
     }
-    //         Commands::ActivationLogger {
-    //             url_path,
-    //             activation_log_file,
-    //             server_ip,
-    //             server_port,
-    //         } => activation_logger::run(&url_path, activation_log_file, &server_ip, server_port).await,
-    //         Commands::Server {
-    //             database_url,
-    //             default_grouping_key,
-    //             url,
-    //             port,
-    //             columns,
-    //             api_key_file,
-    //         } => {
-    //             server::run(
-    //                 database_url,
-    //                 default_grouping_key,
-    //                 &url,
-    //                 port,
-    //                 columns,
-    //                 api_key,
-    //             )
-    //             .await?;
-    //         }
-    //         Commands::Scraper {
-    //             hosts_file,
-    //             scrape_interval,
-    //             url,
-    //             api_key_file,
-    //             concurrent_requests,
-    //             activation_logger_port,
-    //         } => {
-    //             let api_key = read_api_key(api_key_file);
-    //             scraper::run(
-    //                 hosts_file,
-    //                 scrape_interval,
-    //                 &url,
-    //                 api_key,
-    //                 concurrent_requests,
-    //                 activation_logger_port,
-    //             )
-    //             .await?;
-    //         }
     Ok(())
 }

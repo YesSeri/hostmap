@@ -3,13 +3,13 @@ use std::{error, path::PathBuf, time::Duration};
 
 use crate::{
     cli::ScraperArgs,
-    read_api_key,
     server::endpoint,
     shared::{
         dto::{
             activation::ActivationDto,
             host::{CurrentHostDto, HostWithLogsDto},
         },
+        helper::read_api_key,
         model::activation::NewActivation,
     },
 };
