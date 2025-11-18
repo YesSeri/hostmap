@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::{
     server::{ServerState, custom_error::RetError},
     shared::{
@@ -56,13 +54,13 @@ pub async fn render_history_page(
         .await
         .unwrap();
 
-    let commit_set: HashSet<String> = date_map
+    let commit_hashes: Vec<String> = date_map
         .values()
         .flatten()
         .filter_map(|h| h.commit_hash.clone())
         .collect();
 
-    let color_map = build_color_map_for_hashes(commit_set);
+    let color_map = build_color_map_for_hashes(commit_hashes);
     let mut date_dto_vec = Vec::new();
     for (date, entries) in date_map {
         let mut dto_vec = Vec::new();

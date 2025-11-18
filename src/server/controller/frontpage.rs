@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 use crate::{
     server::{ServerState, custom_error::RetError},
@@ -66,7 +65,7 @@ async fn render_frontpage_all_hosts(
         .map(|hwl| CurrentHostDto::from((hwl.host, hwl.logs)))
         .collect::<Vec<CurrentHostDto>>();
 
-    let commit_hashes: HashSet<String> = hosts
+    let commit_hashes: Vec<String> = hosts
         .iter()
         .filter_map(|h| {
             h.logs
@@ -133,7 +132,7 @@ async fn render_frontpage_by_group(
             .or_default()
             .push(current_host_dto);
     }
-    let commit_set: HashSet<String> = grouped_hosts
+    let commit_hashes: Vec<String> = grouped_hosts
         .values()
         .flatten()
         .filter_map(|h| {
@@ -144,7 +143,7 @@ async fn render_frontpage_by_group(
         })
         .collect();
 
-    let color_map = build_color_map_for_hashes(commit_set);
+    let color_map = build_color_map_for_hashes(commit_hashes);
 
     let fp_ctx = FrontpageGroupedContext::new(grouped_hosts);
     ctx.insert("title", &format!("frontpage by group: {}", grouping_key));
@@ -160,14 +159,13 @@ const BACKGROUND_COLORS: [&str; 11] = [
     "#C0C0C0", "#FFFF00", "#FFCC00", "#FF9900", "#CCFF00", "#CCCC00", "#CC99FF", "#FF00FF",
     "#FF0000", "#33FFFF", "#CCFFFF",
 ];
-pub(crate) fn build_color_map_for_hashes(
-    set_of_commit_hashes: HashSet<String>,
-) -> HashMap<String, String> {
+
+pub(crate) fn build_color_map_for_hashes(hashes: Vec<String>) -> HashMap<String, String> {
     let mut color_map: HashMap<String, String> = HashMap::new();
-    let mut next_idx = 0usize;
+    let mut next_idx = 0;
     let colors_len = BACKGROUND_COLORS.len();
 
-    for h in set_of_commit_hashes {
+    for h in hashes {
         if !color_map.contains_key(&h) {
             let color = BACKGROUND_COLORS[next_idx % colors_len].to_string();
             color_map.insert(h.to_owned(), color);

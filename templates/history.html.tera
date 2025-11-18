@@ -81,12 +81,12 @@
     <tr>
       <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
       <td>{{ entry.username }}</td>
-      <td>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
+      <td class='mono-font'>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
       <td>{{ entry.activation_type }}</td>
-      <td>
-        {% set commit_hash = (entry.revision.commit_hash |
-        default(value="unknown")) %}
-        <a href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
+      {% set commit_hash = (entry.revision.commit_hash | default(value="N/A")) %}
+      {% set bg_color = color_map[commit_hash] | default(value="#FFFFFF") %}
+      <td class='mono-font' style="background-color: {{ bg_color }}; text-align: right;">
+        <a style="color: black;" href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
       </td>
       <td>{{ entry.revision.branch | default(value="unknown") }}</td>
       <td class="nix-diff">
@@ -147,7 +147,7 @@
       if (!commitA || !commitB || commitA === "unknown" || commitB === "unknown") {
         return "# nix-diff command cannot be generated for unknown commit hashes";
       }
-      return `# Host: ${hostname}
+      return `# Host: ${hostname}, Commit: ${commitA.slice(0,8)}..${commitB.slice(0,8)}
 DRV_A=$(nix eval --raw "git+file://$PWD?rev=${commitA}#nixosConfigurations.${hostname}.config.system.build.toplevel.drvPath")
 
 DRV_B=$(nix eval --raw "git+file://$PWD?rev=${commitB}#nixosConfigurations.${hostname}.config.system.build.toplevel.drvPath")

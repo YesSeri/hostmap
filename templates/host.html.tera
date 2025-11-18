@@ -3,11 +3,11 @@
   {% for col in columns %}
     <td>{{host.metadata[col] | default(value="N/A") }}</td>
   {% endfor %}
-  <td>{{ host.logs.store_path | default(value="N/A") | nix_name }}</td>
-  <td>{{ host.logs.activated_at | default(value="no timestamp available")}}</td>
+  <td class='mono-font'>{{ host.logs.store_path | default(value="N/A") | nix_name }}</td>
+  <td>{{ host.logs.activated_at | default(value="N/A")}}</td>
   {% set commit_hash = (host.logs.revision.commit_hash | default(value="N/A")) %}
   {% set bg_color = color_map[commit_hash] | default(value="#FFFFFF") %}
-  <td style="background-color: {{ bg_color }}; text-align: right;">
+  <td class='mono-font' style="background-color: {{ bg_color }}; text-align: right;">
     <a style="color: black;" href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
   </td>
   <td>{{ host.logs.revision.branch | default(value="N/A") }}</td>

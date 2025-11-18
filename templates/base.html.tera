@@ -6,8 +6,11 @@
   <style>
     @media (prefers-color-scheme: dark) {
       html {
-    /*    
-    filter: invert(1) hue-rotate(180deg);
+      /*
+      dark mode
+      */
+    /*
+        filter: invert(1) hue-rotate(180deg);
     */
       }
     }
@@ -19,9 +22,13 @@
     }
     th,
     td {
-      padding: 5px;
+      padding: 2px 4px;
     }
 
+    .mono-font {
+        font-family: monospace;
+        font-size: 1.2em;
+    }
     th {
       text-align: left;
     }

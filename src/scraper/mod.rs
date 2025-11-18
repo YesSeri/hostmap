@@ -111,8 +111,7 @@ pub async fn run(
         .build()?;
     insert_hosts(&create_host_dtos, &client, &scraper_args.url).await?;
     let total_hosts = create_host_dtos.len();
-    let batches =
-        (total_hosts + scraper_args.concurrent_requests - 1) / scraper_args.concurrent_requests;
+    let batches = total_hosts.div_ceil(scraper_args.concurrent_requests);
 
     tracing::info!(
         total_hosts = total_hosts,
