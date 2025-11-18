@@ -18,9 +18,15 @@ use reqwest::{Client, Url, header};
 pub async fn scrape_hosts_batched(
     hosts: &[CurrentHostDto],
     client: &Client,
-    scraper_args: &ScraperArgs,
+    ScraperArgs {
+        scrape_interval,
+        concurrent_requests,
+        activation_logger_port,
+        url,
+        ..
+    }: &ScraperArgs,
 ) -> Result<(), reqwest::Error> {
-    let interval = Duration::from_secs(scraper_args.scrape_interval);
+    let interval = Duration::from_secs(*scrape_interval);
     let mut ticker = tokio::time::interval(interval);
     ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Burst);
     ticker.tick().await;
@@ -29,17 +35,17 @@ pub async fn scrape_hosts_batched(
         "running scraper from start of list with {} hosts",
         hosts.len()
     );
-    for (batch_idx, batch) in hosts.chunks(scraper_args.concurrent_requests).enumerate() {
+    for (batch_idx, batch) in hosts.chunks(*concurrent_requests).enumerate() {
         ticker.tick().await;
 
         let futs = batch.iter().map(|host| {
             let client = client.clone();
-            let base_url = scraper_args.url.to_string();
+            let base_url = url.to_string();
             let hostname = host.hostname.clone();
             async move {
                 let res = async {
                     let new_activations =
-                        scrape_host(host, &client, scraper_args.activation_logger_port).await?;
+                        scrape_host(host, &client, *activation_logger_port).await?;
                     let res_text =
                         insert_activations(host, new_activations, &client, &base_url).await?;
                     tracing::debug!(response_text=%res_text, request_host=%host.hostname);
@@ -63,14 +69,14 @@ pub async fn scrape_hosts_batched(
                 }
             }
         }
-        // if fail > 0 {
-        tracing::info!(
-            batch_idx = batch_idx,
-            ok = ok,
-            fail = fail,
-            "completed scraping batch"
-        );
-        /* } else {
+        if fail > 0 {
+            tracing::info!(
+                batch_idx = batch_idx,
+                ok = ok,
+                fail = fail,
+                "completed scraping batch"
+            );
+        } else {
             tracing::debug!(
                 batch_idx = batch_idx,
                 ok = ok,
@@ -78,7 +84,6 @@ pub async fn scrape_hosts_batched(
                 "completed scraping batch"
             );
         }
-        */
     }
 
     Ok(())
@@ -87,7 +92,6 @@ pub async fn scrape_hosts_batched(
 pub async fn run(
     scraper_args: ScraperArgs,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
-    // let ScraperArgs{ hosts_file, scrape_interval, concurrent_requests, activation_logger_port, api_key_file, url } = scraper_args;
     let api_key = read_api_key(&scraper_args.api_key_file);
     tracing::info!(
         "Starting scraper with file: {:?} and interval: {} and concurrent requests {}",

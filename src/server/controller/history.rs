@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     server::{ServerState, custom_error::RetError},
     shared::{
@@ -12,6 +14,8 @@ use axum::{
 use chrono::NaiveDate;
 use serde::Serialize;
 use tera::Context;
+
+use super::frontpage::build_color_map_for_hashes;
 
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
@@ -51,6 +55,14 @@ pub async fn render_history_page(
         .host_with_logs_by_hostname(&host.hostname)
         .await
         .unwrap();
+
+    let commit_set: HashSet<String> = date_map
+        .values()
+        .flatten()
+        .filter_map(|h| h.commit_hash.clone())
+        .collect();
+
+    let color_map = build_color_map_for_hashes(commit_set);
     let mut date_dto_vec = Vec::new();
     for (date, entries) in date_map {
         let mut dto_vec = Vec::new();
@@ -67,6 +79,7 @@ pub async fn render_history_page(
 
     ctx.insert("title", format!("History for {}", host.hostname).as_str());
     ctx.insert("repo_url", &server_config.repo_url);
+    ctx.insert("color_map", &color_map);
     ctx.insert("history_ctx", &history_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Ok(Html(output))

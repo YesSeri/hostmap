@@ -14,16 +14,23 @@ use tower_http::services::ServeFile;
 
 use crate::cli::ActivationLoggerArgs;
 
-pub(crate) async fn run(args: ActivationLoggerArgs) {
-    let bind_addr = format!("{}:{}", args.server_ip, args.port);
+pub(crate) async fn run(
+    ActivationLoggerArgs {
+        activation_log_file,
+        url_path,
+        server_ip,
+        port,
+    }: ActivationLoggerArgs,
+) {
+    let bind_addr = format!("{}:{}", server_ip, port);
     tracing::info!("Starting server at http://{}", &bind_addr);
     tracing::info!(
         "Serving csv log file, {:?}, at http://{}{}",
-        &args.activation_log_file.clone(),
+        &activation_log_file.clone(),
         &bind_addr,
-        &args.url_path
+        &url_path
     );
-    let router = serve_activation_log_file(&args.url_path, args.activation_log_file)
+    let router = serve_activation_log_file(&url_path, activation_log_file)
         .layer(from_fn(set_no_cache_headers));
 
     let listener = tokio::net::TcpListener::bind(&bind_addr)

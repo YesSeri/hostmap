@@ -113,10 +113,18 @@ fn create_protected_router(api_key: String) -> Router<ServerState> {
 }
 
 pub async fn run(
-    server_args: ServerArgs,
+    ServerArgs {
+        database_url,
+        api_key_file,
+        default_grouping_key,
+        url,
+        port,
+        columns,
+        repo_url,
+    }: ServerArgs,
 ) -> Result<(), Box<dyn error::Error + Send + Sync + 'static>> {
-    let api_key = read_api_key(&server_args.api_key_file);
-    let pool = build_pool(server_args.database_url).await?;
+    let api_key = read_api_key(&api_key_file);
+    let pool = build_pool(database_url).await?;
     sqlx::migrate!()
         .run(&pool)
         .await
@@ -134,11 +142,8 @@ pub async fn run(
             &templates_dir
         )
     }));
-    let server_config = ServerConfig::new(
-        server_args.default_grouping_key,
-        server_args.columns.unwrap_or_default(),
-        server_args.repo_url,
-    );
+    let server_config =
+        ServerConfig::new(default_grouping_key, columns.unwrap_or_default(), repo_url);
     let server_state = ServerState::new(
         tera,
         server_config,
@@ -152,7 +157,7 @@ pub async fn run(
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(server_state);
 
-    let bind_addr = format!("{}:{}", server_args.url, server_args.port);
+    let bind_addr = format!("{}:{}", url, port);
     let listener = tokio::net::TcpListener::bind(&bind_addr)
         .await
         .unwrap_or_else(|_| {
