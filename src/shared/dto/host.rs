@@ -75,22 +75,6 @@ impl From<HostModel> for CurrentHostDto {
     }
 }
 
-// #[derive(Debug, Clone, Deserialize)]
-// pub struct IncomingHostDto {
-//     hostname: String,
-//     host_url: String,
-// }
-
-// impl From<(IncomingHostDto, &HostGroupName)> for CurrentHostDto {
-//     fn from((inc, group_name): (IncomingHostDto, &HostGroupName)) -> Self {
-//         Self {
-//             hostname: inc.hostname,
-//             host_url: inc.host_url,
-//             logs: None,
-//         }
-//     }
-// }
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RawHost {
     #[serde(rename = "name")]

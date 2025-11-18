@@ -97,7 +97,6 @@ impl From<ActivationWithRevision> for Activation {
                     }),
                     _ => None,
                 },
-                // revision,
             },
         }
     }

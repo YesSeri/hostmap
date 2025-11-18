@@ -56,32 +56,3 @@ impl StorePathDto {
         }
     }
 }
-
-// #[derive(Debug)]
-// pub struct RevisionStorePathDto {
-//     pub revision: RevisionDto,
-//     pub store_path: StorePathDto,
-// }
-
-// impl TryFrom<RevisionModel> for RevisionDto {
-//     type Error = Box<RetError>;
-
-//     fn try_from(value: RevisionModel) -> Result<Self, Self::Error> {
-//         Ok(Self {
-//             commit_hash: value.commit_hash,
-//             branch: value.branch,
-//         })
-//     }
-// }
-
-// impl TryFrom<StorePathModel> for StorePathDto {
-//     type Error = &'static str;
-
-//     fn try_from(value: StorePathModel) -> Result<Self, Self::Error> {
-//         let abbreviated_path = Self::shorten_store_path(&value.id);
-//         Ok(Self {
-//             store_path: value.id,
-//             abbreviated_path
-//         })
-//     }
-// }

@@ -10,7 +10,6 @@ impl StorePathRepository {
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         _recs: &[&str],
     ) -> Result<u64, RetError> {
-        // start transaction
         const CHUNK_SIZE: usize = 1000;
         let mut i = 0;
         for chunk in _recs.chunks(CHUNK_SIZE) {

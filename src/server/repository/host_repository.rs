@@ -57,7 +57,6 @@ impl HostRepository {
         .map(|record| HostModel {
             hostname: record.hostname,
             host_url: record.host_url,
-            // json to hashmap
             metadata: serde_json::from_value(record.metadata).unwrap_or(HashMap::from([(
                 "error".to_string(),
                 "nested json metadata is not allowed".to_string(),
@@ -120,7 +119,6 @@ SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,
         .map(|record| HostModel {
             hostname: record.hostname,
             host_url: record.host_url,
-            // json to hashmap
             metadata: serde_json::from_value(record.metadata).unwrap_or(HashMap::from([(
                 "error".to_string(),
                 "nested json metadata is not allowed".to_string(),

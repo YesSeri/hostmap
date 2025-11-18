@@ -228,7 +228,6 @@ async fn scrape_host(
     tracing::debug!("scraping url: {}", url_text);
     let url = Url::parse(&url_text).expect("could not parse url");
     let recs = fetch_activationlog(&url, client).await?;
-    // let host_model: HostModel = host.clone().into();
     let activation_models = recs
         .into_iter()
         .map(|dto| NewActivation::from((host, dto)))

@@ -5,8 +5,6 @@ use crate::shared::{dto::nix_git_link::NixGitLinkDto, model::revision::RevisionM
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq)]
 pub struct NixGitLinkModel {
     pub nix_store_path: String,
-    // pub commit_hash: String,
-    // pub branch: String,
     pub revision: RevisionModel,
     pub linked_at: chrono::DateTime<chrono::Utc>,
 }

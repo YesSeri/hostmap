@@ -30,8 +30,6 @@ pub(super) async fn fallback() -> impl IntoResponse {
     )
 }
 
-// test
-
 #[cfg(test)]
 mod tests {
     use super::*;
