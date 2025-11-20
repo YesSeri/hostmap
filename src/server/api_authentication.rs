@@ -31,8 +31,12 @@ pub async fn api_authentication(
 
 fn parse_api_key(h: &HeaderValue) -> Option<&str> {
     let full_header_value = h.to_str().ok()?;
-    let client_api_key = full_header_value.strip_prefix("Api-Key")?.trim().into();
-    client_api_key
+    let client_api_key = full_header_value.strip_prefix("Api-Key")?.trim();
+    if client_api_key.is_empty() {
+        None
+    } else {
+        Some(client_api_key)
+    }
 }
 
 fn get_token(headers: &HeaderMap) -> Option<&str> {
@@ -51,16 +55,45 @@ mod tests {
         let server_api_key = "supersecretkey";
         let client_api_key = "supersecretkey";
         assert!(token_is_valid(client_api_key, server_api_key));
+    }
+    #[test]
+    fn test_token_is_invalid() {
+        let server_api_key = "supersecretkey";
         let invalid_client_api_key = "wrongkey";
+        assert!(!token_is_valid(invalid_client_api_key, server_api_key));
+        let invalid_client_api_key = " supersecretkey";
         assert!(!token_is_valid(invalid_client_api_key, server_api_key));
     }
     #[test]
     fn test_parse_api_key() {
-        let header_value = HeaderValue::from_str("Api-Key my secretkey").unwrap();
+        let header_value = HeaderValue::from_str("Api-Key mysecretkey").unwrap();
         let parsed_key = parse_api_key(&header_value);
-        assert_eq!(parsed_key, Some("my secretkey"));
-        let invalid_header_value = HeaderValue::from_str("Bearer token").unwrap();
-        let parsed_key_invalid = parse_api_key(&invalid_header_value);
+        assert_eq!(parsed_key, Some("mysecretkey"));
+        let invalid_type_value = HeaderValue::from_str("Bearer mysecretkey").unwrap();
+        let parsed_key_invalid = parse_api_key(&invalid_type_value);
         assert_eq!(parsed_key_invalid, None);
+    }
+    #[test]
+    fn test_get_token() {
+        let mut map = HeaderMap::new();
+        let result = get_token(&map);
+        assert_eq!(result, None);
+        let h_val = HeaderValue::from_str("Api-Key mysecretkey").unwrap();
+        map.insert(AUTHORIZATION, h_val);
+        let result = get_token(&map);
+        assert_eq!(result, Some("mysecretkey"));
+    }
+    #[test]
+    fn parse_api_key_with_extra_spaces() {
+        let header_value = HeaderValue::from_str("Api-Key    mysecretkey  ").unwrap();
+        let parsed = parse_api_key(&header_value);
+        assert_eq!(parsed, Some("mysecretkey"));
+    }
+
+    #[test]
+    fn parse_api_key_without_value_returns_none() {
+        let header_value = HeaderValue::from_str("Api-Key").unwrap();
+        let parsed = parse_api_key(&header_value);
+        assert_eq!(parsed, None);
     }
 }
