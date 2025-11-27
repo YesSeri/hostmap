@@ -8,6 +8,7 @@
     <em>not</em> result in the rev column being updated.
   </p>
 
+  {% include "search_form.html.tera" %}
   <h2>All hosts ungrouped</h2>
   <table cellpadding="5">
     <thead>

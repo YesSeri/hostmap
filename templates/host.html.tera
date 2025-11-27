@@ -1,4 +1,10 @@
-<tr>
+<tr class='host-row'
+    data-search="
+      {{ host.hostname }}
+      {% for col in columns %} {{ host.metadata[col] | default(value="") }}{% endfor %}
+      {{ host.logs.store_path | default(value="") }}
+      {{ host.logs.revision.branch | default(value="") }}
+    " >
   <td><a href="/{{ host.hostname }}">{{ host.hostname }}</a></td>
   {% for col in columns %}
     <td>{{host.metadata[col] | default(value="N/A") }}</td>

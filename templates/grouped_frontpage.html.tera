@@ -7,20 +7,27 @@
     earliest known (that is, built by CI), an "update" from A to B will
     <em>not</em> result in the rev column being updated.
   </p>
-
+  {% include "search_form.html.tera" %}
   <table cellpadding="0">
-    {% for group_name, hosts in grouped_frontpage_ctx.groups %}
-    <tr>
-      <td style="border: none; padding: 0;" colspan="100">
-        <hr>
-        <h2 style="margin-top: 0.2em; margin-bottom: 0.1em; text-align:center;">
-          {{ group_name }}
-        </h2>
-      </td>
-    </tr>
+  {% for group_name, hosts in grouped_frontpage_ctx.groups %}
+<tbody class="host-group">
+  <tr class="group-header">
+    <td style="border: none; padding: 0;" colspan="100">
+      <hr>
+      <h2 style="margin-top: 0.2em; margin-bottom: 0.1em; text-align:center;">
+        {{ group_name }}
+      </h2>
+    </td>
+  </tr>
 
-    {% include "table_header.html.tera" %} {% for host in hosts %} {% include
-    "host.html.tera" %} {% endfor %} {% endfor %}
+  {% include "table_header.html.tera" %}
+
+  {% for host in hosts %}
+    {% include "host.html.tera" %}
+  {% endfor %}
+</tbody>
+{% endfor %}
+
   </table>
   <h3>Total hosts: {{ grouped_frontpage_ctx.total_hosts }}</h3>
   <h3>Total groups: {{ grouped_frontpage_ctx.total_groups }}</h3>
