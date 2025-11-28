@@ -177,5 +177,6 @@
           };
         };
       };
+      nixosModules.hostmap = import ./module.nix;
     };
 }
