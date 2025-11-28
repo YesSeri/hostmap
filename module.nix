@@ -20,6 +20,14 @@ in
         description = "port for activation logger to serve on";
       };
     };
+
+    test = {
+      enable = mkEnableOption "activation logger";
+      port = mkOption {
+        type = types.port;
+        description = "port for activation logger to serve on";
+      };
+    };
     scraper = {
       enable = mkEnableOption "hostmap scraper";
       targetHosts = mkOption {
