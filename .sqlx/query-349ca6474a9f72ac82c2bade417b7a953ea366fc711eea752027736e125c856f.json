@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT hostname, host_url, metadata FROM host\n            ",
+  "query": "\n            SELECT hostname, host_url, metadata FROM host ORDER BY hostname;\n            ",
   "describe": {
     "columns": [
       {
@@ -28,5 +28,5 @@
       false
     ]
   },
-  "hash": "d72a66663653d140c287b65059b03ee7d9fb753839a4e4c11c87ccfb4e031183"
+  "hash": "349ca6474a9f72ac82c2bade417b7a953ea366fc711eea752027736e125c856f"
 }

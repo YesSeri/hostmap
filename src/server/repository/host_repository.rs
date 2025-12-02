@@ -113,7 +113,7 @@ SELECT DISTINCT ON(l.hostname) l.activation_id, l.activated_at, l.username,
     pub(crate) async fn get_all_hosts(pool: &Pool<Postgres>) -> Result<Vec<HostModel>, RetError> {
         let result = sqlx::query!(
             r#"
-            SELECT hostname, host_url, metadata FROM host
+            SELECT hostname, host_url, metadata FROM host ORDER BY hostname;
             "#
         )
         .map(|record| HostModel {

@@ -53,12 +53,14 @@
     <p id="nix-diff-status">
       Select exactly two rows to generate a nix-diff command.
     </p>
-    <textarea id="nix-diff-command" rows="8" readonly disabled></textarea>
+    <textarea id="nix-diff-command" rows="4" readonly disabled></textarea>
     <button id="copy-nix-diff" disabled>Copy nix-diff command</button>
   </div>
 
   <h2>activation logs</h2>
-  <table>
+  <table
+    data-hostname="{{ history_ctx.host.hostname }}"
+  >
     {% for tuple in history_ctx.activations_by_date | reverse %} {% set date =
     tuple.0 %} {% set logs = tuple.1 %}
 
@@ -84,11 +86,10 @@
       <td class='mono-font'>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
       <td>{{ entry.activation_type }}</td>
       {% set commit_hash = (entry.revision.commit_hash | default(value="N/A")) %}
-      {% set bg_color = color_map[commit_hash] | default(value="#FFFFFF") %}
-      <td class='mono-font' style="background-color: {{ bg_color }}; text-align: right;">
+      <td class='mono-font' style="text-align: right;">
         <a style="color: black;" href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
       </td>
-      <td>{{ entry.revision.branch | default(value="unknown") }}</td>
+      <td>{{ entry.revision.branch | default(value="N/A") }}</td>
       <td class="nix-diff">
       <label>
         <input
@@ -105,10 +106,8 @@
 </div>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const hostname = "{{ history_ctx.host.hostname }}";
-    const checkboxes = Array.from(
-      document.querySelectorAll(".nix-diff-checkbox")
-    );
+    const hostname =  document.querySelector('table').dataset.hostname;
+    const checkboxes = [...document.querySelectorAll(".nix-diff-checkbox")]
     const cmdArea = document.getElementById("nix-diff-command");
     const statusEl = document.getElementById("nix-diff-status");
     const copyBtn = document.getElementById("copy-nix-diff");
@@ -121,35 +120,44 @@
     nixDiffTitle.style.display = "none";
     nixDiffPanel.style.position = "relative";
 
-    function hideControls(){
-      controls.forEach(c => {
-        c.style.display = 'none';
-      })
-      cmdArea.disabled = true;
+    function setControlsVisible(visible) {
+      controls.forEach((el) => {
+        if (!el) return;
+        el.style.display = visible ? "block" : "none";
+      });
+      nixDiffPanel.style.position = visible ? "sticky" : "relative";
+    }
+    function clearCmd(){
       cmdArea.value = "";
+      cmdArea.disabled = true;
       copyBtn.disabled = true;
     }
 
-    function showControls(){
-      controls.forEach(c => {
-        c.style.display = 'block';
-      })
-      nixDiffPanel.style.position = 'sticky'
+    function setCmd(cmd){
+      cmdArea.value = cmd;
+      cmdArea.disabled = false;
+      copyBtn.disabled = false;
+
+    }
+    function resetUi(){
+      setControlsVisible(false);
+      clearCmd();
+      setStatus("select exactly two rows to generate a nix-diff command.");
     }
 
     function setStatus(msg) {
       statusEl.textContent = msg;
     }
 
+
     function buildCommand(a, b) {
-      const commitA = a.dataset.commit;
-      const commitB = b.dataset.commit;
-      if (!commitA || !commitB || commitA === "unknown" || commitB === "unknown") {
+      const commitA = a?.dataset?.commit || 'N/A';
+      const commitB = b?.dataset?.commit || 'N/A';
+      if (commitA === "N/A" || commitB === "N/A") {
         return "# nix-diff command cannot be generated for unknown commit hashes";
       }
       return `# Host: ${hostname}, Commit: ${commitA.slice(0,8)}..${commitB.slice(0,8)}
 DRV_A=$(nix eval --raw "git+file://$PWD?rev=${commitA}#nixosConfigurations.${hostname}.config.system.build.toplevel.drvPath")
-
 DRV_B=$(nix eval --raw "git+file://$PWD?rev=${commitB}#nixosConfigurations.${hostname}.config.system.build.toplevel.drvPath")
 nix run nixpkgs#nix-diff -- "$DRV_B" "$DRV_A"`;
     }
@@ -163,12 +171,13 @@ nix run nixpkgs#nix-diff -- "$DRV_B" "$DRV_A"`;
         } else {
           selected[selected.length - 1].checked = false;
         }
-        setStatus("You can only select two rows for diff.");
+        setStatus("you can only select two rows for diff.");
         return;
       }
 
-      if (changedCheckbox.dataset.commit === "unknown") {
-        setStatus("nix-diff command for unknown commit hashes");
+      const selectedCommit = changedCheckbox?.dataset?.commit || 'N/A';
+      if (selectedCommit === "N/A") {
+        setStatus("nix-diff command cannot be generated for unknown commit hashes");
         changedCheckbox.checked = false;
         return;
       }
@@ -176,30 +185,25 @@ nix run nixpkgs#nix-diff -- "$DRV_B" "$DRV_A"`;
       if (selected.length === 2) {
         const [a, b] = selected;
         const cmd = buildCommand(a, b);
-        showControls();
-        cmdArea.disabled = false;
-        cmdArea.value = cmd;
-        copyBtn.disabled = false;
+        setControlsVisible(true);
+        setCmd(cmd);
         setStatus("nix-diff command complete. copy to use it.");
       } else if (selected.length === 1) {
-        showControls();
-        cmdArea.disabled = true;
-        cmdArea.value = "";
-        copyBtn.disabled = true;
+        setControlsVisible(true);
+        clearCmd();
         setStatus("one out of two rows selected to generate a nix-diff command.");
       } else {
-        hideControls();
-        setStatus("select exactly two rows to generate a nix-diff command.");
+        resetUi();
       }
     }
 
     checkboxes.forEach((checkbox) => {
+      checkbox.checked = fales;
       checkbox.addEventListener("change", function () {
         updateSelection(checkbox);
       });
     });
-    checkboxes.forEach((c) => (c.checked = false));
-    hideControls();
+    resetUi();
 
     copyBtn.addEventListener("click", function () {
       const text = cmdArea.value;
