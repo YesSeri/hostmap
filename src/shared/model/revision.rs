@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::shared::{dto::revision::RevisionDto, model::activation::ActivationWithRevision};
@@ -38,16 +37,4 @@ impl From<RevisionDto> for RevisionModel {
             commit_hash,
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct StorePathModel {
-    pub id: String,
-    pub created_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RevisionStorePath {
-    pub revision_id: String,
-    pub store_path_id: String,
 }

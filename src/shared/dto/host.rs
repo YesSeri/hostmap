@@ -74,11 +74,3 @@ impl From<HostModel> for CurrentHostDto {
         }
     }
 }
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct RawHost {
-    #[serde(rename = "name")]
-    pub(crate) hostname: String,
-    #[serde(rename = "url")]
-    pub(crate) host_url: String,
-}
