@@ -1,4 +1,4 @@
-<tr class='host-row'
+<tr align='right' class='host-row'
     data-search="
       {{ host.hostname }}
       {% for col in columns %} {{ host.metadata[col] | default(value="") }}{% endfor %}
@@ -16,5 +16,5 @@
   <td class='mono-font' style="background-color: {{ bg_color }}; text-align: right;">
     <a style="color: black;" href="{{ repo_url }}/{{ commit_hash }}">{{ commit_hash }}</a>
   </td>
-  <td>{{ host.logs.revision.branch | default(value="N/A") }}</td>
+  <td align='right'>{{ host.logs.revision.branch | default(value="N/A") }}</td>
 </tr>

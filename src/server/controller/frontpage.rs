@@ -156,8 +156,8 @@ async fn render_frontpage_by_group(
 }
 
 const BACKGROUND_COLORS: [&str; 11] = [
-    "#C0C0C0", "#FFFF00", "#FFCC00", "#FF9900", "#CCFF00", "#CCCC00", "#CC99FF", "#FF00FF",
-    "#FF0000", "#33FFFF", "#CCFFFF",
+    "#C0C0C0", "#FFFF22", "#FFCC22", "#FF9922", "#CCFF22", "#CCCC22", "#CC99FF", "#FF77FF",
+    "#FF6666", "#33FFFF", "#CCFFFF",
 ];
 
 pub(crate) fn build_color_map_for_hashes(hashes: Vec<String>) -> HashMap<String, String> {

@@ -13,8 +13,6 @@ use chrono::NaiveDate;
 use serde::Serialize;
 use tera::Context;
 
-use super::frontpage::build_color_map_for_hashes;
-
 #[derive(Debug, Clone, Serialize)]
 struct HistoryPageContext {
     host: CurrentHostDto,
@@ -54,13 +52,6 @@ pub async fn render_history_page(
         .await
         .unwrap();
 
-    let commit_hashes: Vec<String> = date_map
-        .values()
-        .flatten()
-        .filter_map(|h| h.commit_hash.clone())
-        .collect();
-
-    let color_map = build_color_map_for_hashes(commit_hashes);
     let mut date_dto_vec = Vec::new();
     for (date, entries) in date_map {
         let mut dto_vec = Vec::new();
@@ -77,7 +68,6 @@ pub async fn render_history_page(
 
     ctx.insert("title", format!("History for {}", host.hostname).as_str());
     ctx.insert("repo_url", &server_config.repo_url);
-    ctx.insert("color_map", &color_map);
     ctx.insert("history_ctx", &history_ctx);
     let output = tera.render("history.html.tera", &ctx).unwrap();
     Ok(Html(output))

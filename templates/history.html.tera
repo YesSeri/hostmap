@@ -198,7 +198,7 @@ nix run nixpkgs#nix-diff -- "$DRV_B" "$DRV_A"`;
     }
 
     checkboxes.forEach((checkbox) => {
-      checkbox.checked = fales;
+      checkbox.checked = false;
       checkbox.addEventListener("change", function () {
         updateSelection(checkbox);
       });

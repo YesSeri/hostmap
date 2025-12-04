@@ -9,45 +9,53 @@
   />
 </form>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const input = document.getElementById("search-input");
-      if (!input) return; 
-      input.value = "";
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("search-input");
+    if (!input) return;
+    input.value = "";
 
-      const rows = Array.from(document.querySelectorAll("tr.host-row"));
+    const rows = [...document.querySelectorAll("tr.host-row")];
 
+    function updateGrps() {
+      const heads = document.querySelectorAll("thead.host-group");
 
-      function updateGroups() {
-        const groups = document.querySelectorAll("tbody.host-group");
-      
-        groups.forEach(group => {
-          const hostRows = group.querySelectorAll("tr.host-row");
-          const anyVisible = Array.from(hostRows).some(
-            row => row.style.display !== "none"
-          );
-      
-          group.style.display = anyVisible ? "" : "none";
-        });
-      }
-      function filter() {
-        const term = input.value.trim().toLowerCase();
-        if (!term) {
-          rows.forEach(row => row.style.display = "");
+      heads.forEach(head => {
+        const body = head.nextElementSibling;
+        if (!body || body.tagName !== "TBODY") {
           return;
         }
 
-        rows.forEach(row => {
-          const haystack = (row.dataset.search || row.textContent).toLowerCase();
-          row.style.display = haystack.includes(term) ? "" : "none";
-        });
-      }
-      input.addEventListener("input", () => {
-        filter();
-        updateGroups();
+        const hostRows = body.querySelectorAll("tr.host-row");
+        const anyVisible = Array.from(hostRows).some(
+          row => row.style.display !== "none"
+        );
+
+        head.style.display = anyVisible ? "" : "none";
+        body.style.display = anyVisible ? "" : "none";
       });
-    });
+    }
 
+    function filter() {
+      const term = input.value.trim().toLowerCase();
 
-  </script>
+      if (!term) {
+        rows.forEach(row => {
+          row.style.display = "";
+        });
+        updateGrps();
+        return;
+      }
+
+      rows.forEach(row => {
+        const haystak = (row.dataset.search || row.textContent).toLowerCase();
+        row.style.display = haystak.includes(term) ? "" : "none";
+      });
+
+      updateGrps();
+    }
+
+    input.addEventListener("input", filter);
+  });
+</script>
 

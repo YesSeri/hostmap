@@ -1,4 +1,45 @@
 {% extends "base.html.tera" %} {% block content %}
+<style>
+thead tr td {
+  border-radius:6px;
+}
+
+thead:nth-of-type(4n) tr td {
+  background: linear-gradient(
+    in lab to right,
+    var(--accent-1),
+    var(--accent-2)
+  );
+}
+
+thead:nth-of-type(4n + 1) tr td {
+  background: linear-gradient(
+    in lab to right,
+    var(--accent-2),
+    var(--accent-3)
+  );
+}
+thead:nth-of-type(4n + 2) tr td {
+  background: linear-gradient(
+        in lab to right,
+
+    var(--accent-3),
+    var(--accent-1)
+  );
+}
+thead:nth-of-type(4n + 3) tr td {
+  background: linear-gradient(
+    in lab to right,
+    var(--accent-4),
+    var(--accent-1)
+  );
+}
+
+tbody tr:nth-of-type(2n + 1) {
+  background: #eee;
+}
+
+</style>
 <main>
   <p>
     Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI)

@@ -1,4 +1,45 @@
 {% extends "base.html.tera" %} {% block content %}
+<style>
+thead tr td {
+  border-radius:6px;
+}
+
+thead:nth-of-type(4n) tr td {
+  background: linear-gradient(
+    in lab to right,
+    var(--accent-1),
+    var(--accent-2)
+  );
+}
+
+thead:nth-of-type(4n + 1) tr td {
+  background: linear-gradient(
+    in lab to right,
+    var(--accent-2),
+    var(--accent-3)
+  );
+}
+thead:nth-of-type(4n + 2) tr td {
+  background: linear-gradient(
+        in lab to right,
+
+    var(--accent-3),
+    var(--accent-1)
+  );
+}
+thead:nth-of-type(4n + 3) tr td {
+  background: linear-gradient(
+    in lab to right,
+    var(--accent-4),
+    var(--accent-1)
+  );
+}
+
+tbody tr:nth-of-type(2n + 1) {
+  background: #eee;
+}
+
+</style>
 <main>
   <p>
     Note: The <b>rev</b> column displays the <em>earliest known</em> (from CI)
@@ -10,22 +51,23 @@
   {% include "search_form.html.tera" %}
   <table cellpadding="0">
   {% for group_name, hosts in grouped_frontpage_ctx.groups %}
-<tbody class="host-group">
-  <tr class="group-header">
-    <td style="border: none; padding: 0;" colspan="100">
-      <hr>
-      <h2 style="margin-top: 0.2em; margin-bottom: 0.1em; text-align:center;">
-        {{ group_name }}
-      </h2>
-    </td>
-  </tr>
+  <thead class="host-group">
+    <tr class="group-header">
+      <td style="border: none; padding: 0;" colspan="100">
+        <h2 style="margin-top: 0.2em; margin-bottom: 0.1em; text-align:center;">
+          {{ group_name }}
+        </h2>
+      </td>
+    </tr>
+  </thead>
 
-  {% include "table_header.html.tera" %}
+  <tbody>
+    {% include "table_header.html.tera" %}
 
-  {% for host in hosts %}
-    {% include "host.html.tera" %}
-  {% endfor %}
-</tbody>
+    {% for host in hosts %}
+      {% include "host.html.tera" %}
+    {% endfor %}
+  </tbody>
 {% endfor %}
 
   </table>
