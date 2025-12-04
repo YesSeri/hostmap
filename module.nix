@@ -20,14 +20,6 @@ in
         description = "port for activation logger to serve on";
       };
     };
-
-    test = {
-      enable = mkEnableOption "activation logger";
-      port = mkOption {
-        type = types.port;
-        description = "port for activation logger to serve on";
-      };
-    };
     scraper = {
       enable = mkEnableOption "hostmap scraper";
       targetHosts = mkOption {
@@ -228,7 +220,8 @@ in
       };
     })
     (lib.mkIf cfg.activationLogger.enable {
-      system.extraSystemBuilderCmds = lib.mkAfter (
+      # After default switch-to-configuration (1000)
+      system.activatableSystemBuilderCommands = lib.mkOrder 1200 (
         let
           activationLog =
             with pkgs;
