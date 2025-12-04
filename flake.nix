@@ -2,7 +2,7 @@
   description = "hostmap shows git revision to nix store path link and more";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     crane = {
       url = "github:ipetkov/crane";
@@ -132,29 +132,33 @@
             PKG_CONFIG_PATH = nixpkgs.lib.makeSearchPath "lib/pkgconfig" [ openssl.dev ];
 
             shellHook = ''
-                                          ${preCommitHook} 
-                            	      
-                                          export HOSTMAP_TEMPLATES_DIR='./templates'
-                            	          export RUST_LOG='info,hostmap=debug'
+              	${preCommitHook} 
 
-                                          export PG=$PWD/.dev_postgres
-                                          export PGDATA=$PG/data
-                                          export PGPORT=5432
-                                          export PGHOST=localhost
-                                          export PGUSER=$USER
-                                          export PGPASSWORD=postgres
-                                          #export PGDATABASE=hostmap-dev
-                                          export PGDATABASE=hostmap_restore
-                                          export DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
-                                          alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
-                                          alias pg_stop="pg_ctl -D $PGDATA stop"
-                                          pg_initial_setup() {
-                                            pg_stop;
-                                            rm -rf $PG;
-                                            initdb -D $PGDATA &&
-                                            echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf && pg_start && createdb
-                                          }
-              			    pg_ctl -D .dev_postgres/data/ status &> /dev/null && echo "Server already running" || pg_ctl -D $PGDATA -l $PG/postgres.log start
+              	export HOSTMAP_TEMPLATES_DIR='./templates'
+              	export RUST_LOG='info,hostmap=debug'
+
+              	export PG=$PWD/.dev_postgres
+              	export PGDATA=$PG/data
+              	export PGPORT=5432
+              	export PGHOST=localhost
+              	export PGUSER=$USER
+              	export PGPASSWORD=postgres
+              	#export PGDATABASE=hostmap-dev
+              	export PGDATABASE=hostmap_restore
+              	export DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
+
+              	alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
+              	alias pg_stop="pg_ctl -D $PGDATA stop"
+
+              	pg_initial_setup() {
+              		pg_stop;
+              		rm -rf $PG;
+              		initdb -D $PGDATA &&
+              		echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf && pg_start && createdb
+              	}
+
+                      # start the server if it is not running
+              	pg_ctl -D .dev_postgres/data/ status &> /dev/null && echo "Server already running" || pg_ctl -D $PGDATA -l $PG/postgres.log start
             '';
           };
       };
