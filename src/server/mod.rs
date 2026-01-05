@@ -28,6 +28,10 @@ use crate::server::{
         nix_git_link_service::NixGitLinkService,
     },
 };
+use chrono::{DateTime, Utc};
+use chrono_tz::Tz;
+
+pub const TIME_ZONE_ENV_NAME: &str = "TIME_ZONE_HOSTMAP";
 
 #[derive(Debug, Clone)]
 struct ServerConfig {
@@ -182,11 +186,11 @@ pub async fn run(
 }
 fn load_tera(templates_dir: &str) -> Result<Tera, tera::Error> {
     let tera_pattern = format!("{}/**/*", templates_dir);
-    let mut tera = Tera::new(&tera_pattern);
-    if let Ok(t) = tera.as_mut() {
-        t.register_filter("nix_name", nix_name);
-    }
-    tera
+    let mut tera = Tera::new(&tera_pattern)?;
+    tera.register_filter("nix_name", nix_name);
+    tera.register_filter("format_utc_as_local", format_utc_as_local);
+    tera.register_filter("format_utc_as_local_time", format_utc_as_local_time);
+    Ok(tera)
 }
 
 fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
@@ -200,9 +204,47 @@ fn nix_name_fn(s: &str) -> Option<String> {
     Some(format!("{}-{}", prefix, suffix))
 }
 
+pub fn format_utc_as_local_time_fn(rfc3339: &str, tz: &str) -> Option<String> {
+    let tz: Tz = tz.parse().ok()?;
+    let dt_fixed = DateTime::parse_from_rfc3339(rfc3339).ok()?;
+    let dt_utc: DateTime<Utc> = dt_fixed.with_timezone(&Utc);
+    Some(dt_utc.with_timezone(&tz).format("%H:%M:%S").to_string())
+}
+
+pub fn format_utc_as_local_time(
+    value: &Value,
+    _args: &HashMap<String, Value>,
+) -> tera::Result<Value> {
+    let s = try_get_value!("format_utc_as_local_time", "value", String, value);
+    let tz = std::env::var(TIME_ZONE_ENV_NAME).unwrap_or_else(|_| "UTC".to_string());
+    Ok(Value::String(
+        format_utc_as_local_time_fn(&s, &tz).unwrap_or(s),
+    ))
+}
+
+pub fn format_utc_as_local_fn(rfc3339: &str, tz: &str) -> Option<String> {
+    let tz: Tz = tz.parse().ok()?;
+    let dt_fixed = DateTime::parse_from_rfc3339(rfc3339).ok()?;
+    let dt_utc: DateTime<Utc> = dt_fixed.with_timezone(&Utc);
+    Some(
+        dt_utc
+            .with_timezone(&tz)
+            .format("%Y-%m-%d %H:%M:%S %Z")
+            .to_string(),
+    )
+}
+
+pub fn format_utc_as_local(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let s = try_get_value!("format_utc_as_local", "value", String, value);
+    let tz = std::env::var(TIME_ZONE_ENV_NAME).unwrap_or_else(|_| "UTC".to_string());
+
+    Ok(Value::String(format_utc_as_local_fn(&s, &tz).unwrap_or(s)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono_tz::Europe::Copenhagen;
     #[test]
     fn test_nix_name_filter() {
         let store_path =
@@ -216,5 +258,26 @@ mod tests {
         let shortened_store_path = nix_name_fn(store_path);
         let correct = "z79zirq3im-ceph-mon-p101-25.05".to_string();
         assert_eq!(shortened_store_path.unwrap(), correct);
+    }
+    #[test]
+    fn test_copenhagen_winter_timezone() {
+        // Jan 5 is winter time (CET, UTC+1)
+        let s = "2026-01-05T12:34:56Z";
+        let out = format_utc_as_local_fn(s, &Copenhagen.to_string()).unwrap();
+        assert_eq!(out, "2026-01-05 13:34:56 CET");
+    }
+
+    #[test]
+    fn test_invalid_datetime() {
+        assert_eq!(
+            format_utc_as_local_fn("not-a-date", &Copenhagen.to_string()),
+            None
+        );
+    }
+
+    #[test]
+    fn test_invalid_timezone() {
+        let s = "2026-01-05T12:34:56Z";
+        assert_eq!(format_utc_as_local_fn(s, "not-a-timezone/nowhere"), None);
     }
 }

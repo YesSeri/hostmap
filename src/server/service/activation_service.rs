@@ -1,10 +1,12 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
+use chrono_tz::Tz;
 use sqlx::{Pool, Postgres};
 
 use crate::{
     server::{
+        TIME_ZONE_ENV_NAME,
         custom_error::RetError,
         repository::{
             activation_repository::ActivationRepository, store_path_repository::StorePathRepository,
@@ -28,10 +30,14 @@ impl ActivationLogService {
         hostname: &str,
     ) -> Result<BTreeMap<NaiveDate, Vec<ActivationWithRevision>>, RetError> {
         let logs = ActivationRepository::get_logs_by_hostname(&self.pool, hostname).await?;
+
+        let tz_str = std::env::var(TIME_ZONE_ENV_NAME).unwrap_or_else(|_| "UTC".to_string());
+        let tz: Tz = tz_str.parse().unwrap_or(chrono_tz::UTC);
+
         let mut map: BTreeMap<NaiveDate, Vec<ActivationWithRevision>> = BTreeMap::new();
         for log in logs {
-            let date = log.activated_at.date_naive();
-            map.entry(date).or_default().push(log.clone());
+            let date = log.activated_at.with_timezone(&tz).date_naive();
+            map.entry(date).or_default().push(log);
         }
         Ok(map)
     }

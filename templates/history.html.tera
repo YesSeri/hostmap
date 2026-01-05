@@ -81,7 +81,7 @@
     </tr>
     {% for entry in logs %}
     <tr>
-      <td>{{ entry.activated_at | date(format="%H:%M:%S") }}</td>
+      <td>{{ entry.activated_at | format_utc_as_local_time  }}</td>
       <td>{{ entry.username }}</td>
       <td class='mono-font'>{{ entry.store_path  | nix_name | default(value="N/A") }}</td>
       <td>{{ entry.activation_type }}</td>
