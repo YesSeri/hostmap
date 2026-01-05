@@ -109,6 +109,12 @@ in
         type = types.str;
         description = "path to file with api key";
       };
+      timeZone = mkOption {
+        type = types.str;
+        description = "time zone you want to display info in. (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)";
+        default = "UTC";
+        example = "Europe/Copenhagen";
+      };
     };
   };
 
@@ -195,6 +201,7 @@ in
 
         environment = {
           RUST_LOG = "info";
+          TIME_ZONE_HOSTMAP = cfg.server.timeZone;
         };
 
         serviceConfig = {
