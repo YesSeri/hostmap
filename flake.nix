@@ -183,9 +183,62 @@
       };
       nixosModules.hostmap = import ./module.nix;
       nixosConfigurations = import ./vms/fleet.nix {
-          inherit self nixpkgs crane system;
+        inherit
+          self
+          nixpkgs
+          crane
+          system
+          ;
+      };
+
+      apps.${system} = {
+        fleet-up = {
+          type = "app";
+          program = toString (
+            pkgs.writeShellScript "fleet-up" ''
+              set -e
+              mkdir -p .fleet-pids
+
+              echo "Starting hostmap-server"
+              QEMU_OPTS="-nographic" \
+                nix run .#nixosConfigurations.hostmap-server.config.system.build.vm \
+                > .fleet-pids/hostmap-server.log 2>&1 &
+              echo $! > .fleet-pids/hostmap-server.pid
+
+              echo "Starting hostmap-host1"
+              QEMU_OPTS="-nographic" \
+                nix run .#nixosConfigurations.hostmap-host1.config.system.build.vm \
+                > .fleet-pids/hostmap-host1.log 2>&1 &
+              echo $! > .fleet-pids/hostmap-host1.pid
+
+              echo "Starting hostmap-host2"
+              QEMU_OPTS="-nographic" \
+                nix run .#nixosConfigurations.hostmap-host2.config.system.build.vm \
+                > .fleet-pids/hostmap-host2.log 2>&1 &
+              echo $! > .fleet-pids/hostmap-host2.pid
+
+              echo "Fleet started."
+            ''
+          );
         };
 
+        fleet-down = {
+          type = "app";
+          program = toString (
+            pkgs.writeShellScript "fleet-down" ''
+              set -e
+              echo "Stopping fleet"
+
+              [ -f .fleet-pids/hostmap-server.pid ] && kill "$(cat .fleet-pids/hostmap-server.pid)" || true
+              [ -f .fleet-pids/hostmap-host1.pid ] && kill "$(cat .fleet-pids/hostmap-host1.pid)" || true
+              [ -f .fleet-pids/hostmap-host2.pid ] && kill "$(cat .fleet-pids/hostmap-host2.pid)" || true
+
+              rm -rf .fleet-pids
+              echo "Fleet stopped."
+            ''
+          );
+        };
+      };
 
     };
 }
