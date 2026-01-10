@@ -11,3 +11,5 @@
 /api-key.txt
 /test-assets/
 todo.md
+*.qcow2
+/.fleet-pids
