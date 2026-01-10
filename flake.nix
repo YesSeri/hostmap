@@ -182,5 +182,10 @@
         };
       };
       nixosModules.hostmap = import ./module.nix;
+      nixosConfigurations = import ./vms/fleet.nix {
+          inherit self nixpkgs crane system;
+        };
+
+
     };
 }
