@@ -23,16 +23,20 @@ let
   mkCommon =
     { pkgs, ... }:
     {
+      systemd.oomd.enable = false;
       services.openssh = {
         enable = true;
+        openFirewall = true;
         settings = {
           PermitRootLogin = "yes";
           PasswordAuthentication = true;
+          KbdInteractiveAuthentication = true; # helps on some setups
+          UsePAM = true;
         };
       };
 
       users.users.root.initialPassword = "root";
-      services.getty.autologinUser = "root";
+      services.getty.autologinUser = lib.mkForce null;
 
       environment.systemPackages = with pkgs; [
         curl
@@ -67,6 +71,31 @@ in
       { pkgs, ... }:
       {
         networking.hostName = "hostmap-server";
+        services.nginx.enable = true;
+
+        services.nginx.virtualHosts."host1-proxy" = {
+          listen = [
+            {
+              addr = "127.0.0.2";
+              port = 9001;
+            }
+          ];
+          locations."/" = {
+            proxyPass = "http://10.0.2.2:9001";
+          };
+        };
+
+        services.nginx.virtualHosts."host2-proxy" = {
+          listen = [
+            {
+              addr = "127.0.0.3";
+              port = 9001;
+            }
+          ];
+          locations."/" = {
+            proxyPass = "http://10.0.2.2:9002";
+          };
+        };
 
         virtualisation.forwardPorts = [
           {
@@ -87,14 +116,35 @@ in
         services.hostmap.server.enable = true;
         services.hostmap.server.repoUrl = "https://example.invalid/commit";
         services.hostmap.server.groupingKey = "environment";
-        services.hostmap.server.columns = [
-          "environment"
-          "host_group_name"
-        ];
-        services.hostmap.server.timeZone = "Europe/Copenhagen";
+        #         services.hostmap.server.columns = [
+        #           "environment"
+        #           "host_group_name"
+        #         ];
+        # services.hostmap.server.timeZone = "Europe/Copenhagen";
         services.hostmap.server.databaseUrl = "postgresql:///hostmap?user=hostmap&host=/run/postgresql";
 
         services.hostmap.server.apiKeyFile = toString (pkgs.writeText "hostmap-api-key.txt" apiKey);
+        services.hostmap.scraper.enable = true;
+        services.hostmap.scraper.serverUrl = "http://127.0.0.1:3000";
+        services.hostmap.scraper.activationLoggerPort = 9001;
+        services.hostmap.scraper.apiKeyFile = toString (pkgs.writeText "hostmap-api-key.txt" apiKey);
+
+        services.hostmap.scraper.targetHosts = [
+          {
+            hostname = "hostmap-host1";
+            host_url = "127.0.0.2";
+            metadata = {
+              environment = "test";
+            };
+          }
+          {
+            hostname = "hostmap-host2";
+            host_url = "127.0.0.3";
+            metadata = {
+              environment = "test";
+            };
+          }
+        ];
 
       }
     )
