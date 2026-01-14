@@ -153,7 +153,7 @@
             nixfmt-rfc-style.enable = true;
             sqlx-prepare-migrations = {
               enable = true;
-              entry = ''./sqlx-prepare-migrations.sh'';
+              entry = "./sqlx-prepare-migrations.sh";
               pass_filenames = false;
               always_run = true;
             };
