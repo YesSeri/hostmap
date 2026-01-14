@@ -29,7 +29,6 @@
       pre-commit-hooks,
     }:
     let
-      pname = "hostmap";
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
       craneLib = crane.mkLib pkgs;
@@ -90,22 +89,22 @@
           preCommitHook = self.checks.${system}.pre-commit-check.shellHook;
         in
         pkgs.mkShell {
-          packages = [
-            pkgs.pkg-config
-            pkgs.openssl
+          packages = with pkgs; [
+            pkg-config
+            openssl
           ];
           buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
           inputsFrom = [ self.packages.${system}.hostmap ];
-          nativeBuildInputs = [
-            pkgs.sqlx-cli
-            pkgs.gdb
-            pkgs.cargo
-            pkgs.rustc
-            pkgs.nix
-            pkgs.clippy
-            pkgs.rustfmt
-            pkgs.rust-analyzer
-            pkgs.postgresql_16
+          nativeBuildInputs = with pkgs; [
+            sqlx-cli
+            gdb
+            cargo
+            rustc
+            nix
+            clippy
+            rustfmt
+            rust-analyzer
+            postgresql_16
           ];
 
           RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
