@@ -22,11 +22,11 @@ let
   };
 
   mkActivationLogger = {
-	  services.hostmap.activationLogger = {
-	    enable = true;
-	    port = loggerPort;
-	  };
+    services.hostmap.activationLogger = {
+      enable = true;
+      port = loggerPort;
     };
+  };
   mkCommon =
     { pkgs, ... }:
     {
@@ -76,16 +76,28 @@ in
     self.nixosModules.hostmap
     (
       { pkgs, ... }:
-	  let 
-	  	host1_url = "127.0.0.2";
-	  	host2_url = "127.0.0.3";
-	  in
+      let
+        host1_url = "127.0.0.2";
+        host2_url = "127.0.0.3";
+      in
       {
         networking.hostName = "hostmap-server";
         services.nginx.enable = true;
 
-		# need to do this, because they actually serve on different ports, because they all run on localhost,
-		# but activation logger port must be same over all hosts.
+        # need to do this, because they actually serve on different ports, because they all run on localhost,
+        # but activation logger port must be same over all hosts.
+        services.nginx.virtualHosts."hostmap" = {
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = 80;
+            }
+          ];
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:3000";
+          };
+        };
+
         services.nginx.virtualHosts."host1-proxy" = {
           listen = [
             {
@@ -106,7 +118,7 @@ in
             }
           ];
           locations."/" = {
-            proxyPass = "http://10.0.2.2:9002";
+            proxyPass = "http://10.0.2.2:${toString (loggerPort + 1)}";
           };
         };
 
@@ -127,42 +139,47 @@ in
         virtualisation.vmVariant.virtualisation.memorySize = 2048;
 
         services.hostmap.server = {
-			enable = true;
-            repoUrl = "https://example.invalid/commit";
-            groupingKey = "environment";
-            databaseUrl = "postgresql:///hostmap?user=hostmap&host=/run/postgresql";
-            apiKeyFile = toString (pkgs.writeText "hostmap-api-key.txt" apiKey);
-		}
+          enable = true;
+          repoUrl = "https://example.invalid/commit";
+          groupingKey = "host_group_name";
+          databaseUrl = "postgresql:///hostmap?user=hostmap&host=/run/postgresql";
+          apiKeyFile = toString (pkgs.writeText "hostmap-api-key.txt" apiKey);
+          columns = [
+            "host_group_name"
+          ];
+        };
 
         services.hostmap.scraper = {
-		    enable = true;
-            serverUrl = "http://127.0.0.1:3000";
-            activationLoggerPort = loggerPort;
-            apiKeyFile = toString (pkgs.writeText "hostmap-api-key.txt" apiKey);
-            scraper.targetHosts = [
-              {
-                hostname = "hostmap-host1";
-                host_url = host1_url;
-                metadata = {
-                  environment = "test";
-                };
-              }
-              {
-                hostname = "hostmap-host2";
-                host_url = host2_url;
-                metadata = {
-                  environment = "test";
-                };
-              }
-            ];
-		};
+          enable = true;
+          serverUrl = "http://127.0.0.1:3000";
+          activationLoggerPort = loggerPort;
+          apiKeyFile = toString (pkgs.writeText "hostmap-api-key.txt" apiKey);
+          targetHosts = [
+            {
+              hostname = "hostmap-host1";
+              host_url = host1_url;
+              metadata = {
+                environment = "test";
+                host_group_name = "hg-1";
+              };
+            }
+            {
+              hostname = "hostmap-host2";
+              host_url = host2_url;
+              metadata = {
+                environment = "test";
+                host_group_name = "hg-1";
+              };
+            }
+          ];
+        };
       }
     )
   ];
 
   hostmap-host1 = mkNixos [
     self.nixosModules.hostmap
-	mkActivationLogger
+    mkActivationLogger
     (
       { ... }:
       {
@@ -179,7 +196,6 @@ in
             host.port = 2222;
             guest.port = 22;
           }
-
         ];
 
         virtualisation.vmVariant.virtualisation.cores = 1;
@@ -190,7 +206,7 @@ in
 
   hostmap-host2 = mkNixos [
     self.nixosModules.hostmap
-	mkActivationLogger
+    mkActivationLogger
     (
       { ... }:
       {

@@ -197,27 +197,40 @@
           program = toString (
             pkgs.writeShellScript "fleet-up" ''
               set -e
-              mkdir -p .fleet-pids
 
-              echo "Starting hostmap-server"
+              if [ -d .fleet-pids ]; then
+                echo "Fleet already appears to be running."
+                echo "Please stop it first, nix run .#fleet-down."
+                exit 1
+              fi
+
+              mkdir -p .fleet-pids .fleet-build
+
+              echo "=== Building VMs ==="
+              nix build .#nixosConfigurations.hostmap-server.config.system.build.vm --out-link .fleet-build/hostmap-server
+              nix build .#nixosConfigurations.hostmap-host1.config.system.build.vm      --out-link .fleet-build/hostmap-host1
+              nix build .#nixosConfigurations.hostmap-host2.config.system.build.vm      --out-link .fleet-build/hostmap-host2
+
+              echo "=== Starting hostmap-server ==="
               QEMU_OPTS="-nographic" \
-                nix run .#nixosConfigurations.hostmap-server.config.system.build.vm \
+                .fleet-build/hostmap-server/bin/*vm \
                 > .fleet-pids/hostmap-server.log 2>&1 &
               echo $! > .fleet-pids/hostmap-server.pid
 
-              echo "Starting hostmap-host1"
+              echo "=== Starting hostmap-host1 ==="
               QEMU_OPTS="-nographic" \
-                nix run .#nixosConfigurations.hostmap-host1.config.system.build.vm \
+                .fleet-build/hostmap-host1/bin/*vm \
                 > .fleet-pids/hostmap-host1.log 2>&1 &
               echo $! > .fleet-pids/hostmap-host1.pid
 
-              echo "Starting hostmap-host2"
+              echo "=== Starting hostmap-host2 ==="
               QEMU_OPTS="-nographic" \
-                nix run .#nixosConfigurations.hostmap-host2.config.system.build.vm \
+                .fleet-build/hostmap-host2/bin/*vm \
                 > .fleet-pids/hostmap-host2.log 2>&1 &
               echo $! > .fleet-pids/hostmap-host2.pid
 
-              echo "Fleet started."
+              echo "=== Fleet started ==="
+
             ''
           );
         };

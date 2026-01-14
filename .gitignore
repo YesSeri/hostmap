@@ -12,4 +12,5 @@
 /test-assets/
 todo.md
 *.qcow2
-/.fleet-pids
+/.fleet*
+/result-*
