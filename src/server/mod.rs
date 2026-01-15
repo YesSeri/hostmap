@@ -197,11 +197,14 @@ fn nix_name(value: &Value, _args: &HashMap<String, Value>) -> tera::Result<Value
     let s = try_get_value!("nix_name", "value", String, value);
     Ok(Value::String(nix_name_fn(&s).unwrap_or(s)))
 }
+
 fn nix_name_fn(s: &str) -> Option<String> {
     let s = s.strip_prefix("/nix/store/").unwrap_or(s);
     let s = s.strip_suffix("pre-git").unwrap_or(s);
-    let (prefix, rest) = s.split_at(10);
+
+    let (prefix, rest) = s.split_at_checked(10)?;
     let (_, suffix) = rest.split_once("-nixos-system-")?;
+
     Some(format!("{}-{}", prefix, suffix))
 }
 
