@@ -13,10 +13,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -24,7 +20,6 @@
       self,
       crane,
       nixpkgs,
-      treefmt-nix,
       pre-commit-hooks,
     }:
     let
@@ -70,7 +65,6 @@
         '';
       };
 
-      treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
 
     in
     {
@@ -128,24 +122,31 @@
             export PGDATABASE=hostmap_restore
             export DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
 
-            alias pg_start="pg_ctl -D $PGDATA -l $PG/postgres.log start"
-            alias pg_stop="pg_ctl -D $PGDATA stop"
-
-            pg_initial_setup() {
-              pg_stop;
-              rm -rf $PG;
-              initdb -D $PGDATA &&
-              echo "unix_socket_directories = '$PGDATA'" >> $PGDATA/postgresql.conf && pg_start && createdb
+            pg_start() {
+              mkdir -p "$PG"
+              pg_ctl -D "$PGDATA" -l "$PG/postgres.log" start
             }
 
-            pg_ctl -D .dev_postgres/data/ status &> /dev/null && echo "Server already running" || pg_ctl -D $PGDATA -l $PG/postgres.log start
+            pg_stop() {
+              pg_ctl -D "$PGDATA" stop
+            }
+
+            pg_initial_setup() {
+              pg_stop 2>/dev/null || true
+              rm -rf "$PG"
+              initdb -D "$PGDATA" &&
+              echo "unix_socket_directories = '$PGDATA'" >> "$PGDATA/postgresql.conf" &&
+              pg_ctl -D $PGDATA -l $PG/postgres.log start
+              pg_start &&
+              createdb "$PGDATABASE"
+            }
+
+            pg_ctl -D .dev_postgres/data/ status &> /dev/null && echo "Server already running" || pg_start
           '';
         };
 
-      formatter.${system} = treefmtEval.config.build.wrapper;
 
       checks.${system} = {
-        formatting = treefmtEval.config.build.check self;
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
           hooks = {

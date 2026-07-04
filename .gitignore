@@ -14,3 +14,4 @@ todo.md
 *.qcow2
 /.fleet*
 /result-*
+/test.csv
