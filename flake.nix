@@ -65,7 +65,6 @@
         '';
       };
 
-
     in
     {
       packages.${system} = {
@@ -108,43 +107,44 @@
           PKG_CONFIG_PATH = nixpkgs.lib.makeSearchPath "lib/pkgconfig" [ pkgs.openssl.dev ];
 
           shellHook = ''
-            ${preCommitHook}
-
-            export HOSTMAP_TEMPLATES_DIR='./templates'
-            export RUST_LOG='info,hostmap=debug'
-
             export PG=$PWD/.dev_postgres
             export PGDATA=$PG/data
             export PGPORT=5432
             export PGHOST=localhost
             export PGUSER=$USER
-            export PGPASSWORD=postgres
-            export PGDATABASE=hostmap_restore
-            export DATABASE_URL=postgres://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE
+            export PGDATABASE=hostmap
+            export DATABASE_URL=postgres://$PGUSER@$PGHOST:$PGPORT/$PGDATABASE
 
             pg_start() {
               mkdir -p "$PG"
-              pg_ctl -D "$PGDATA" -l "$PG/postgres.log" start
+
+              if [ ! -d "$PGDATA" ]; then
+                initdb -D "$PGDATA" --auth=trust
+                echo "unix_socket_directories = '$PGDATA'" >> "$PGDATA/postgresql.conf"
+                echo "port = $PGPORT" >> "$PGDATA/postgresql.conf"
+              fi
+
+              if ! pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
+                pg_ctl -D "$PGDATA" -l "$PG/postgres.log" start
+              fi
+
+              createdb "$PGDATABASE" 2>/dev/null || true
             }
 
             pg_stop() {
               pg_ctl -D "$PGDATA" stop
             }
 
-            pg_initial_setup() {
+            pg_reset() {
               pg_stop 2>/dev/null || true
               rm -rf "$PG"
-              initdb -D "$PGDATA" &&
-              echo "unix_socket_directories = '$PGDATA'" >> "$PGDATA/postgresql.conf" &&
-              pg_ctl -D $PGDATA -l $PG/postgres.log start
-              pg_start &&
-              createdb "$PGDATABASE"
+              pg_start
             }
 
-            pg_ctl -D .dev_postgres/data/ status &> /dev/null && echo "Server already running" || pg_start
+            pg_start
+
           '';
         };
-
 
       checks.${system} = {
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
