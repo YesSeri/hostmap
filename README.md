@@ -15,6 +15,8 @@ It can be used by NixOS fleets where hosts are built and deployed from Git. Host
 
 For a simpler introduction to hostmap, go to the [hostmap demo repo](https://github.com/yesseri/hostmap-demo). This repo starts three vms, and lets you try out what hostmap actually is.
 
+For a more theoretical introduction, [read my bachelor thesis](thesis/Bachelor_Thesis___Henrik_Zenkert.pdf).
+
 There are three parts to hostmap.
 
 - Server. Stores the activation(switching nix image) data and store-path-to-commit mappings. It also exposes this data through a website.
